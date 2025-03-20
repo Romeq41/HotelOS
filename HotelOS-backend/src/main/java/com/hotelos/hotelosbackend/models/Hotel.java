@@ -1,7 +1,10 @@
 package com.hotelos.hotelosbackend.models;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.With;
 
 import java.util.Objects;
 
@@ -15,7 +18,7 @@ public class Hotel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "hotel_id")
-    private long hotelId;
+    private long id;
     @Basic
     @Column(name = "name")
     private String name;
@@ -40,11 +43,11 @@ public class Hotel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Hotel hotel = (Hotel) o;
-        return hotelId == hotel.hotelId && Objects.equals(name, hotel.name) && Objects.equals(address, hotel.address) && Objects.equals(city, hotel.city) && Objects.equals(state, hotel.state) && Objects.equals(zipCode, hotel.zipCode) && Objects.equals(country, hotel.country);
+        return id == hotel.id && Objects.equals(name, hotel.name) && Objects.equals(address, hotel.address) && Objects.equals(city, hotel.city) && Objects.equals(state, hotel.state) && Objects.equals(zipCode, hotel.zipCode) && Objects.equals(country, hotel.country);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(hotelId, name, address, city, state, zipCode, country);
+        return Objects.hash(id, name, address, city, state, zipCode, country);
     }
 }
