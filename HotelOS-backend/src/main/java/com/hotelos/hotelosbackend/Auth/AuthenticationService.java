@@ -5,6 +5,7 @@ import com.hotelos.hotelosbackend.models.User;
 import com.hotelos.hotelosbackend.models.UserType;
 import com.hotelos.hotelosbackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,21 +31,22 @@ public class AuthenticationService {
         return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
-
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        var email = jwtServices.extractUsername(request.getToken());
+        var user = userRepository.findByEmail(email).orElseThrow();
+
+        if(!jwtServices.isTokenValid(request.getToken(), user)) {
+            throw new RuntimeException("Invalid token");
+        }
+        return AuthenticationResponse.builder().token(request.getToken()).user(user).build();
+    }
+
+    public AuthenticationResponse login(LoginRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
         var jwtToken = jwtServices.generateToken(user);
-        return AuthenticationResponse.builder().token(jwtToken).build();
+        return AuthenticationResponse.builder().token(jwtToken).user(user).build();
     }
 
-    public AuthenticationResponse login(RegisterRequest request) {
-        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid password");
-        }
 
-        var jwtToken = jwtServices.generateToken(user);
-        return AuthenticationResponse.builder().token(jwtToken).build();
-    }
 }
