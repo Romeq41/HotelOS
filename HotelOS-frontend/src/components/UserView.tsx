@@ -13,9 +13,9 @@ export default function UserView() {
     }, [isAuth, navigate]);
 
     return (
-        <div className="flex h-screen bg-gray-100 mt-20">
-            {/* Left Section: Hotel-related data */}
-            <div className="w-1/2 bg-white shadow-lg p-8">
+        <div className="flex flex-col sm:flex-row h-screen bg-gray-100 mt-20">
+            {/* Left Section: Hotel data */}
+            <div className="sm:w-1/2 w-full bg-white shadow-lg p-8 text-center sm:text-left">
                 <h2 className="text-2xl font-bold mb-6">Hotel Information</h2>
                 <ul className="space-y-4">
                     <li>
@@ -36,8 +36,8 @@ export default function UserView() {
                 </ul>
             </div>
 
-            {/* Right Section: User-related data */}
-            <div className="w-1/2 bg-gray-50 shadow-lg p-8 flex flex-col items-center">
+            {/* Right Section: User data */}
+            <div className="sm:w-1/2 w-full bg-gray-50 shadow-lg p-8 flex flex-col items-center">
                 <img
                     src={user?.image || "https://via.placeholder.com/150"}
                     alt="User"

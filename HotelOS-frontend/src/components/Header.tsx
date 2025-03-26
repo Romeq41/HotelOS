@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faShoppingCart, faUser, faBars, faTimes, faHotel } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faBars, faTimes, faHotel } from "@fortawesome/free-solid-svg-icons";
 import { useUser } from "../contexts/UserContext.tsx";
 
 export default function Header() {
@@ -17,7 +17,6 @@ export default function Header() {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-
     const handleUserClick = () => {
         if (isAuth) {
             setIsUserMenuOpen(!isUserMenuOpen);
@@ -27,13 +26,65 @@ export default function Header() {
     };
 
     const handleProfileClick = () => {
-        console.log("Profile clicked");
         navigate("/user");
         setIsUserMenuOpen(false);
     };
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
+    };
+
+    // Render menu items based on userType
+    const renderMenuItems = () => {
+        if (!user) return null;
+
+        switch (user.userType) {
+            case "ADMIN":
+                return (
+                    <>
+                        <li className="py-4 border-b border-gray-300">
+                            <button onClick={() => navigate("/admin/users")} className="block w-full text-left text-lg hover:bg-gray-100">
+                                Adminpage
+                            </button>
+                        </li>
+                        <li className="py-4 border-b border-gray-300">
+                            <button onClick={() => navigate("/admin/hotels")} className="block w-full text-left text-lg hover:bg-gray-100">
+                                Hotels
+                            </button>
+                        </li>
+                        <li className="py-4 border-b border-gray-300">
+                            <button onClick={() => navigate("/admin/users")} className="block w-full text-left text-lg hover:bg-gray-100">
+                                Users
+                            </button>
+                        </li>
+                    </>
+                );
+            case "MANAGER":
+                return (
+                    <>
+                        <li className="py-4 border-b border-gray-300">
+                            <button onClick={() => navigate(`/hotel/${user.hotel}/overview`)} className="block w-full text-left text-lg hover:bg-gray-100">
+                                Hotel Overview
+                            </button>
+                        </li>
+                        <li className="py-4 border-b border-gray-300">
+                            <button onClick={() => navigate(`/hotel/${user.hotel}/staff`)} className="block w-full text-left text-lg hover:bg-gray-100">
+                                Staff
+                            </button>
+                        </li>
+                    </>
+                );
+            case "STAFF":
+                return (
+                    <li className="py-4 border-b border-gray-300">
+                        <button onClick={() => navigate(`/hotel/${user.hotel}/rooms`)} className="block w-full text-left text-lg hover:bg-gray-100">
+                            Room Occupancy
+                        </button>
+                    </li>
+                );
+            default:
+                return null;
+        }
     };
 
     return (
@@ -45,7 +96,6 @@ export default function Header() {
                     <p className="text-white ">HotelOS</p>
                 </div>
             </a>
-
 
             {/* Hamburger Menu for small screens */}
             {currentWidth < 640 ? (
@@ -60,8 +110,8 @@ export default function Header() {
                     >
                         <a href="/" className="flex items-center p-5">
                             <div className="logo text-4xl font-bold cursor-pointer flex items-center">
-                                <FontAwesomeIcon icon={faShoppingCart} size="xs" className="text-black p-2" />
-                                <p className="text-black">Shoppy</p>
+                                <FontAwesomeIcon icon={faHotel} size="xs" className="text-black p-2" />
+                                <p className="text-black">HotelOS</p>
                             </div>
                         </a>
                         <ul className="text-left p-6">
@@ -70,6 +120,7 @@ export default function Header() {
                                     {isAuth ? "Profile" : "Login"}
                                 </button>
                             </li>
+                            {isAuth && renderMenuItems()}
                             {isAuth && (
                                 <li className="py-4 border-b border-gray-300">
                                     <button onClick={logout} className="block w-full text-left text-lg hover:bg-gray-100">
@@ -82,7 +133,7 @@ export default function Header() {
                 </div>
             ) : (
                 // Navigation buttons for larger screens
-                <section className="flex space-x-4 p-4 ">
+                <section className="flex space-x-4 p-4">
                     <div className="relative">
                         <button
                             onClick={handleUserClick}
@@ -94,7 +145,7 @@ export default function Header() {
 
                         {isAuth && (
                             <div
-                                className={`fixed top-20 right-0 bg-white text-black h-full w-64 z-20  shadow-lg transition-transform duration-500 ease-in-out transform ${isUserMenuOpen ? "translate-x-0" : "translate-x-full"
+                                className={`fixed top-20 right-0 bg-white text-black h-full w-64 z-20 shadow-lg transition-transform duration-500 ease-in-out transform ${isUserMenuOpen ? "translate-x-0" : "translate-x-full"
                                     }`}
                             >
                                 <ul className="text-left p-6">
@@ -103,6 +154,7 @@ export default function Header() {
                                             Profile
                                         </button>
                                     </li>
+                                    {renderMenuItems()}
                                     <li className="py-4 border-b border-gray-300">
                                         <button onClick={logout} className="block w-full text-left text-lg hover:bg-gray-100">
                                             Logout
@@ -112,7 +164,6 @@ export default function Header() {
                             </div>
                         )}
                     </div>
-
                 </section>
             )}
         </div>
