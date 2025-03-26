@@ -1,10 +1,10 @@
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Slider from "react-slick";
-import Hotel1 from "../assets/hotel1.jpg";
-import Hotel2 from "../assets/hotel2.jpg";
-import Hotel3 from "../assets/hotel3.jpg";
-import Hotel4 from "../assets/hotel4.jpg";
+import Hotel1 from "../assets/hotel1.webp";
+import Hotel2 from "../assets/hotel2.webp";
+import Hotel3 from "../assets/hotel3.webp";
+import Hotel4 from "../assets/hotel4.webp";
 
 
 
