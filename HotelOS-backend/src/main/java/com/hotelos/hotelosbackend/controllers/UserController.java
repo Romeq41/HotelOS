@@ -37,6 +37,29 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUserById(@RequestBody User userDetails) {
+        return userServices.getUserById(userDetails.getUserId())
+                .map(user -> {
+                    user.setFirstName(userDetails.getFirstName());
+                    user.setLastName(userDetails.getLastName());
+                    user.setEmail(userDetails.getEmail());
+                    user.setPhone(userDetails.getPhone());
+                    user.setAddress(userDetails.getAddress());
+                    user.setCity(userDetails.getCity());
+                    user.setState(userDetails.getState());
+                    user.setCountry(userDetails.getCountry());
+                    user.setZipCode(userDetails.getZipCode());
+                    user.setHotel(userDetails.getHotel());
+                    user.setPassword(userDetails.getPassword());
+                    user.setUserType(userDetails.getUserType());
+                    user.setPosition(userDetails.getPosition());
+                    User updatedUser = userServices.updateUser(user);
+                    return ResponseEntity.ok(updatedUser);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         if(userServices.getUserById(id).isEmpty()) {

@@ -11,9 +11,12 @@ public interface UserServices {
 
     List<User> getAllUsers();
 
+    User updateUser(User user);
+
     Optional<User> getUserById(Long id);
 
     void deleteUser(Long id);
+
 
     // Additional methods for specific user types
     List<User> findAllGuests();
@@ -24,5 +27,5 @@ public interface UserServices {
 
     List<User> findAllAdmins();
 
-    List<User> findStaffByHotel(Hotel hotel);
+    List<User> getUsersByHotel(Hotel hotel);
 }

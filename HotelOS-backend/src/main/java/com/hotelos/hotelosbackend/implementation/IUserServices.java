@@ -29,6 +29,11 @@ public class IUserServices implements UserServices {
     }
 
     @Override
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
+
+    @Override
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
@@ -59,7 +64,7 @@ public class IUserServices implements UserServices {
     }
 
     @Override
-    public List<User> findStaffByHotel(Hotel hotel) {
+    public List<User> getUsersByHotel(Hotel hotel) {
         return userRepository.findByHotel(hotel);
     }
 }
