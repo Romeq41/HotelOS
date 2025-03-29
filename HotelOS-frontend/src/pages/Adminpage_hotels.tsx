@@ -1,115 +1,141 @@
-import React from 'react';
-import { Table, Button } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Table, Button, Popconfirm } from 'antd';
 import AdminHeader from '../components/Adminpage/AdminHeader';
 import { useNavigate } from 'react-router-dom';
+import { Hotel } from '../interfaces/Hotel';
 
-const Hotels: React.FC = () => {
+export default function Hotels() {
     const navigate = useNavigate();
 
+    const [hotels, setHotels] = useState<Hotel[]>([]);
+
+    useEffect(() => {
+
+        const fetchHotelsData = async () => {
+
+            try {
+                const response = await fetch('http://localhost:8080/api/hotels', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                if (response.status === 401) {
+                    console.log('Unauthorized access. Redirecting to login page...');
+                    window.location.href = '/login';
+                }
+                if (response.status === 403) {
+                    console.log('Forbidden access. Redirecting to login page...');
+                    window.location.href = '/login';
+                }
+
+
+                if (response.status === 200) {
+                    console.log('Hotels data fetched successfully:', response);
+                }
+
+                const data = await response.json();
+                console.log('Hotels data:', data);
+
+                setHotels(data);
+
+            } catch (error) {
+                console.error('Error fetching hotels data:', error);
+            }
+
+        }
+
+        fetchHotelsData();
+    }, []);
+
+    const handleDelete = async (hotelID: string) => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/hotels/${hotelID}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete user');
+            }
+
+            console.log(`User with ID ${hotelID} deleted successfully`);
+
+            // Remove the deleted user from the state
+            setHotels((prevUsers) => prevUsers.filter((hotel) => hotel.id !== hotelID));
+        } catch (error) {
+            console.error('Error deleting user:', error);
+        }
+    };
+
     const columns = [
+        {
+            title: 'id',
+            dataIndex: 'id',
+            key: 'id',
+        },
         {
             title: 'Hotel Name',
             dataIndex: 'name',
             key: 'name',
         },
         {
-            title: 'Location',
-            dataIndex: 'location',
-            key: 'location',
+            title: 'City',
+            dataIndex: 'city',
+            key: 'city',
         },
         {
-            title: 'Rooms',
-            dataIndex: 'rooms',
-            key: 'rooms',
+            title: 'State',
+            dataIndex: 'state',
+            key: 'state',
         },
         {
-            title: 'Rating',
-            dataIndex: 'rating',
-            key: 'rating',
+            title: 'Address',
+            dataIndex: 'address',
+            key: 'address',
         },
-        // {
-        //     title: 'Properties',
-        //     key: 'properties',
-        //     render: (_: any, record: any) => (
-        //         <div className="flex gap-4">
-        //             <Button type="primary" onClick={() => handlePropertiesClick(record)}>
-        //                 View Properties
-        //             </Button>
-        //             <Button
-        //                 type="primary"
-        //                 style={{ backgroundColor: '#facc15', borderColor: '#facc15' }} // Yellow for Edit
-        //                 onClick={() => handleEditClick(record)}
-        //             >
-        //                 Edit
-        //             </Button>
-        //             <Button
-        //                 type="primary"
-        //                 style={{ backgroundColor: '#ef4444', borderColor: '#ef4444' }} // Red for Delete
-        //                 onClick={() => handleDeleteClick(record)}
-        //             >
-        //                 Delete
-        //             </Button>
-        //         </div>
-        //     ),
-        // },
+        {
+            title: 'Country',
+            dataIndex: 'country',
+            key: 'country',
+        },
+        {
+            title: 'Zip Code',
+            dataIndex: 'zipCode',
+            key: 'zipCode',
+        },
+        {
+            title: 'Actions',
+            key: 'actions',
+            render: (_: any, record: Hotel) => (
+                <div onClick={(e) => e.stopPropagation() /* Prevent row click when interacting with Popconfirm */}>
+                    <Popconfirm
+                        title="Are you sure you want to delete this user?"
+                        onConfirm={() => handleDelete(record.id)}
+                        okText="Yes"
+                        cancelText="No"
+                    >
+                        <Button
+                            type="primary"
+                            danger
+                        >
+                            Delete
+                        </Button>
+                    </Popconfirm>
+                </div>
+            ),
+        }
+
     ];
-
-    const data = [
-        {
-            hotel_id: '1',
-            name: 'Hotel California',
-            location: 'Los Angeles, CA',
-            rooms: 120,
-            rating: 4.5,
-        },
-        {
-            hotel_id: '2',
-            name: 'The Grand Budapest',
-            location: 'Zubrowka',
-            rooms: 200,
-            rating: 5.0,
-        },
-        {
-            hotel_id: '3',
-            name: 'The Grand Budapest',
-            location: 'Zubrowka',
-            rooms: 200,
-            rating: 5.0,
-        },
-        {
-            hotel_id: '4',
-            name: 'The Grand Budapest',
-            location: 'Zubrowka',
-            rooms: 200,
-            rating: 5.0,
-        },
-        {
-            hotel_id: '5',
-            name: 'The Grand Budapest',
-            location: 'Zubrowka',
-            rooms: 200,
-            rating: 5.0,
-        },
-        {
-            hotel_id: '6',
-            name: 'The Grand Budapest',
-            location: 'Zubrowka',
-            rooms: 200,
-            rating: 5.0,
-        },
-    ];
-
-    const handleEditClick = (record: any) => {
-        console.log('Edit clicked for:', record);
-    };
-
-    const handlePropertiesClick = (record: any) => {
-        console.log('Properties clicked for:', record);
-    };
-
-    const handleDeleteClick = (record: any) => {
-        console.log('Delete clicked for:', record);
-    };
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
@@ -126,9 +152,9 @@ const Hotels: React.FC = () => {
                 <div className="bg-white shadow-md rounded-lg p-5">
                     <Table
                         columns={columns}
-                        dataSource={data}
+                        dataSource={hotels}
                         onRow={(record) => ({
-                            onClick: () => navigate(`/admin/hotel/${record.hotel_id}`),
+                            onClick: () => navigate(`/admin/hotels/${record.id}`),
                         })}
                         rowClassName="cursor-pointer hover:bg-gray-100"
                     />
@@ -137,5 +163,3 @@ const Hotels: React.FC = () => {
         </div>
     );
 };
-
-export default Hotels;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AdminHeader from '../components/Adminpage/AdminHeader';
 
-const AddHotel: React.FC = () => {
+export default function AddHotel() {
     const [formData, setFormData] = useState({
         name: '',
         address: '',
@@ -42,8 +42,8 @@ const AddHotel: React.FC = () => {
 
         if (!formData.zipCode) {
             newErrors.zipCode = 'Zip code is required';
-        } else if (!/^\d{5}(-\d{4})?$/.test(formData.zipCode)) {
-            newErrors.zipCode = 'Zip code must be a valid format (e.g., 12345 or 12345-6789)';
+        } else if (!/^\d{2}-\d{3}$/.test(formData.zipCode)) {
+            newErrors.zipCode = 'Zip code must be a valid format (e.g., 87-148)';
         }
 
         if (!formData.country) {
@@ -58,24 +58,66 @@ const AddHotel: React.FC = () => {
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const validationErrors = validate();
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-        } else {
-            setErrors({
-                name: '',
-                address: '',
-                city: '',
-                state: '',
-                zipCode: '',
-                country: '',
-            });
+        setErrors(validationErrors);
+
+        if (Object.values(validationErrors).every((error) => error === '')) {
             console.log('Form submitted:', formData);
-            //todo: BACKEND CALL
-        }
-    };
+
+
+
+            try {
+                console.log('Sending request to server...');
+                console.log(`Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`);
+                console.log('Form data:', formData);
+                // Send form data to the server
+                const response = await fetch('http://localhost:8080/api/hotels', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
+                    },
+                    body: JSON.stringify(formData),
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                if (response.status === 200) {
+                    const data = await response.json();
+                    console.log('Hotel added:', data);
+
+                    setFormData({
+                        name: '',
+                        address: '',
+                        city: '',
+                        state: '',
+                        zipCode: '',
+                        country: '',
+                    });
+
+                    const submitButton = document.getElementById('submitButton') as HTMLButtonElement;
+                    if (submitButton) {
+                        submitButton.classList.remove('bg-blue-600');
+                        submitButton.classList.add('bg-green-600', 'transition', 'duration-300', 'ease-in-out');
+                        submitButton.innerText = 'Hotel Added!';
+
+                        setTimeout(() => {
+                            submitButton.classList.remove('bg-green-600');
+                            submitButton.classList.add('bg-blue-600');
+                            submitButton.innerText = 'Add Hotel';
+                        }, 2000);
+                    }
+
+                }
+
+            } catch (error) {
+                console.error('Error adding Hotel:', error);
+            }
+        };
+    }
 
     const getInputClass = (field: keyof typeof formData) => {
         if (errors[field]) {
@@ -119,8 +161,9 @@ const AddHotel: React.FC = () => {
                     ))}
                     <div className="flex justify-center mt-6">
                         <button
+                            id="submitButton"
                             type="submit"
-                            className="bg-indigo-600 text-white py-2 px-6 rounded-md text-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            className="bg-blue-600 text-white py-2 px-6 rounded-md text-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
                         >
                             Add Hotel
                         </button>
@@ -130,5 +173,3 @@ const AddHotel: React.FC = () => {
         </div>
     );
 };
-
-export default AddHotel;
