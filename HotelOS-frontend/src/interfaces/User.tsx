@@ -1,5 +1,5 @@
 export interface User {
-    user_id: string;
+    userId: string;
     password: string;
     firstName: string;
     lastName: string;
@@ -8,7 +8,7 @@ export interface User {
     userType: string;
     address: string;
     position: string
-    hotel: string;
+    hotel: string | Object;
     state: string;
     city: string;
     zipCode: string;

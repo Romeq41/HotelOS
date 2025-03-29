@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AdminHeader from '../components/Adminpage/AdminHeader';
 
-const AddUser: React.FC = () => {
+export default function AddUser() {
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -39,8 +39,8 @@ const AddUser: React.FC = () => {
 
         if (!formData.password) {
             newErrors.password = 'Password is required';
-        } else if (formData.password.length < 4) {
-            newErrors.password = 'Password must be at least 4 characters long';
+        } else if (formData.password.length < 6) {
+            newErrors.password = 'Password must be at least 6 characters long';
         }
 
         return newErrors;
@@ -54,17 +54,59 @@ const AddUser: React.FC = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const validationErrors = validate();
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-        } else {
+        setErrors(validationErrors);
+
+        if (Object.values(validationErrors).every((error) => error === '')) {
+            console.log('Form submitted:', formData);
+
+            const handleUserAdd = async () => {
+                try {
+                    const response = await fetch('http://localhost:8080/api/auth/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData),
+                    });
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const data = await response.json();
+                    console.log('User added:', data);
+
+                    const submitButton = document.getElementById('submitButton') as HTMLButtonElement;
+                    if (submitButton) {
+                        submitButton.classList.remove('bg-blue-600');
+                        submitButton.classList.add('bg-green-600', 'transition', 'duration-300', 'ease-in-out');
+                        submitButton.innerText = 'User Added!';
+
+                        setTimeout(() => {
+                            submitButton.classList.remove('bg-green-600');
+                            submitButton.classList.add('bg-blue-600');
+                            submitButton.innerText = 'Add User';
+                        }, 2000);
+                    }
+                } catch (error) {
+                    console.error('Error adding user:', error);
+                }
+            }
+
+            handleUserAdd();
+
+            setFormData({
+                firstName: '',
+                lastName: '',
+                email: '',
+                password: '',
+            });
             setErrors({
                 firstName: '',
                 lastName: '',
                 email: '',
                 password: '',
             });
-            console.log('Form submitted:', formData);
-            // Add logic to send data to the backend
+
+
         }
     };
 
@@ -110,8 +152,9 @@ const AddUser: React.FC = () => {
                     ))}
                     <div className="flex justify-center mt-6">
                         <button
+                            id="submitButton"
                             type="submit"
-                            className="bg-indigo-600 text-white py-2 px-6 rounded-md text-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            className="bg-blue-600 text-white py-2 px-6 rounded-md text-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
                         >
                             Add User
                         </button>
@@ -121,5 +164,3 @@ const AddUser: React.FC = () => {
         </div>
     );
 };
-
-export default AddUser;

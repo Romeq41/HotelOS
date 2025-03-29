@@ -163,7 +163,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             }
 
             const newUser: User = {
-                user_id: data.id,
+                userId: data.id,
                 email: data.email,
                 firstName: data.firstname,
                 lastName: data.lastname,

@@ -1,11 +1,87 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, Button } from 'antd';
 import AdminHeader from '../components/Adminpage/AdminHeader';
 import { useNavigate } from 'react-router-dom';
+import { User } from '../interfaces/User';
+import { Popconfirm } from 'antd';
 
 
-const Users: React.FC = () => {
+
+export default function Users() {
     const navigate = useNavigate();
+
+    const [users, setUsers] = useState<User[]>([]);
+
+    useEffect(() => {
+        const fetchUsersData = async () => {
+            try {
+                const response = await fetch('http://localhost:8080/api/users', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                if (response.status === 401) {
+                    console.log('Unauthorized access. Redirecting to login page...');
+                    window.location.href = '/login';
+                }
+                if (response.status === 403) {
+                    console.log('Forbidden access. Redirecting to login page...');
+                    window.location.href = '/login';
+                }
+
+                const data = await response.json();
+                console.log('Users data:', data);
+
+                // Filter out admin users
+                const nonAdminUsers = data.filter((user: User) => user.userType !== 'ADMIN');
+
+                // Add a unique key to each user
+                const usersWithKeys = nonAdminUsers.map((user: User) => ({
+                    ...user,
+                    key: user.userId,
+                }));
+
+                setUsers(usersWithKeys);
+
+            } catch (error) {
+                console.error('Error fetching users data:', error);
+            }
+        };
+
+        fetchUsersData();
+    }, []);
+
+    const handleDelete = async (userId: string) => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete user');
+            }
+
+            console.log(`User with ID ${userId} deleted successfully`);
+
+            // Remove the deleted user from the state
+            setUsers((prevUsers) => prevUsers.filter((user) => user.userId !== userId));
+        } catch (error) {
+            console.error('Error deleting user:', error);
+        }
+    };
+
+
     const columns = [
         {
             title: 'Email',
@@ -13,14 +89,19 @@ const Users: React.FC = () => {
             key: 'email',
         },
         {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
+            title: 'First Name',
+            dataIndex: 'firstName',
+            key: 'firstName',
         },
         {
-            title: 'Hotel Name',
-            dataIndex: 'hotel_name',
-            key: 'hotel_name',
+            title: 'Last Name',
+            dataIndex: 'lastName',
+            key: 'lastName',
+        },
+        {
+            title: 'Name',
+            key: 'name',
+            render: (_: any, record: User) => record.hotel?.name || 'No Hotel Assigned',
         },
         {
             title: 'Position',
@@ -32,33 +113,27 @@ const Users: React.FC = () => {
             dataIndex: 'address',
             key: 'address',
         },
-    ];
-
-    const data = [
         {
-            user_id: '1',
-            email: 'user@email.com',
-            hotel_name: 'Los Angeles Hotel',
-            name: "John Doe",
-            position: "Manager",
-            address: "123 Main Street, Los Angeles, CA",
+            title: 'Actions',
+            key: 'actions',
+            render: (_: any, record: User) => (
+                <div onClick={(e) => e.stopPropagation() /* Prevent row click when interacting with Popconfirm */}>
+                    <Popconfirm
+                        title="Are you sure you want to delete this user?"
+                        onConfirm={() => handleDelete(record.userId)}
+                        okText="Yes"
+                        cancelText="No"
+                    >
+                        <Button
+                            type="primary"
+                            danger
+                        >
+                            Delete
+                        </Button>
+                    </Popconfirm>
+                </div>
+            ),
         },
-        {
-            user_id: '2',
-            email: 'user2@email.com',
-            hotel_name: 'The Grand Budapest',
-            name: "John Doe",
-            position: "Staff",
-            address: "123 Main Street, Los Angeles, CA",
-        },
-        {
-            user_id: '3',
-            email: 'user3@email.com',
-            hotel_name: 'The Grand Budapest',
-            name: "John Doe the second",
-            position: "Manager",
-            address: "123 Main Street, Budapest, Hungary",
-        }
     ];
 
     return (
@@ -76,16 +151,14 @@ const Users: React.FC = () => {
                 <div className="bg-white shadow-md rounded-lg p-5">
                     <Table
                         columns={columns}
-                        dataSource={data}
+                        dataSource={users}
                         onRow={(record) => ({
-                            onClick: () => navigate(`/admin/hotel/${record.user_id}`),
+                            onClick: () => navigate(`/admin/users/${record.userId}`),
                         })}
-                        rowClassName="cursor-pointer hover:bg-gray-100"
+                        rowClassName="cursor-pointer hover:bg-gray-100 hover:shadow-md transition-all"
                     />
                 </div>
             </main>
         </div>
     );
 };
-
-export default Users;
