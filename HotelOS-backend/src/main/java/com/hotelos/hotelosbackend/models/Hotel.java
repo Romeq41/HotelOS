@@ -32,7 +32,7 @@ public class Hotel {
     @Column(name = "state")
     private String state;
     @Basic
-    @Column(name = "zip_code")
+    @Column(name = "zipCode")
     private String zipCode;
     @Basic
     @Column(name = "country")
