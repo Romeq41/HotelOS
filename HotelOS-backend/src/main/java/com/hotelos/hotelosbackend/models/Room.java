@@ -35,6 +35,10 @@ public class Room {
     @Basic
     @Column(name = "status")
     private String status;
+    @Basic
+    @Column(name = "description")
+    private String description;
+
 
     @Override
     public boolean equals(Object o) {

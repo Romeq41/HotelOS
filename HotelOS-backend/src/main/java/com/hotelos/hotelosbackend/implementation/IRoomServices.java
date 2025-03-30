@@ -32,6 +32,11 @@ public class IRoomServices implements RoomServices {
     }
 
     @Override
+    public List<Room> getRoomsByHotel(Long id) {
+        return roomRepository.findByHotelId(id);
+    }
+
+    @Override
     public void deleteRoom(Long id) {
         roomRepository.deleteById(id);
     }
