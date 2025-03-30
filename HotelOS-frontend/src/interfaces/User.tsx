@@ -8,7 +8,7 @@ export interface User {
     userType: string;
     address: string;
     position: string
-    hotel: string | Object;
+    hotel: any;
     state: string;
     city: string;
     zipCode: string;
