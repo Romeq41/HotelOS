@@ -39,7 +39,7 @@ export default function Admin_User_overview() {
                     <div className="flex flex-col md:flex-row bg-white shadow-md rounded-lg overflow-hidden">
                         <div className="md:w-1/2">
                             <img
-                                src={user.image || "https://via.placeholder.com/160"}
+                                src={`http://localhost:8080/api/users/${user.userId}/image` || "https://via.placeholder.com/160"}
                                 alt={user.firstName + " " + user.lastName}
                                 className="w-full h-full object-cover"
                             />

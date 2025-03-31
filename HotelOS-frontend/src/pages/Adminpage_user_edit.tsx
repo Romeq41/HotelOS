@@ -1,5 +1,5 @@
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
 import AdminHeader from "../components/Adminpage/AdminHeader";
 import { User } from "../interfaces/User";
 import { Hotel } from "../interfaces/Hotel";
@@ -7,143 +7,155 @@ import { Hotel } from "../interfaces/Hotel";
 export default function Admin_User_Edit() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const [formData, setFormData] = useState<User | null>(null);
     const [user, setUser] = useState<User | null>(null);
-    const [formData, setFormData] = useState<(User & { hotel: { id: number } | null }) | null>(null);
-    const [hotels, setHotels] = useState<Hotel[] | null>(null); // Adjust the type as per your data structure
+    const [hotels, setHotels] = useState<Hotel[] | null>(null);
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imageUploadMessage, setImageUploadMessage] = useState<string | null>(null);
 
     useEffect(() => {
-        console.log(id);
-        console.log(`Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`);
-        const fetchHotelsData = async () => {
-
-            try {
-                const response = await fetch('http://localhost:8080/api/hotels', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                if (response.status === 401) {
-                    console.log('Unauthorized access. Redirecting to login page...');
-                    window.location.href = '/login';
-                }
-                if (response.status === 403) {
-                    console.log('Forbidden access. Redirecting to login page...');
-                    window.location.href = '/login';
-                }
-
-
-                if (response.status === 200) {
-                    console.log('Hotels data fetched successfully:', response);
-                }
-
-                const data = await response.json();
-                console.log('Hotels data:', data);
-
-                setHotels(data);
-
-            } catch (error) {
-                console.error('Error fetching hotels data:', error);
-            }
-
-        }
-
-
-
         const fetchUser = async () => {
-            if (id) {
-                const res = await fetch(`http://localhost:8080/api/users/${id}`, {
+            if (!id) return;
+            try {
+                const response = await fetch(`http://localhost:8080/api/users/${id}`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
-                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                    },
+                        Authorization: `Bearer ${document.cookie.replace(
+                            /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
+                            "$1"
+                        )}`
+                    }
                 });
-                const data: User = await res.json();
-                setUser(data);
-                const {
-                    firstName,
-                    lastName,
-                    email,
-                    phone,
-                    address,
-                    city,
-                    state,
-                    zipCode,
-                    country,
-                    position,
-                    userType
-                } = data;
-                setFormData({
-                    userId: data.userId || "",
-                    password: data.password || "",
-                    hotel: data.hotel && data.hotel.id ? { id: data.hotel.id } : null, // Updated line
-                    firstName,
-                    lastName,
-                    email,
-                    phone,
-                    address,
-                    city,
-                    state,
-                    zipCode,
-                    country,
-                    position,
-                    userType,
-                });
-
-                console.log(data);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch user.");
+                }
+                const userData: User = await response.json();
+                setUser(userData);
+                setFormData(userData);
+            } catch (error) {
+                console.error("Error fetching user:", error);
             }
         };
 
-        fetchHotelsData();
+        const fetchHotels = async () => {
+            try {
+                const response = await fetch("http://localhost:8080/api/hotels", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${document.cookie.replace(
+                            /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
+                            "$1"
+                        )}`
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error("Failed to fetch hotels.");
+                }
+                const hotelsData: Hotel[] = await response.json();
+                setHotels(hotelsData);
+            } catch (error) {
+                console.error("Error fetching hotels:", error);
+            }
+        };
+
         fetchUser();
+        fetchHotels();
     }, [id]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+        if (!formData) return;
+
         if (name === "hotel") {
-            setFormData((prev: any) => (prev ? { ...prev, hotel: { id: parseInt(value) } } : null));
-        } else {
-            setFormData((prev: any) => (prev ? { ...prev, [name]: value } : null));
+            setFormData((prev) => (prev ? { ...prev, hotel: { ...prev.hotel, id: value } } : prev));
+            return;
+        }
+
+        setFormData((prev) => (prev ? { ...prev, [name]: value } : prev));
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setImageFile(e.target.files[0]);
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-
         e.preventDefault();
-        if (id && formData) {
-            console.log('Form submitted:', formData);
-            await fetch(`http://localhost:8080/api/users/${id}`, {
+        if (!formData || !id) return;
+
+        const userDto: User = {
+            userId: id,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phone: formData.phone,
+            userType: formData.userType,
+            hotel: {
+                id: formData.hotel?.id || null
+            },
+            position: formData.position,
+            country: formData.country,
+            state: formData.state,
+            city: formData.city,
+            address: formData.address,
+            zipCode: formData.zipCode,
+            password: formData.password
+        };
+
+        console.log("Form submitted:", userDto);
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/users/${id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
-                    'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
+                    Authorization: `Bearer ${document.cookie.replace(
+                        /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
+                        "$1"
+                    )}`
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(userDto)
             });
 
-            window.location.reload();
-
-            const submitButton = document.getElementById('submitButton') as HTMLButtonElement;
-            if (submitButton) {
-                submitButton.classList.remove('bg-blue-600');
-                submitButton.classList.add('bg-green-600', 'transition', 'duration-300', 'ease-in-out');
-                submitButton.innerText = 'Success!';
-
-                setTimeout(() => {
-                    submitButton.classList.remove('bg-green-600');
-                    submitButton.classList.add('bg-blue-600');
-                    submitButton.innerText = 'Edit User';
-                    navigate("/admin/users");
-                }, 2000);
+            if (!response.ok) {
+                throw new Error("Failed to update user.");
             }
 
+            if (imageFile) {
+                const imageFormData = new FormData();
+                imageFormData.append("file", imageFile);
+
+                const imageResponse = await fetch(
+                    `http://localhost:8080/api/users/${id}/image_upload`,
+                    {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer ${document.cookie.replace(
+                                /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
+                                "$1"
+                            )}`
+                        },
+                        body: imageFormData
+                    }
+                );
+
+                if (!imageResponse.ok) {
+                    const errorText = await imageResponse.text();
+                    console.error("Image upload error:", errorText);
+                    setImageUploadMessage("Failed to upload image.");
+                    throw new Error("Image upload failed.");
+                }
+
+                setImageUploadMessage("Image uploaded successfully!");
+            }
+
+            console.log("User updated successfully");
+            navigate("/admin/users");
+        } catch (error) {
+            console.error("Error updating user:", error);
         }
     };
 
@@ -153,7 +165,6 @@ export default function Admin_User_Edit() {
             <div className="container mx-auto py-8 px-4">
                 {formData ? (
                     <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6">
-                        <h1 className="text-2xl font-bold mb-4">Edit User id: {id}</h1>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-gray-700">First Name</label>
@@ -165,6 +176,7 @@ export default function Admin_User_Edit() {
                                     className="w-full border rounded px-3 py-2"
                                 />
                             </div>
+
                             <div>
                                 <label className="block text-gray-700">UserType</label>
                                 <select
@@ -179,22 +191,23 @@ export default function Admin_User_Edit() {
                                     {/* <option value="ADMIN">ADMIN</option> */}
                                 </select>
                             </div>
+
                             <div>
                                 <label className="block text-gray-700">Hotel</label>
                                 <select
                                     name="hotel"
-                                    value={formData.hotel?.id || ""} // Use optional chaining to avoid errors
+                                    value={formData.hotel?.id || ""}
                                     onChange={handleChange}
                                     className="w-full border rounded px-3 py-2"
                                 >
-                                    {/* Current hotel as the first option */}
                                     <option value={user?.hotel?.id || ""}>
-                                        Current hotel: {user?.hotel ? `id: ${user.hotel.id}, ${user.hotel.name}` : "NONE"}
+                                        Current hotel:{" "}
+                                        {user?.hotel
+                                            ? `id: ${user.hotel.id}, ${user.hotel.name}`
+                                            : "NONE"}
                                     </option>
-
-                                    {/* List all hotels */}
                                     {hotels && hotels.length > 0 ? (
-                                        hotels.map((hotel: Hotel) => (
+                                        hotels.map((hotel) => (
                                             <option key={hotel.id} value={hotel.id}>
                                                 {hotel.id + ": " + hotel.name + ", " + hotel.city + ", " + hotel.state}
                                             </option>
@@ -217,6 +230,7 @@ export default function Admin_User_Edit() {
                                     className="w-full border rounded px-3 py-2"
                                 />
                             </div>
+
                             <div>
                                 <label className="block text-gray-700">Email</label>
                                 <input
@@ -227,6 +241,7 @@ export default function Admin_User_Edit() {
                                     className="w-full border rounded px-3 py-2"
                                 />
                             </div>
+
                             <div>
                                 <label className="block text-gray-700">Phone</label>
                                 <input
@@ -237,6 +252,8 @@ export default function Admin_User_Edit() {
                                     className="w-full border rounded px-3 py-2"
                                 />
                             </div>
+
+                            {/* Add more user fields here if needed */}
                             <div>
                                 <label className="block text-gray-700">Position</label>
                                 <input
@@ -298,9 +315,25 @@ export default function Admin_User_Edit() {
                                 />
                             </div>
                         </div>
+
+                        {/* Image upload input */}
+                        <div className="mt-4">
+                            <label className="block text-gray-700" htmlFor="image">
+                                User Image
+                            </label>
+                            <input
+                                type="file"
+                                id="image"
+                                name="image"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="border px-3 py-2 mt-1 block w-full rounded-md sm:text-sm p-2"
+                            />
+                        </div>
+
+                        {/* Submit button */}
                         <div className="mt-4">
                             <button
-                                id="submitButton"
                                 type="submit"
                                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                             >
@@ -309,7 +342,10 @@ export default function Admin_User_Edit() {
                         </div>
                     </form>
                 ) : (
-                    <p className="text-center text-gray-500">Loading User information...</p>
+                    <p className="text-center text-gray-500">Loading user data...</p>
+                )}
+                {imageUploadMessage && (
+                    <p className="text-green-500 mt-4">{imageUploadMessage}</p>
                 )}
             </div>
         </div>

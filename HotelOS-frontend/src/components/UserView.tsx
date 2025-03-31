@@ -39,7 +39,7 @@ export default function UserView() {
             {/* Right Section: User data */}
             <div className="sm:w-1/2 w-full bg-gray-50 shadow-lg p-8 flex flex-col items-center">
                 <img
-                    src={user?.image || "https://via.placeholder.com/150"}
+                    src={`http://localhost:8080/api/users/${user?.userId}/image` || "https://via.placeholder.com/160"}
                     alt="User"
                     className="w-32 h-32 rounded-full mb-6 shadow-md"
                 />
