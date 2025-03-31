@@ -79,6 +79,10 @@ public class User implements UserDetails {
     @JoinColumn(name = "hotel_id")
     private Hotel hotel; // Only relevant for staff, managers
 
+    @Basic
+    @Column(name = "image_path")
+    private String imagePath;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
