@@ -39,7 +39,7 @@ export default function Admin_Hotel_overview() {
                     <div className="flex flex-col md:flex-row bg-white shadow-md rounded-lg overflow-hidden">
                         <div className="md:w-1/2">
                             <img
-                                src={hotel.image || "https://via.placeholder.com/160"}
+                                src={`http://localhost:8080/api/hotels/${hotel.id}/image` || "https://via.placeholder.com/160"}
                                 alt={hotel.name}
                                 className="w-full h-full object-cover"
                             />

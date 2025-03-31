@@ -20,6 +20,9 @@ export default function AddHotel() {
         country: '',
     });
 
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imageUploadMessage, setImageUploadMessage] = useState<string | null>(null);
+
     const validate = () => {
         const newErrors: any = {};
         if (!formData.name) {
@@ -58,29 +61,32 @@ export default function AddHotel() {
         setFormData({ ...formData, [name]: value });
     };
 
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setImageFile(e.target.files[0]);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const validationErrors = validate();
         setErrors(validationErrors);
 
-        if (Object.values(validationErrors).every((error) => error === '')) {
-            console.log('Form submitted:', formData);
-
-
-
+        if (Object.values(validationErrors).every((err) => err === '')) {
             try {
-                console.log('Sending request to server...');
-                console.log(`Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`);
-                console.log('Form data:', formData);
-                // Send form data to the server
+                // Step 1: Create the hotel
                 const response = await fetch('http://localhost:8080/api/hotels', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
+                        Authorization: `Bearer ${document.cookie.replace(
+                            /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
+                            "$1"
+                        )}`,
                     },
                     body: JSON.stringify(formData),
                 });
+
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
@@ -88,6 +94,39 @@ export default function AddHotel() {
                 if (response.status === 200) {
                     const data = await response.json();
                     console.log('Hotel added:', data);
+
+                    if (imageFile) {
+                        const imageFormData = new FormData();
+                        imageFormData.append('file', imageFile);
+
+                        console.log('Uploading image file:', imageFile);
+                        console.log('Hotel ID:', data.id);
+
+                        const imageResponse = await fetch(
+                            `http://localhost:8080/api/hotels/${data.id}/image_upload`,
+                            {
+                                method: 'POST',
+                                headers: {
+                                    Authorization: `Bearer ${document.cookie.replace(
+                                        /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
+                                        "$1"
+                                    )}`
+                                },
+                                body: imageFormData,
+                            }
+                        );
+
+                        if (!imageResponse.ok) {
+                            const errorText = await imageResponse.text();
+                            console.error('Image upload error:', errorText);
+                            setImageUploadMessage('Failed to upload image.');
+                            throw new Error('Failed to upload image');
+                        }
+
+                        const imageUploadResult = await imageResponse.text();
+                        console.log('Image uploaded:', imageUploadResult);
+                        setImageUploadMessage('Image uploaded successfully!');
+                    }
 
                     setFormData({
                         name: '',
@@ -97,6 +136,7 @@ export default function AddHotel() {
                         zipCode: '',
                         country: '',
                     });
+                    setImageFile(null);
 
                     const submitButton = document.getElementById('submitButton') as HTMLButtonElement;
                     if (submitButton) {
@@ -110,14 +150,12 @@ export default function AddHotel() {
                             submitButton.innerText = 'Add Hotel';
                         }, 2000);
                     }
-
                 }
-
             } catch (error) {
                 console.error('Error adding Hotel:', error);
             }
-        };
-    }
+        }
+    };
 
     const getInputClass = (field: keyof typeof formData) => {
         if (errors[field]) {
@@ -159,6 +197,24 @@ export default function AddHotel() {
                             )}
                         </div>
                     ))}
+
+                    <div>
+                        <label
+                            htmlFor="image"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Hotel Image
+                        </label>
+                        <input
+                            type="file"
+                            id="image"
+                            name="image"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="mt-1 block w-full rounded-md shadow-sm sm:text-sm p-2 border-gray-400"
+                        />
+                    </div>
+
                     <div className="flex justify-center mt-6">
                         <button
                             id="submitButton"
@@ -169,7 +225,11 @@ export default function AddHotel() {
                         </button>
                     </div>
                 </form>
+
+                {imageUploadMessage && (
+                    <p className="text-green-500 mt-4">{imageUploadMessage}</p>
+                )}
             </div>
         </div>
     );
-};
+}
