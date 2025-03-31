@@ -1,7 +1,6 @@
 package com.hotelos.hotelosbackend.controllers;
 
 import com.hotelos.hotelosbackend.models.Hotel;
-import com.hotelos.hotelosbackend.models.User;
 import com.hotelos.hotelosbackend.services.HotelServices;
 import com.hotelos.hotelosbackend.services.UserServices;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -7,4 +7,5 @@ export interface Room {
     rate: number;
     status: string;
     description: string;
+    imagePath: string | null;
 }

@@ -9,6 +9,7 @@ interface RoomDTO {
     capacity: string;
     rate: string;
     status: string;
+    imagePath?: string; // Add imagePath field
 }
 
 export default function AddRoom() {
@@ -23,6 +24,8 @@ export default function AddRoom() {
     });
 
     const [errors, setErrors] = useState<Partial<Record<keyof RoomDTO, string>>>({});
+    const [imageFile, setImageFile] = useState<File | null>(null); // Store the selected image file
+    const [imageUploadMessage, setImageUploadMessage] = useState<string | null>(null);
 
     const validate = () => {
         const newErrors: Partial<Record<keyof RoomDTO, string>> = {};
@@ -63,6 +66,12 @@ export default function AddRoom() {
         setFormData({ ...formData, [name]: value });
     };
 
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setImageFile(e.target.files[0]); // Store the selected image file
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const validationErrors = validate();
@@ -72,7 +81,7 @@ export default function AddRoom() {
             console.log('Form submitted:', formData);
 
             try {
-                console.log('Sending request to server...');
+                // Step 1: Submit room details
                 const response = await fetch('http://localhost:8080/api/rooms', {
                     method: 'POST',
                     headers: {
@@ -83,37 +92,55 @@ export default function AddRoom() {
                 });
 
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error('Failed to create room');
                 }
 
-                if (response.status === 200) {
-                    const data = await response.json();
-                    console.log('Room added:', data);
+                const data = await response.json();
+                console.log('Room added:', data);
 
-                    setFormData({
-                        hotelId: id || '',
-                        roomNumber: '',
-                        type: '',
-                        capacity: '',
-                        rate: '',
-                        status: '',
+                // Step 2: Upload image if a file is selected
+                if (imageFile) {
+                    const imageFormData = new FormData();
+                    imageFormData.append('file', imageFile);
+
+                    console.log('Uploading image:', imageFile);
+                    console.log('Image form data:', imageFormData);
+                    console.log('Room ID:', data.roomId);
+
+                    const imageResponse = await fetch(`http://localhost:8080/api/rooms/${data.roomId}/image_upload`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
+                        },
+                        body: imageFormData,
                     });
 
-                    const submitButton = document.getElementById('submitButton') as HTMLButtonElement;
-                    if (submitButton) {
-                        submitButton.classList.remove('bg-blue-600');
-                        submitButton.classList.add('bg-green-600', 'transition', 'duration-300', 'ease-in-out');
-                        submitButton.innerText = 'Room Added!';
-
-                        setTimeout(() => {
-                            submitButton.classList.remove('bg-green-600');
-                            submitButton.classList.add('bg-blue-600');
-                            submitButton.innerText = 'Add Room';
-                        }, 2000);
+                    if (!imageResponse.ok) {
+                        const errorText = await imageResponse.text();
+                        console.error('Image upload error:', errorText);
+                        setImageUploadMessage('Failed to upload image.');
+                        throw new Error('Failed to upload image');
                     }
+
+                    const imageUploadResult = await imageResponse.text();
+                    console.log('Image uploaded:', imageUploadResult);
+                    setImageUploadMessage('Image uploaded successfully!');
                 }
+
+                // Reset form after successful submission
+                setFormData({
+                    hotelId: id || '',
+                    roomNumber: '',
+                    type: '',
+                    capacity: '',
+                    rate: '',
+                    status: '',
+                });
+                setImageFile(null); // Clear the selected image file
+                setErrors({});
             } catch (error) {
-                console.error('Error adding Room:', error);
+                console.error('Error submitting form:', error);
+                setImageUploadMessage('Failed to upload image.');
             }
         }
     };
@@ -174,6 +201,22 @@ export default function AddRoom() {
                             className="mt-1 block w-full rounded-md shadow-sm sm:text-sm p-2 bg-gray-100 cursor-not-allowed border-gray-400"
                         />
                     </div>
+                    <div>
+                        <label
+                            htmlFor="image"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Room Image
+                        </label>
+                        <input
+                            type="file"
+                            id="image"
+                            name="image"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="mt-1 block w-full rounded-md shadow-sm sm:text-sm p-2 border-gray-400"
+                        />
+                    </div>
                     <div className="flex justify-center mt-6">
                         <button
                             id="submitButton"
@@ -184,6 +227,9 @@ export default function AddRoom() {
                         </button>
                     </div>
                 </form>
+                {imageUploadMessage && (
+                    <p className="text-green-500 mt-4">{imageUploadMessage}</p>
+                )}
             </div>
         </div>
     );

@@ -38,7 +38,8 @@ export default function Admin_Hotel_Room_details() {
                     <div className="flex flex-col md:flex-row bg-white shadow-md rounded-lg overflow-hidden">
                         <div className="md:w-1/2">
                             <img
-                                src={room.image || "https://via.placeholder.com/160"}
+                                src={`http://localhost:8080/api/rooms/${room.roomId}/image` || "https://via.placeholder.com/160"}
+                                alt={room.roomNumber}
                                 className="w-full h-full object-cover"
                             />
                         </div>

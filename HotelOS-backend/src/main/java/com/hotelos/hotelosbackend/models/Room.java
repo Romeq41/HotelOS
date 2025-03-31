@@ -38,14 +38,21 @@ public class Room {
     @Basic
     @Column(name = "description")
     private String description;
-
+    @Basic
+    @Column(name = "image_path")
+    private String imagePath;
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Room room = (Room) o;
-        return roomId == room.roomId && Objects.equals(hotelId, room.hotelId) && Objects.equals(roomNumber, room.roomNumber) && Objects.equals(type, room.type) && Objects.equals(capacity, room.capacity) && Objects.equals(rate, room.rate) && Objects.equals(status, room.status);
+        return roomId == room.roomId && Objects.equals(hotelId, room.hotelId)
+                && Objects.equals(roomNumber, room.roomNumber) && Objects.equals(type, room.type)
+                && Objects.equals(capacity, room.capacity) && Objects.equals(rate, room.rate)
+                && Objects.equals(status, room.status);
     }
 
     @Override
