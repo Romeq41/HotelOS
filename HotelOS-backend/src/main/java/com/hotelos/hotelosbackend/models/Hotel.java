@@ -37,6 +37,9 @@ public class Hotel {
     @Basic
     @Column(name = "country")
     private String country;
+    @Basic
+    @Column(name = "image_path")
+    private String imagePath;
 
     @Override
     public boolean equals(Object o) {
