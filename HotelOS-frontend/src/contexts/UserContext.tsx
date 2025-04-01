@@ -50,7 +50,23 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                         return res.json();
                     })
                     .then((data) => {
-                        setUser(data.user);
+                        const user: User = {
+                            userId: data.user.userId,
+                            email: data.user.email,
+                            firstName: data.user.firstName,
+                            lastName: data.user.lastName,
+                            password: data.user.password,
+                            phone: data.user.phone,
+                            zipCode: data.user.zipCode,
+                            city: data.user.city,
+                            address: data.user.address,
+                            state: data.user.state,
+                            country: data.user.country,
+                            position: data.user.position,
+                            userType: data.user.userType,
+                            hotel: data.user.hotel,
+                        };
+                        setUser(user);
                         setIsAuth(true);
                     })
                     .catch((error) => {
@@ -94,11 +110,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                 setIsAuth(true);
 
                 const expires = new Date();
-                expires.setTime(expires.getTime() + 7 * 24 * 60 * 60 * 1000); // Cookie expires in 7 days
+                expires.setTime(expires.getTime() + 7 * 24 * 60 * 60 * 1000);
                 document.cookie = `token=${data.token}; expires=${expires.toUTCString()}; path=/`;
             })
             .catch((error) => {
-                // Log the error object for more details
                 console.error("Error during login:", error);
                 alert(`An error occurred during login: ${error.message}`);
             })

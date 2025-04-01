@@ -1,3 +1,10 @@
+export enum UserType {
+    GUEST = "GUEST",
+    STAFF = "STAFF",
+    MANAGER = "MANAGER",
+    ADMIN = "ADMIN",
+}
+
 export interface User {
     userId: string;
     password: string;
@@ -5,7 +12,7 @@ export interface User {
     lastName: string;
     email: string;
     phone: string;
-    userType: string;
+    userType: UserType;
     address: string;
     position: string
     hotel: any;

@@ -16,6 +16,7 @@ import AddRoom from "./pages/AddRoom";
 import Admin_Hotel_Rooms from "./pages/Adminpage_hotel_rooms";
 import Admin_Hotel_Room_details from "./pages/Adminpage_hotel_room_details";
 import Admin_Hotel_Room_Details_Edit from "./pages/Adminpage_hotel_room_details_edit";
+import Admin_Hotel_Users from "./pages/Adminpage_hotel_users";
 
 
 
@@ -27,13 +28,14 @@ const App = () => {
                 <Routes>
                     <Route path="/" element={<Homepage />} />
                     <Route path="/login" element={<Login />} />
-                    <Route path="/hotels/:id" element={<HotelPage />} />
+                    <Route path="/hotels/:id/overview" element={<HotelPage />} />
                     <Route path="/user" element={<Userpage />} />
                     <Route path="/admin/hotels" element={<Hotels />} />
                     <Route path="/admin/hotels/add" element={<AddHotel />} />
                     <Route path="/admin/hotels/:id" element={<Admin_Hotel_overview />} />
                     <Route path="/admin/hotels/:id/edit" element={<Admin_Hotel_Edit />} />
                     <Route path="/admin/hotels/:id/rooms" element={<Admin_Hotel_Rooms />} />
+                    <Route path="/admin/hotels/:id/users" element={<Admin_Hotel_Users />} />
                     <Route path="/admin/hotels/:id/rooms/add" element={<AddRoom />} />
                     <Route path="/admin/hotels/:id/rooms/:id" element={<Admin_Hotel_Room_details />} />
                     <Route path="/admin/hotels/:hotelId/rooms/:roomId/edit" element={<Admin_Hotel_Room_Details_Edit />} />

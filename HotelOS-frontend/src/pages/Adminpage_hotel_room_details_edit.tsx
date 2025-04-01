@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import AdminHeader from "../components/Adminpage/AdminHeader";
-import { Room } from "../interfaces/Room";
+import { Room, RoomStatus } from "../interfaces/Room";
 import { Hotel } from "../interfaces/Hotel";
+import Header from "../components/Header";
 
 interface ValidationErrors {
     roomNumber?: string;
@@ -181,8 +181,8 @@ export default function Admin_Hotel_Room_Details_Edit() {
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            <AdminHeader />
-            <div className="container mx-auto py-8 px-4">
+            <Header isGradient={false} bg_color="white" textColor='black' />
+            <div className="container mt-20 mx-auto py-8 px-4">
 
                 {formData ? (
                     <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6">
@@ -282,7 +282,7 @@ export default function Admin_Hotel_Room_Details_Edit() {
                                 </label>
                                 <select
                                     name="hotel"
-                                    value={formData.hotelId || ""}
+                                    value={formData.hotel || ""}
                                     onChange={handleChange}
                                     className={`w-full border rounded px-3 py-2 ${errors.roomNumber ? "border-red-500" : "border-gray-400"
                                         }`}
@@ -306,14 +306,18 @@ export default function Admin_Hotel_Room_Details_Edit() {
                             <label className="block text-gray-700" htmlFor="status">
                                 Status
                             </label>
-                            <input
-                                type="text"
+                            <select
                                 name="status"
                                 value={formData.status || ""}
                                 onChange={handleChange}
-                                className={`w-full border rounded px-3 py-2 ${errors.status ? "border-red-500" : "border-gray-400"
-                                    }`}
-                            />
+                                className={`w-full border rounded px-3 py-2 ${errors.status ? "border-red-500" : "border-gray-400"}`}
+                            >
+                                <option value="">Select Status</option>
+                                <option value={RoomStatus.AVAILABLE}>Available</option>
+                                <option value={RoomStatus.OCCUPIED}>Occupied</option>
+                                <option value={RoomStatus.MAINTENANCE}>Under Maintenance</option>
+                                <option value={RoomStatus.RESERVED}>Reserved</option>
+                            </select>
                             {errors.status && <p className="text-red-500 text-sm mt-1">{errors.status}</p>}
                         </div>
 
