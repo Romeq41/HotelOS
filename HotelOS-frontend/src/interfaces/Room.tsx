@@ -1,6 +1,14 @@
+
+export enum RoomStatus {
+    AVAILABLE = "AVAILABLE",
+    OCCUPIED = "OCCUPIED",
+    RESERVED = "RESERVED",
+    MAINTENANCE = "MAINTENANCE",
+}
+
 export interface Room {
     roomId: string;
-    hotelId: string;
+    hotel: any;
     roomNumber: string;
     type: string;
     capacity: number | null;

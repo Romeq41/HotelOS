@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Table, Button } from 'antd';
-import AdminHeader from '../components/Adminpage/AdminHeader';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Room } from '../interfaces/Room';
 import { Popconfirm } from 'antd';
+import Header from '../components/Header';
 
 export default function Admin_Hotel_Rooms() {
     const { id } = useParams();
@@ -21,6 +21,8 @@ export default function Admin_Hotel_Rooms() {
                         'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
                     },
                 });
+
+                console.log(response)
 
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -66,7 +68,6 @@ export default function Admin_Hotel_Rooms() {
 
             console.log(`Room with ID ${roomId} deleted successfully`);
 
-            // Remove the deleted room from the state
             setRooms((prevRooms) => prevRooms.filter((room) => room.roomId !== roomId));
         } catch (error) {
             console.error('Error deleting room:', error);
@@ -97,7 +98,7 @@ export default function Admin_Hotel_Rooms() {
         {
             title: 'Hotel Name',
             key: 'hotelName',
-            render: (_: any, record: Room) => record.hotelId?.name || 'No Hotel Assigned',
+            render: (_: any, record: Room) => record.hotel || 'No Hotel Assigned',
         },
         {
             title: 'Actions',
@@ -125,16 +126,16 @@ export default function Admin_Hotel_Rooms() {
     return (
 
         console.log('Rooms:', rooms),
+
         <div className="flex flex-col min-h-screen bg-gray-100">
             {/* Header */}
-            <AdminHeader />
+            <Header isGradient={false} bg_color="white" textColor='black' />
 
-            {/* Title */}
-            <header className="bg-blue-50 shadow-md rounded-lg p-5 float-end w-full flex justify-center gap-10 items-center">
+            <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-center gap-10 items-center">
                 <h1 className="text-2xl font-bold">Rooms</h1>
 
                 <Button type="primary" onClick={() => navigate(`/admin/hotels/${id}/rooms/add`)}>Add Room</Button>
-            </header>
+            </div>
             {/* Content */}
             <main className="flex-grow p-5">
                 <div className="bg-white shadow-md rounded-lg p-5">

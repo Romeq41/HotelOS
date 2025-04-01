@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Room } from "../interfaces/Room";
-import AdminHeader from "../components/Adminpage/AdminHeader";
+import Header from "../components/Header";
 
 export default function Admin_Hotel_Room_details() {
     const { id } = useParams<{ id: string }>();
@@ -31,9 +31,9 @@ export default function Admin_Hotel_Room_details() {
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
             {/* Header */}
-            <AdminHeader />
+            <Header isGradient={false} bg_color="white" textColor='black' />
             {/* Title */}
-            <div className="container mx-auto py-8 px-4">
+            <div className="container mt-20 mx-auto py-8 px-4">
                 {room ? (
                     <div className="flex flex-col md:flex-row bg-white shadow-md rounded-lg overflow-hidden">
                         <div className="md:w-1/2">
@@ -69,7 +69,7 @@ export default function Admin_Hotel_Room_details() {
 
                             <hr className="block my-3" />
                             <button
-                                onClick={() => navigate("/admin/hotels/" + room.hotelId + "/rooms/" + room.roomId + "/edit")}
+                                onClick={() => navigate("/admin/hotels/" + room.hotel + "/rooms/" + room.roomId + "/edit")}
                                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-2"
                             >
                                 Edit Room

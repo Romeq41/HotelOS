@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import AdminHeader from "../components/Adminpage/AdminHeader";
 import { User } from "../interfaces/User";
 import { Hotel } from "../interfaces/Hotel";
+import Header from "../components/Header";
 
 export default function Admin_User_Edit() {
     const { id } = useParams<{ id: string }>();
@@ -161,8 +161,8 @@ export default function Admin_User_Edit() {
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            <AdminHeader />
-            <div className="container mx-auto py-8 px-4">
+            <Header isGradient={false} bg_color="white" textColor='black' />
+            <div className="container mt-20 mx-auto py-8 px-4">
                 {formData ? (
                     <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

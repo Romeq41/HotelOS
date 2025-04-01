@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import AdminHeader from "../components/Adminpage/AdminHeader";
 import { User } from "../interfaces/User";
+import Header from "../components/Header";
 
 export default function Admin_User_overview() {
     const { id } = useParams<{ id: string }>();
@@ -32,9 +32,9 @@ export default function Admin_User_overview() {
 
         <div className="flex flex-col min-h-screen bg-gray-100">
             {/* Header */}
-            <AdminHeader />
+            <Header isGradient={false} bg_color="white" textColor='black' />
             {/* Title */}
-            <div className="container mx-auto py-8 px-4">
+            <div className="container mt-20 mx-auto py-8 px-4">
                 {user ? (
                     <div className="flex flex-col md:flex-row bg-white shadow-md rounded-lg overflow-hidden">
                         <div className="md:w-1/2">

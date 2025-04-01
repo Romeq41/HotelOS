@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Table, Button, Popconfirm } from 'antd';
-import AdminHeader from '../components/Adminpage/AdminHeader';
 import { useNavigate } from 'react-router-dom';
 import { Hotel } from '../interfaces/Hotel';
+import Header from '../components/Header';
 
 export default function Hotels() {
     const navigate = useNavigate();
@@ -140,12 +140,13 @@ export default function Hotels() {
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
             {/* Header */}
-            <AdminHeader />
+            <Header isGradient={false} bg_color="white" textColor='black' />
+
             {/* Title */}
-            <header className="bg-blue-50 shadow-md rounded-lg p-5 float-end w-full flex justify-center gap-10 items-center">
+            <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-center gap-10 items-center">
                 <h1 className="text-2xl font-bold">Hotels</h1>
                 <Button type="primary" href="/admin/hotels/add">Add Hotel</Button>
-            </header>
+            </div>
 
             {/* Content */}
             <main className="flex-grow p-5">

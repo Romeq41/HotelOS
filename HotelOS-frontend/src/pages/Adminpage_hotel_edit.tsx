@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import AdminHeader from "../components/Adminpage/AdminHeader";
+import Header from "../components/Header";
 
 interface HotelData {
     id?: string;
@@ -114,8 +114,8 @@ export default function Adminpage_hotel_edit() {
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            <AdminHeader />
-            <div className="container mx-auto py-8 px-4">
+            <Header isGradient={false} bg_color="white" textColor='black' />
+            <div className="container mt-20 mx-auto py-8 px-4">
 
                 <div className="bg-white shadow-md rounded-lg p-6">
                     <form onSubmit={handleSubmit} className="bg-white rounded-lg">

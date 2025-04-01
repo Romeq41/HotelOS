@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Table, Button } from 'antd';
-import AdminHeader from '../components/Adminpage/AdminHeader';
 import { useNavigate } from 'react-router-dom';
-import { User } from '../interfaces/User';
+import { User, UserType } from '../interfaces/User';
 import { Popconfirm } from 'antd';
+import Header from '../components/Header';
 
 
 
@@ -39,10 +39,8 @@ export default function Users() {
                 const data = await response.json();
                 console.log('Users data:', data);
 
-                // Filter out admin users
-                const nonAdminUsers = data.filter((user: User) => user.userType !== 'ADMIN');
+                const nonAdminUsers = data.filter((user: User) => user.userType !== UserType.ADMIN);
 
-                // Add a unique key to each user
                 const usersWithKeys = nonAdminUsers.map((user: User) => ({
                     ...user,
                     key: user.userId,
@@ -74,7 +72,6 @@ export default function Users() {
 
             console.log(`User with ID ${userId} deleted successfully`);
 
-            // Remove the deleted user from the state
             setUsers((prevUsers) => prevUsers.filter((user) => user.userId !== userId));
         } catch (error) {
             console.error('Error deleting user:', error);
@@ -139,13 +136,13 @@ export default function Users() {
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
             {/* Header */}
-            <AdminHeader />
+            <Header isGradient={false} bg_color="white" textColor='black' />
 
             {/* Title */}
-            <header className="bg-blue-50 shadow-md rounded-lg p-5 float-end w-full flex justify-center gap-10 items-center">
+            <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-center gap-10 items-center">
                 <h1 className="text-2xl font-bold">Users</h1>
                 <Button type="primary" href="/admin/users/add">Add User</Button>
-            </header>
+            </div>
             {/* Content */}
             <main className="flex-grow p-5">
                 <div className="bg-white shadow-md rounded-lg p-5">

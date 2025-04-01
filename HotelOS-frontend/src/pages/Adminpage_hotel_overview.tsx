@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Hotel } from "../interfaces/Hotel";
-import AdminHeader from "../components/Adminpage/AdminHeader";
+import Header from "../components/Header";
 
 export default function Admin_Hotel_overview() {
     const { id } = useParams<{ id: string }>();
@@ -21,20 +21,35 @@ export default function Admin_Hotel_overview() {
                     },
                 });
                 const data = await res.json();
-                setHotel(data);
                 console.log(data);
+                setHotel(data);
             }
         };
+
+        const fetchUsers = async () => {
+            if (id) {
+                const res = await fetch(`http://localhost:8080/api/hotels/${id}/users`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
+                    },
+                });
+                const data = await res.json();
+                console.log(data);
+            }
+        }
+
         fetchHotel();
+        fetchUsers();
     }, [id]);
 
     return (
-
         <div className="flex flex-col min-h-screen bg-gray-100">
             {/* Header */}
-            <AdminHeader />
+            <Header isGradient={false} bg_color="white" textColor='black' />
             {/* Title */}
-            <div className="container mx-auto py-8 px-4">
+            <div className="container mt-20 mx-auto py-8 px-4">
                 {hotel ? (
                     <div className="flex flex-col md:flex-row bg-white shadow-md rounded-lg overflow-hidden">
                         <div className="md:w-1/2">
@@ -87,9 +102,15 @@ export default function Admin_Hotel_overview() {
 
                             <button
                                 onClick={() => navigate("/admin/hotels/" + hotel.id + "/rooms")}
-                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-2"
                             >
                                 See Rooms
+                            </button>
+                            <button
+                                onClick={() => navigate("/admin/hotels/" + hotel.id + "/users")}
+                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-2"
+                            >
+                                See Employees
                             </button>
                         </div>
                     </div>

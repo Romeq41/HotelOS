@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AdminHeader from '../components/Adminpage/AdminHeader';
+import Header from '../components/Header';
 
 export default function AddUser() {
     const [formData, setFormData] = useState({
@@ -122,8 +122,8 @@ export default function AddUser() {
 
     return (
         <div className="min-h-screen bg-gray-100">
-            <AdminHeader />
-            <div className="container mx-auto p-6">
+            <Header isGradient={false} bg_color="white" textColor='black' />
+            <div className="container mt-20 mx-auto py-8 px-4">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6">Add User</h1>
                 <form
                     onSubmit={handleSubmit}

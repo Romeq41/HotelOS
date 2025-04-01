@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AdminHeader from '../components/Adminpage/AdminHeader';
+import Header from '../components/Header';
 
 export default function AddHotel() {
     const [formData, setFormData] = useState({
@@ -74,7 +75,6 @@ export default function AddHotel() {
 
         if (Object.values(validationErrors).every((err) => err === '')) {
             try {
-                // Step 1: Create the hotel
                 const response = await fetch('http://localhost:8080/api/hotels', {
                     method: 'POST',
                     headers: {
@@ -169,8 +169,8 @@ export default function AddHotel() {
 
     return (
         <div className="min-h-screen bg-gray-100">
-            <AdminHeader />
-            <div className="container mx-auto p-6">
+            <Header isGradient={false} bg_color="white" textColor='black' />
+            <div className="container mt-20 mx-auto py-8 px-4">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6">Add Hotel</h1>
                 <form
                     onSubmit={handleSubmit}
