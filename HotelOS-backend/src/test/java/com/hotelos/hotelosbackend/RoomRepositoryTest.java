@@ -2,6 +2,7 @@ package com.hotelos.hotelosbackend;
 
 import com.hotelos.hotelosbackend.models.Hotel;
 import com.hotelos.hotelosbackend.models.Room;
+import com.hotelos.hotelosbackend.models.RoomStatus;
 import com.hotelos.hotelosbackend.repository.HotelRepository;
 import com.hotelos.hotelosbackend.repository.RoomRepository;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ class RoomRepositoryTest {
         room.setType("Standard");
         room.setCapacity(2);
         room.setRate(BigDecimal.valueOf(100.00));
-        room.setStatus("Available");
+        room.setStatus(RoomStatus.AVAILABLE);
 
         Room savedRoom = roomRepository.save(room);
         Optional<Room> foundRoom = roomRepository.findById(savedRoom.getRoomId());

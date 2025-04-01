@@ -32,9 +32,12 @@ public class Room {
     @Basic
     @Column(name = "rate")
     private BigDecimal rate;
+
     @Basic
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status;
+    private RoomStatus status;
+
     @Basic
     @Column(name = "description")
     private String description;
