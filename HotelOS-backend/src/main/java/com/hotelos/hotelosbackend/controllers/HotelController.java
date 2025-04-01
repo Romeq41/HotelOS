@@ -2,6 +2,7 @@ package com.hotelos.hotelosbackend.controllers;
 
 import com.hotelos.hotelosbackend.models.Hotel;
 import com.hotelos.hotelosbackend.models.Room;
+import com.hotelos.hotelosbackend.models.User;
 import com.hotelos.hotelosbackend.services.HotelServices;
 import com.hotelos.hotelosbackend.services.RoomServices;
 import com.hotelos.hotelosbackend.services.UserServices;
@@ -91,6 +92,20 @@ public class HotelController {
     public ResponseEntity<Hotel> getHotelById(@PathVariable Long id) {
         return hotelServices.getHotelById(id)
                 .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/users")
+    public ResponseEntity<List<User>> getUsersByHotel(@PathVariable Long id) {
+        System.out.println("Hotel ID: " + id);
+        return hotelServices.getHotelById(id)
+                .map(hotel -> {
+                    System.out.println(hotel);
+                    List<User> users = userServices.getUsersByHotel(hotel);
+                    System.out.println("hello");
+                    System.out.println(users);
+                    return ResponseEntity.ok(users);
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
 

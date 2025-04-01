@@ -77,7 +77,7 @@ public class User implements UserDetails {
 
     @ManyToOne
     @JoinColumn(name = "hotel_id")
-    private Hotel hotel; // Only relevant for staff, managers
+    private Hotel hotel;
 
     @Basic
     @Column(name = "image_path")

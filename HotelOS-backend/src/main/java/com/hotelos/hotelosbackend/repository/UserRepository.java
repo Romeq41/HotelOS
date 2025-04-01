@@ -12,7 +12,8 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByUserType(UserType userType);
-    List<User> findByHotel(Hotel hotelId);
+    List<User> findByHotel(Hotel hotel);
+    List<User> findByHotelId(long id);
     Optional<User> findByEmail(String email);
     List<User> findByUserTypeAndHotelId(UserType userType, Long hotelId);
 }
