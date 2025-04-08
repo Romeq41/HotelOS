@@ -1,0 +1,22 @@
+services:
+  postgres_container:
+    image: postgres:15
+    container_name: hotelOS_container
+    restart: always
+    environment:
+      POSTGRES_DB: HotelOS
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - my_network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+networks:
+  my_network:
+
+volumes:
+  postgres_data:
