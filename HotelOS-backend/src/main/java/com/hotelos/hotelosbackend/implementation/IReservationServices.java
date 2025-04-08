@@ -22,6 +22,12 @@ public class IReservationServices implements ReservationServices {
     }
 
     @Override
+    public List<Reservation> getAllReservationsByHotelId(Long hotelId) {
+        return reservationRepository.findAllByHotelId(hotelId);
+    }
+
+
+    @Override
     public List<Reservation> getAllReservations() {
         return reservationRepository.findAll();
     }

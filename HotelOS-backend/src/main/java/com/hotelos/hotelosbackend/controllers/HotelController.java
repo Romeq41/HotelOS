@@ -96,7 +96,7 @@ public class HotelController {
     }
 
     @GetMapping("/{id}/users")
-    public ResponseEntity<List<User>> getUsersByHotel(@PathVariable Long id) {
+    public ResponseEntity<List<User>> getUsersByHotelId(@PathVariable Long id) {
         System.out.println("Hotel ID: " + id);
         return hotelServices.getHotelById(id)
                 .map(hotel -> {

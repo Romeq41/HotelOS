@@ -17,6 +17,8 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<Reservation> addReservation(@RequestBody Reservation reservation) {
+
+        System.out.println(reservation);
         Reservation savedReservation = reservationServices.saveReservation(reservation);
         return ResponseEntity.ok(savedReservation);
     }
@@ -32,6 +34,23 @@ public class ReservationController {
         return reservationServices.getReservationById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Reservation> updateReservation(@PathVariable Long id, @RequestBody Reservation reservation) {
+        return reservationServices.getReservationById(id)
+                .map(existingReservation -> {
+                    reservation.setReservationId(id);
+                    Reservation updatedReservation = reservationServices.saveReservation(reservation);
+                    return ResponseEntity.ok(updatedReservation);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/hotel/{hotelId}")
+    public ResponseEntity<List<Reservation>> getAllReservationsByHotelId(@PathVariable Long hotelId) {
+        List<Reservation> reservations = reservationServices.getAllReservationsByHotelId(hotelId);
+        return ResponseEntity.ok(reservations);
     }
 
     @DeleteMapping("/{id}")
