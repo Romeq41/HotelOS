@@ -57,13 +57,12 @@ export default function Header({
 
     const renderMenuItems = () => {
         if (!user) return null;
-        console.log(user);
         switch (user.userType) {
             case UserType.ADMIN:
                 return (
                     <>
                         <li className="py-4 border-b border-gray-300">
-                            <button onClick={() => navigate("/admin/users")} className="block w-full text-left text-lg hover:bg-gray-100">
+                            <button onClick={() => navigate("/admin/hotels")} className="block w-full text-left text-lg hover:bg-gray-100">
                                 Adminpage
                             </button>
                         </li>

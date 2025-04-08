@@ -17,6 +17,10 @@ import Admin_Hotel_Rooms from "./pages/Adminpage_hotel_rooms";
 import Admin_Hotel_Room_details from "./pages/Adminpage_hotel_room_details";
 import Admin_Hotel_Room_Details_Edit from "./pages/Adminpage_hotel_room_details_edit";
 import Admin_Hotel_Users from "./pages/Adminpage_hotel_users";
+import Admin_Hotel_Room_Reservations from "./pages/Adminpage_hotel_room_reservations";
+import AddReservation from "./pages/AddReservation";
+import Admin_Hotel_Room_Reservation_Details from "./pages/Adminpage_hotel_room_reservation_details";
+import Adminpage_hotel_room_reservation_details_edit from "./pages/Adminpage_hotel_room_reservation_details_edit";
 
 
 
@@ -38,6 +42,10 @@ const App = () => {
                     <Route path="/admin/hotels/:id/users" element={<Admin_Hotel_Users />} />
                     <Route path="/admin/hotels/:id/rooms/add" element={<AddRoom />} />
                     <Route path="/admin/hotels/:id/rooms/:id" element={<Admin_Hotel_Room_details />} />
+                    <Route path="/admin/hotels/:id/reservations" element={<Admin_Hotel_Room_Reservations />} />
+                    <Route path="/admin/hotels/:id/reservations/add" element={<AddReservation />} />
+                    <Route path="/admin/hotels/:hotelId/reservations/:reservationId" element={<Admin_Hotel_Room_Reservation_Details />} />
+                    <Route path="/admin/hotels/:hotelId/reservations/:reservationId/edit" element={<Adminpage_hotel_room_reservation_details_edit />} />
                     <Route path="/admin/hotels/:hotelId/rooms/:roomId/edit" element={<Admin_Hotel_Room_Details_Edit />} />
                     <Route path="/admin/users" element={<Users />} />
                     <Route path="/admin/users/add" element={<AddUser />} />
