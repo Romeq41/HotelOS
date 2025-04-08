@@ -1,20 +1,22 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Popconfirm } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { Hotel } from '../interfaces/Hotel';
+import { Table, Button } from 'antd';
+import { useNavigate, useParams } from 'react-router-dom';
+import { User, UserType } from '../interfaces/User';
+import { Popconfirm } from 'antd';
 import Header from '../components/Header';
 
-export default function Hotels() {
+
+
+export default function Admin_Hotel_Users() {
+    const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
-    const [hotels, setHotels] = useState<Hotel[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
 
     useEffect(() => {
-
-        const fetchHotelsData = async () => {
-
+        const fetchUsersData = async () => {
             try {
-                const response = await fetch('http://localhost:8080/api/hotels', {
+                const response = await fetch(`http://localhost:8080/api/hotels/${id}/users`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -35,28 +37,29 @@ export default function Hotels() {
                     window.location.href = '/login';
                 }
 
-
-                if (response.status === 200) {
-                    console.log('Hotels data fetched successfully:', response);
-                }
-
                 const data = await response.json();
-                console.log('Hotels data:', data);
+                console.log('Users data:', data);
 
-                setHotels(data);
+                const nonAdminUsers = data.filter((user: User) => user.userType !== UserType.ADMIN);
+
+                const usersWithKeys = nonAdminUsers.map((user: User) => ({
+                    ...user,
+                    key: user.userId,
+                }));
+
+                setUsers(usersWithKeys);
 
             } catch (error) {
-                console.error('Error fetching hotels data:', error);
+                console.error('Error fetching users data:', error);
             }
+        };
 
-        }
-
-        fetchHotelsData();
+        fetchUsersData();
     }, []);
 
-    const handleDelete = async (hotelID: string) => {
+    const handleDelete = async (userId: string) => {
         try {
-            const response = await fetch(`http://localhost:8080/api/hotels/${hotelID}`, {
+            const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -68,35 +71,40 @@ export default function Hotels() {
                 throw new Error('Failed to delete user');
             }
 
-            console.log(`User with ID ${hotelID} deleted successfully`);
+            console.log(`User with ID ${userId} deleted successfully`);
 
-            // Remove the deleted user from the state
-            setHotels((prevUsers) => prevUsers.filter((hotel) => hotel.id !== hotelID));
+            setUsers((prevUsers) => prevUsers.filter((user) => user.userId !== userId));
         } catch (error) {
             console.error('Error deleting user:', error);
         }
     };
 
+
     const columns = [
         {
-            title: 'id',
-            dataIndex: 'id',
-            key: 'id',
+            title: 'Email',
+            dataIndex: 'email',
+            key: 'email',
         },
         {
-            title: 'Hotel Name',
-            dataIndex: 'name',
+            title: 'First Name',
+            dataIndex: 'firstName',
+            key: 'firstName',
+        },
+        {
+            title: 'Last Name',
+            dataIndex: 'lastName',
+            key: 'lastName',
+        },
+        {
+            title: 'Name',
             key: 'name',
+            render: (_: any, record: User) => record.hotel?.name || 'No Hotel Assigned',
         },
         {
-            title: 'City',
-            dataIndex: 'city',
-            key: 'city',
-        },
-        {
-            title: 'State',
-            dataIndex: 'state',
-            key: 'state',
+            title: 'Position',
+            dataIndex: 'position',
+            key: 'position',
         },
         {
             title: 'Address',
@@ -104,23 +112,13 @@ export default function Hotels() {
             key: 'address',
         },
         {
-            title: 'Country',
-            dataIndex: 'country',
-            key: 'country',
-        },
-        {
-            title: 'Zip Code',
-            dataIndex: 'zipCode',
-            key: 'zipCode',
-        },
-        {
             title: 'Actions',
             key: 'actions',
-            render: (_: any, record: Hotel) => (
+            render: (_: any, record: User) => (
                 <div onClick={(e) => e.stopPropagation() /* Prevent row click when interacting with Popconfirm */}>
                     <Popconfirm
-                        title="Are you sure you want to delete this hotel?"
-                        onConfirm={() => handleDelete(record.id)}
+                        title="Are you sure you want to delete this user?"
+                        onConfirm={() => handleDelete(record.userId)}
                         okText="Yes"
                         cancelText="No"
                     >
@@ -133,8 +131,7 @@ export default function Hotels() {
                     </Popconfirm>
                 </div>
             ),
-        }
-
+        },
     ];
 
     return (
@@ -144,20 +141,19 @@ export default function Hotels() {
 
             {/* Title */}
             <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-center gap-10 items-center">
-                <h1 className="text-2xl font-bold">Hotels</h1>
-                <Button type="primary" href="/admin/hotels/add">Add Hotel</Button>
+                <h1 className="text-2xl font-bold">Users</h1>
+                <Button type="primary" href="/admin/users/add">Add User</Button>
             </div>
-
             {/* Content */}
             <main className="flex-grow p-5">
                 <div className="bg-white shadow-md rounded-lg p-5">
                     <Table
                         columns={columns}
-                        dataSource={hotels}
+                        dataSource={users}
                         onRow={(record) => ({
-                            onClick: () => navigate(`/admin/hotels/${record.id}`),
+                            onClick: () => navigate(`/admin/users/${record.userId}`),
                         })}
-                        rowClassName="cursor-pointer hover:bg-gray-100"
+                        rowClassName="cursor-pointer hover:bg-gray-100 hover:shadow-md transition-all"
                     />
                 </div>
             </main>

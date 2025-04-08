@@ -4,14 +4,46 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Room } from '../interfaces/Room';
 import { Popconfirm } from 'antd';
 import Header from '../components/Header';
+import { Hotel } from '../interfaces/Hotel';
 
 export default function Admin_Hotel_Rooms() {
     const { id } = useParams();
     const navigate = useNavigate();
 
     const [rooms, setRooms] = useState<Room[]>([]);
+    const [hotel, setHotel] = useState<Hotel>();
 
     useEffect(() => {
+        const fetchHotelData = async () => {
+            try {
+                const response = await fetch(`http://localhost:8080/api/hotels/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                if (response.status === 401 || response.status === 403) {
+                    console.log('Unauthorized or forbidden access. Redirecting to login page...');
+                    window.location.href = '/login';
+                }
+
+                const data = await response.json();
+                console.log('Hotel data:', data);
+
+                setHotel(data);
+
+            } catch (error) {
+                console.error('Error fetching hotel data:', error);
+            }
+        };
+        fetchHotelData();
+
         const fetchRoomsData = async () => {
             try {
                 const response = await fetch('http://localhost:8080/api/rooms/hotel/' + id, {
@@ -36,7 +68,6 @@ export default function Admin_Hotel_Rooms() {
                 const data = await response.json();
                 console.log('Rooms data:', data);
 
-                // Add a unique key to each room
                 const roomsWithKeys = data.map((room: Room) => ({
                     ...room,
                     key: room.roomId,
@@ -96,15 +127,10 @@ export default function Admin_Hotel_Rooms() {
             key: 'status',
         },
         {
-            title: 'Hotel Name',
-            key: 'hotelName',
-            render: (_: any, record: Room) => record.hotel || 'No Hotel Assigned',
-        },
-        {
             title: 'Actions',
             key: 'actions',
             render: (_: any, record: Room) => (
-                <div onClick={(e) => e.stopPropagation() /* Prevent row click when interacting with Popconfirm */}>
+                <div onClick={(e) => e.stopPropagation()}>
                     <Popconfirm
                         title="Are you sure you want to delete this room?"
                         onConfirm={() => handleDelete(record.roomId)}
@@ -132,7 +158,7 @@ export default function Admin_Hotel_Rooms() {
             <Header isGradient={false} bg_color="white" textColor='black' />
 
             <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-center gap-10 items-center">
-                <h1 className="text-2xl font-bold">Rooms</h1>
+                <h1 className="text-2xl font-bold">{hotel?.name} : Rooms</h1>
 
                 <Button type="primary" onClick={() => navigate(`/admin/hotels/${id}/rooms/add`)}>Add Room</Button>
             </div>

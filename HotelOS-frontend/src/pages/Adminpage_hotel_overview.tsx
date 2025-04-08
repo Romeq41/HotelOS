@@ -107,6 +107,12 @@ export default function Admin_Hotel_overview() {
                                 See Rooms
                             </button>
                             <button
+                                onClick={() => navigate("/admin/hotels/" + hotel.id + "/reservations")}
+                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-2"
+                            >
+                                See Reservations
+                            </button>
+                            <button
                                 onClick={() => navigate("/admin/hotels/" + hotel.id + "/users")}
                                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-2"
                             >
