@@ -31,6 +31,10 @@ public class Reservation {
     private Room room;
 
     @Basic
+    @Column(name = "reservation_name")
+    private String reservationName;
+
+    @Basic
     @Column(name = "check_in_date")
     private Date checkInDate;
 
@@ -39,8 +43,9 @@ public class Reservation {
     private Date checkOutDate;
 
     @Basic
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status;
+    private ReservationStatus status;
 
     @Basic
     @Column(name = "total_amount")

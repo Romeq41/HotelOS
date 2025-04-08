@@ -1,9 +1,6 @@
 package com.hotelos.hotelosbackend;
 
-import com.hotelos.hotelosbackend.models.Hotel;
-import com.hotelos.hotelosbackend.models.Reservation;
-import com.hotelos.hotelosbackend.models.Room;
-import com.hotelos.hotelosbackend.models.User;
+import com.hotelos.hotelosbackend.models.*;
 import com.hotelos.hotelosbackend.repository.HotelRepository;
 import com.hotelos.hotelosbackend.repository.ReservationRepository;
 import com.hotelos.hotelosbackend.repository.RoomRepository;
@@ -57,14 +54,14 @@ class ReservationRepositoryTest {
         reservation.setRoom(room);
         reservation.setCheckInDate(Date.valueOf(LocalDate.now()));
         reservation.setCheckOutDate(Date.valueOf(LocalDate.now().plusDays(1)));
-        reservation.setStatus("Booked");
+        reservation.setStatus(ReservationStatus.CONFIRMED);
         reservation.setTotalAmount(BigDecimal.valueOf(100.00));
 
         Reservation savedReservation = reservationRepository.save(reservation);
         Optional<Reservation> foundReservation = reservationRepository.findById(savedReservation.getReservationId());
 
         assertThat(foundReservation).isPresent();
-        assertThat(foundReservation.get().getStatus()).isEqualTo("Booked");
+        assertThat(foundReservation.get().getStatus()).isEqualTo(ReservationStatus.CONFIRMED);
     }
 
     @Test
@@ -88,13 +85,13 @@ class ReservationRepositoryTest {
         reservation.setRoom(room);
         reservation.setCheckInDate(Date.valueOf(LocalDate.now()));
         reservation.setCheckOutDate(Date.valueOf(LocalDate.now().plusDays(1)));
-        reservation.setStatus("Booked");
+        reservation.setStatus(ReservationStatus.CONFIRMED);
         reservation = reservationRepository.save(reservation);
 
-        reservation.setStatus("Checked In");
+        reservation.setStatus(ReservationStatus.CHECKED_IN);
         Reservation updatedReservation = reservationRepository.save(reservation);
 
-        assertThat(updatedReservation.getStatus()).isEqualTo("Checked In");
+        assertThat(updatedReservation.getStatus()).isEqualTo(ReservationStatus.CHECKED_IN);
     }
 
     @Test
@@ -118,7 +115,7 @@ class ReservationRepositoryTest {
         reservation.setRoom(room);
         reservation.setCheckInDate(Date.valueOf(LocalDate.now()));
         reservation.setCheckOutDate(Date.valueOf(LocalDate.now().plusDays(1)));
-        reservation.setStatus("Booked");
+        reservation.setStatus(ReservationStatus.CONFIRMED);
         reservation = reservationRepository.save(reservation);
 
         reservationRepository.delete(reservation);
