@@ -1,8 +1,14 @@
 package com.hotelos.hotelosbackend.controllers;
 
+import com.hotelos.hotelosbackend.dto.HotelDto;
+import com.hotelos.hotelosbackend.dto.ReservationDto;
+import com.hotelos.hotelosbackend.mapper.ReservationMapper;
 import com.hotelos.hotelosbackend.models.Reservation;
 import com.hotelos.hotelosbackend.services.ReservationServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +21,9 @@ public class ReservationController {
     @Autowired
     private ReservationServices reservationServices;
 
+    @Autowired
+    private ReservationMapper reservationMapper;
+
     @PostMapping
     public ResponseEntity<Reservation> addReservation(@RequestBody Reservation reservation) {
 
@@ -23,11 +32,18 @@ public class ReservationController {
         return ResponseEntity.ok(savedReservation);
     }
 
-    @GetMapping
-    public ResponseEntity<List<Reservation>> getAllReservations() {
-        List<Reservation> reservations = reservationServices.getAllReservations();
-        return ResponseEntity.ok(reservations);
-    }
+//    @GetMapping
+//    public ResponseEntity<Page<ReservationDto>> getAllReservations(
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size,
+//
+//            @RequestParam(required = false) String reservationName,
+//            @RequestParam(required = false) Long roomNumber
+//    ) {
+//        Pageable pageable = PageRequest.of(page, size);
+//        Page<ReservationDto> reservations = reservationServices.getReservationsWithFilters(reservationName, roomNumber, pageable).map(reservationMapper::toDto);
+//        return ResponseEntity.ok(reservations);
+//    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Reservation> getReservationById(@PathVariable Long id) {
@@ -48,8 +64,14 @@ public class ReservationController {
     }
 
     @GetMapping("/hotel/{hotelId}")
-    public ResponseEntity<List<Reservation>> getAllReservationsByHotelId(@PathVariable Long hotelId) {
-        List<Reservation> reservations = reservationServices.getAllReservationsByHotelId(hotelId);
+    public ResponseEntity<Page<ReservationDto>> getAllReservationsByHotelId(
+        @PathVariable Long hotelId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(required = false) String reservationName
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ReservationDto> reservations = reservationServices.getReservationsWithFilters(hotelId, reservationName, pageable).map(reservationMapper::toDto);
         return ResponseEntity.ok(reservations);
     }
 

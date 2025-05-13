@@ -1,9 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faBars, faTimes, faHotel } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faBars, faTimes, faHotel, faGlobe } from "@fortawesome/free-solid-svg-icons";
 import { useUser } from "../contexts/UserContext.tsx";
 import { UserType } from "../interfaces/User.tsx";
+import { useTranslation } from "react-i18next";
 
 interface HeaderProps {
     bg_color?: string;
@@ -30,11 +31,21 @@ export default function Header({
     const [currentWidth, setCurrentWidth] = useState(window.innerWidth);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
+
+    const { t, i18n } = useTranslation();
 
     const userMenuRef = useRef<HTMLDivElement>(null);
     const mobileMenuRef = useRef<HTMLDivElement>(null);
     const userButtonRef = useRef<HTMLButtonElement>(null);
     const menuButtonRef = useRef<HTMLButtonElement>(null);
+    const languageMenuRef = useRef<HTMLDivElement>(null);
+    const languageButtonRef = useRef<HTMLButtonElement>(null);
+
+    const languages = [
+        { code: 'en', name: 'English' },
+        { code: 'pl', name: 'Polski' },
+    ];
 
     useEffect(() => {
         const handleResize = () => setCurrentWidth(window.innerWidth);
@@ -60,6 +71,16 @@ export default function Header({
             ) {
                 setIsUserMenuOpen(false);
             }
+
+            if (
+                isLanguageMenuOpen &&
+                languageMenuRef.current &&
+                !languageMenuRef.current.contains(event.target as Node) &&
+                languageButtonRef.current &&
+                !languageButtonRef.current.contains(event.target as Node)
+            ) {
+                setIsLanguageMenuOpen(false);
+            }
         };
 
         document.addEventListener("mousedown", handleClickOutside);
@@ -68,7 +89,7 @@ export default function Header({
             window.removeEventListener("resize", handleResize);
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [isMenuOpen, isUserMenuOpen]);
+    }, [isMenuOpen, isUserMenuOpen, isLanguageMenuOpen]); ``
 
     const handleUserClick = () => {
         if (isAuth) {
@@ -88,6 +109,15 @@ export default function Header({
         setIsMenuOpen(!isMenuOpen);
     };
 
+    const toggleLanguageMenu = () => {
+        setIsLanguageMenuOpen(!isLanguageMenuOpen);
+    };
+
+    const changeLanguage = (lng: string) => {
+        i18n.changeLanguage(lng);
+        setIsLanguageMenuOpen(false);
+    };
+
     const navigateAndCloseMenus = (path: string) => {
         navigate(path);
         setIsMenuOpen(false);
@@ -102,17 +132,17 @@ export default function Header({
                     <>
                         <li className="py-4 border-b border-gray-300">
                             <button onClick={() => navigateAndCloseMenus("/admin/hotels")} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
-                                Adminpage
+                                {t("header.adminDashboard")}
                             </button>
                         </li>
                         <li className="py-4 border-b border-gray-300">
                             <button onClick={() => navigateAndCloseMenus("/admin/hotels")} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
-                                Hotels
+                                {t("header.hotels")}
                             </button>
                         </li>
                         <li className="py-4 border-b border-gray-300">
                             <button onClick={() => navigateAndCloseMenus("/admin/users")} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
-                                Users
+                                {t("header.users")}
                             </button>
                         </li>
                     </>
@@ -121,18 +151,18 @@ export default function Header({
                 return (
                     <>
                         <li className="py-4 border-b border-gray-300">
-                            <button onClick={() => navigateAndCloseMenus(`/hotels/${user.hotel.id}/overview`)} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
-                                Hotel Overview
+                            <button onClick={() => navigateAndCloseMenus(`/manager/hotel/${user.hotel?.id}/overview`)} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
+                                {t("hotel.overview", "Hotel Overview")}
                             </button>
                         </li>
                         <li className="py-4 border-b border-gray-300">
-                            <button onClick={() => navigateAndCloseMenus(`/hotels/${user.hotel.id}/staff`)} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
-                                Staff
+                            <button onClick={() => navigateAndCloseMenus(`/manager/hotel/${user.hotel?.id}/staff`)} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
+                                {t("hotel.staff", "Staff")}
                             </button>
                         </li>
                         <li className="py-4 border-b border-gray-300">
-                            <button onClick={() => navigateAndCloseMenus(`/hotels/${user.hotel.id}/rooms`)} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
-                                Rooms
+                            <button onClick={() => navigateAndCloseMenus(`/manager/hotel/${user.hotel?.id}/rooms`)} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
+                                {t("hotel.rooms")}
                             </button>
                         </li>
                     </>
@@ -140,8 +170,8 @@ export default function Header({
             case UserType.STAFF:
                 return (
                     <li className="py-4 border-b border-gray-300">
-                        <button onClick={() => navigateAndCloseMenus(`/hotels/${user.hotel.id}/rooms`)} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
-                            Room Occupancy
+                        <button onClick={() => navigateAndCloseMenus(`/hotels/${user.hotel?.id}/rooms`)} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
+                            {t("hotel.roomOccupancy", "Room Occupancy")}
                         </button>
                     </li>
                 );
@@ -198,14 +228,31 @@ export default function Header({
                         <ul className="text-left p-6">
                             <li className="py-4 border-b border-gray-300">
                                 <button onClick={handleProfileClick} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
-                                    {isAuth ? "Profile" : "Login"}
+                                    {isAuth ? t("header.profile") : t("auth.login")}
                                 </button>
                             </li>
                             {isAuth && renderMenuItems()}
+
+                            {/* Language selector in mobile menu */}
+                            <li className="py-4 border-b border-gray-300">
+                                <p className="text-lg font-medium mb-2">{t("header.language")}</p>
+                                <div className="flex flex-col gap-2">
+                                    {languages.map(lang => (
+                                        <button
+                                            key={lang.code}
+                                            onClick={() => changeLanguage(lang.code)}
+                                            className={`text-left px-2 py-1 rounded ${i18n.language === lang.code ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
+                                        >
+                                            {lang.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            </li>
+
                             {isAuth && (
                                 <li className="py-4 border-b border-gray-300">
                                     <button onClick={handleLogout} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
-                                        Logout
+                                        {t("auth.logout")}
                                     </button>
                                 </li>
                             )}
@@ -215,6 +262,36 @@ export default function Header({
             ) : (
                 // Desktop layout
                 <section className="flex space-x-4 p-4">
+                    {/* Language selector */}
+                    <div className="relative">
+                        <button
+                            ref={languageButtonRef}
+                            onClick={toggleLanguageMenu}
+                            className={`flex gap-2 items-center border text-${textColor} border-${textColor} hover:bg-${onHover} px-4 py-2 rounded-lg ease-in-out duration-200 cursor-pointer`}
+                        >
+                            <FontAwesomeIcon icon={faGlobe} size="lg" />
+                            <p>{i18n.language.toUpperCase()}</p>
+                        </button>
+
+                        <div
+                            ref={languageMenuRef}
+                            className={`absolute top-14 left-0 bg-white text-black shadow-lg rounded-lg overflow-hidden transition-opacity duration-300 ${isLanguageMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                        >
+                            <div className="p-2">
+                                {languages.map(lang => (
+                                    <button
+                                        key={lang.code}
+                                        onClick={() => changeLanguage(lang.code)}
+                                        className={`block w-full text-left px-4 py-2 rounded ${i18n.language === lang.code ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
+                                    >
+                                        {lang.name}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* User menu */}
                     <div className="relative">
                         <button
                             ref={userButtonRef}
@@ -222,7 +299,7 @@ export default function Header({
                             className={`flex gap-2 items-center border text-${textColor} border-${textColor} hover:bg-${onHover} px-4 py-2 rounded-lg ease-in-out duration-200 cursor-pointer`}
                         >
                             <FontAwesomeIcon icon={faUser} size="lg" />
-                            <p>{isAuth ? `${user?.firstName} ${user?.lastName}` : "Login"}</p>
+                            <p>{isAuth ? `${user?.firstName} ${user?.lastName}` : t("auth.login")}</p>
                         </button>
 
                         {isAuth && (
@@ -233,13 +310,13 @@ export default function Header({
                                 <ul className="text-left p-6">
                                     <li className="py-4 border-b border-gray-300">
                                         <button onClick={handleProfileClick} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
-                                            Profile
+                                            {t("header.profile")}
                                         </button>
                                     </li>
                                     {renderMenuItems()}
                                     <li className="py-4 border-b border-gray-300">
                                         <button onClick={handleLogout} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
-                                            Logout
+                                            {t("auth.logout")}
                                         </button>
                                     </li>
                                 </ul>

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Room, RoomStatus } from "../../../interfaces/Room";
 import { Hotel } from "../../../interfaces/Hotel";
 import { useLoading } from "../../../contexts/LoaderContext";
+import { useTranslation } from "react-i18next";
 import {
     Form,
     Input,
@@ -32,6 +33,7 @@ export default function Admin_Hotel_Room_Details_Edit() {
     const [hotelLoading, setHotelLoading] = useState(false);
     const [fileList, setFileList] = useState<UploadFile[]>([]);
     const { showLoader, hideLoader } = useLoading();
+    const { t } = useTranslation();
     const PAGE_SIZE = 10;
     const { Option } = Select;
 
@@ -68,14 +70,14 @@ export default function Admin_Hotel_Room_Details_Edit() {
                 }
             } catch (error) {
                 console.error("Error fetching room:", error);
-                message.error("Failed to load room data");
+                message.error(t('admin.hotels.rooms.edit.fetchError', 'Failed to load room data'));
             }
             hideLoader();
         };
 
         fetchRoom();
         fetchHotels(0, "");
-    }, [roomId, form, hotelId, navigate]);
+    }, [roomId, form, hotelId, navigate, t]);
 
     const fetchHotels = async (page: number, nameQuery: string) => {
         setHotelLoading(true);
@@ -103,8 +105,6 @@ export default function Admin_Hotel_Room_Details_Edit() {
 
             const data = await response.json();
 
-            // If this is page 0, replace the hotels list
-            // If it's a subsequent page, append to the list
             if (page === 0) {
                 setHotels(data.content);
             } else {
@@ -115,12 +115,11 @@ export default function Admin_Hotel_Room_Details_Edit() {
             setTotalHotelPages(data.totalPages);
         } catch (error) {
             console.error("Error fetching hotels:", error);
-            message.error("Failed to load hotels");
+            message.error(t('admin.hotels.rooms.edit.hotelFetchError', 'Failed to load hotels'));
         }
         setHotelLoading(false);
     };
 
-    // Load more hotels when scrolling
     const handlePopupScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const target = e.target as HTMLDivElement;
         if (target.scrollTop + target.offsetHeight === target.scrollHeight && hotelPage < totalHotelPages - 1) {
@@ -128,7 +127,6 @@ export default function Admin_Hotel_Room_Details_Edit() {
         }
     };
 
-    // Handle hotel search
     const handleHotelSearch = (value: string) => {
         setHotelSearchQuery(value);
         fetchHotels(0, value);
@@ -151,10 +149,8 @@ export default function Admin_Hotel_Room_Details_Edit() {
         showLoader();
 
         try {
-            // Structure the data correctly for the backend
-            // Include roomId explicitly to help the backend identify the room
             const roomDto = {
-                roomId: roomId, // Include this to help the backend
+                roomId: roomId,
                 roomNumber: Number(values.roomNumber),
                 type: values.type,
                 description: values.description,
@@ -166,7 +162,6 @@ export default function Admin_Hotel_Room_Details_Edit() {
 
             console.log("Room data to update:", roomDto);
 
-            // Update room data
             const response = await fetch(`http://localhost:8080/api/rooms/${roomId}`, {
                 method: "PUT",
                 headers: {
@@ -204,18 +199,18 @@ export default function Admin_Hotel_Room_Details_Edit() {
                 if (!imageResponse.ok) {
                     const errorText = await imageResponse.text();
                     console.error("Image upload error:", errorText);
-                    message.error("Failed to upload image");
+                    message.error(t('admin.hotels.rooms.edit.imageUploadError', 'Failed to upload image'));
                     throw new Error("Image upload failed.");
                 }
 
-                message.success("Image uploaded successfully");
+                message.success(t('admin.hotels.rooms.edit.imageUploadSuccess', 'Image uploaded successfully'));
             }
 
-            message.success("Room updated successfully");
+            message.success(t('admin.hotels.rooms.edit.updateSuccess', 'Room updated successfully'));
             navigate(`/admin/hotels/${values.hotel}/rooms`);
         } catch (error) {
             console.error("Error updating room:", error);
-            message.error("Failed to update room");
+            message.error(t('admin.hotels.rooms.edit.updateError', 'Failed to update room'));
         }
         hideLoader();
     };
@@ -229,7 +224,7 @@ export default function Admin_Hotel_Room_Details_Edit() {
         <div className="flex flex-col min-h-screen bg-gray-100">
             <div style={{ marginTop: '5rem', padding: '20px' }}>
                 <Card
-                    title={`Edit Room ${roomId}`}
+                    title={t('admin.hotels.rooms.edit.title', 'Edit Room')}
                     variant="outlined"
                     style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}
                 >
@@ -245,8 +240,8 @@ export default function Admin_Hotel_Room_Details_Edit() {
                                     <Col span={12}>
                                         <Form.Item
                                             name="roomNumber"
-                                            label="Room Number"
-                                            rules={[{ required: true, message: 'Please input room number!' }]}
+                                            label={t('admin.hotels.rooms.fields.roomNumber', 'Room Number')}
+                                            rules={[{ required: true, message: t('admin.hotels.rooms.validation.roomNumberRequired', 'Please input room number!') }]}
                                         >
                                             <InputNumber style={{ width: '100%' }} min={1} />
                                         </Form.Item>
@@ -254,8 +249,8 @@ export default function Admin_Hotel_Room_Details_Edit() {
                                     <Col span={12}>
                                         <Form.Item
                                             name="type"
-                                            label="Room Type"
-                                            rules={[{ required: true, message: 'Please input room type!' }]}
+                                            label={t('admin.hotels.rooms.fields.type', 'Room Type')}
+                                            rules={[{ required: true, message: t('admin.hotels.rooms.validation.typeRequired', 'Please input room type!') }]}
                                         >
                                             <Input />
                                         </Form.Item>
@@ -263,8 +258,8 @@ export default function Admin_Hotel_Room_Details_Edit() {
                                     <Col span={12}>
                                         <Form.Item
                                             name="capacity"
-                                            label="Capacity"
-                                            rules={[{ required: true, message: 'Please input capacity!' }]}
+                                            label={t('admin.hotels.rooms.fields.capacity', 'Capacity')}
+                                            rules={[{ required: true, message: t('admin.hotels.rooms.validation.capacityRequired', 'Please input capacity!') }]}
                                         >
                                             <InputNumber style={{ width: '100%' }} min={1} />
                                         </Form.Item>
@@ -272,8 +267,8 @@ export default function Admin_Hotel_Room_Details_Edit() {
                                     <Col span={12}>
                                         <Form.Item
                                             name="rate"
-                                            label="Rate"
-                                            rules={[{ required: true, message: 'Please input rate!' }]}
+                                            label={t('admin.hotels.rooms.fields.rate', 'Rate')}
+                                            rules={[{ required: true, message: t('admin.hotels.rooms.validation.rateRequired', 'Please input rate!') }]}
                                         >
                                             <InputNumber
                                                 style={{ width: '100%' }}
@@ -286,31 +281,31 @@ export default function Admin_Hotel_Room_Details_Edit() {
                                     <Col span={12}>
                                         <Form.Item
                                             name="status"
-                                            label="Status"
-                                            rules={[{ required: true, message: 'Please select status!' }]}
+                                            label={t('admin.hotels.rooms.fields.status', 'Status')}
+                                            rules={[{ required: true, message: t('admin.hotels.rooms.validation.statusRequired', 'Please select status!') }]}
                                         >
                                             <Select>
-                                                <Option value={RoomStatus.AVAILABLE}>Available</Option>
-                                                <Option value={RoomStatus.RESERVED}>Reserved</Option>
-                                                <Option value={RoomStatus.OCCUPIED}>Occupied</Option>
-                                                <Option value={RoomStatus.MAINTENANCE}>Under Maintenance</Option>
+                                                <Option value={RoomStatus.AVAILABLE}>{t('admin.hotels.rooms.status.available', 'Available')}</Option>
+                                                <Option value={RoomStatus.RESERVED}>{t('admin.hotels.rooms.status.reserved', 'Reserved')}</Option>
+                                                <Option value={RoomStatus.OCCUPIED}>{t('admin.hotels.rooms.status.occupied', 'Occupied')}</Option>
+                                                <Option value={RoomStatus.MAINTENANCE}>{t('admin.hotels.rooms.status.maintenance', 'Under Maintenance')}</Option>
                                             </Select>
                                         </Form.Item>
                                     </Col>
                                     <Col span={12}>
                                         <Form.Item
                                             name="hotel"
-                                            label="Hotel"
-                                            rules={[{ required: true, message: 'Please select a hotel!' }]}
+                                            label={t('admin.hotels.rooms.fields.hotel', 'Hotel')}
+                                            rules={[{ required: true, message: t('admin.hotels.rooms.validation.hotelRequired', 'Please select a hotel!') }]}
                                         >
                                             <Select
                                                 showSearch
-                                                placeholder="Select a hotel"
+                                                placeholder={t('admin.hotels.rooms.selectHotel', 'Select a hotel')}
                                                 loading={hotelLoading}
                                                 filterOption={false}
                                                 onSearch={handleHotelSearch}
                                                 onPopupScroll={handlePopupScroll}
-                                                notFoundContent={hotelLoading ? <Spin size="small" /> : "No hotels found"}
+                                                notFoundContent={hotelLoading ? <Spin size="small" /> : t('admin.hotels.rooms.noHotelsFound', 'No hotels found')}
                                             >
                                                 {hotels.map((hotel) => (
                                                     <Option key={hotel.id} value={hotel.id}>
@@ -323,7 +318,7 @@ export default function Admin_Hotel_Room_Details_Edit() {
                                     <Col span={24}>
                                         <Form.Item
                                             name="description"
-                                            label="Description"
+                                            label={t('admin.hotels.rooms.fields.description', 'Description')}
                                         >
                                             <Input.TextArea rows={3} />
                                         </Form.Item>
@@ -331,23 +326,23 @@ export default function Admin_Hotel_Room_Details_Edit() {
                                 </Row>
 
                                 <Form.Item
-                                    label="Room Image"
+                                    label={t('admin.hotels.rooms.fields.image', 'Room Image')}
                                     name="roomImage"
                                 >
                                     <Upload {...uploadProps} listType="picture">
-                                        <Button icon={<UploadOutlined />}>Select Image</Button>
+                                        <Button icon={<UploadOutlined />}>{t('admin.hotels.rooms.selectImage', 'Select Image')}</Button>
                                     </Upload>
                                 </Form.Item>
 
                                 <Form.Item>
                                     <Space>
                                         <Button type="primary" htmlType="submit">
-                                            Save Changes
+                                            {t('general.save', 'Save Changes')}
                                         </Button>
                                         <Button
                                             onClick={() => navigate(`/admin/hotels/${hotelId || room.hotel?.id || room.hotel?.id}/rooms`)}
                                         >
-                                            Cancel
+                                            {t('general.cancel', 'Cancel')}
                                         </Button>
                                     </Space>
                                 </Form.Item>
@@ -355,7 +350,7 @@ export default function Admin_Hotel_Room_Details_Edit() {
                         ) : (
                             <div style={{ textAlign: 'center', padding: '20px' }}>
                                 <Spin size="large" />
-                                <p style={{ marginTop: '10px' }}>Loading room data...</p>
+                                <p style={{ marginTop: '10px' }}>{t('admin.hotels.rooms.loading', 'Loading room data...')}</p>
                             </div>
                         )}
                     </Form>

@@ -1,5 +1,6 @@
 package com.hotelos.hotelosbackend.services;
 
+import com.hotelos.hotelosbackend.dto.HotelStatisticsDto;
 import com.hotelos.hotelosbackend.models.Hotel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,8 @@ public interface HotelServices {
     Hotel saveHotel(Hotel person);
 
     String storeFile(MultipartFile file) throws IOException;
+
+    HotelStatisticsDto getHotelStatistics(Hotel hotel);
 
     byte[] getFile(String filePath) throws IOException;
 

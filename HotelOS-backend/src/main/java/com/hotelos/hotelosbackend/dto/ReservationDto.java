@@ -15,6 +15,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class ReservationDto {
     private Long reservationId;
+    private String reservationName;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
     private BigDecimal totalAmount;

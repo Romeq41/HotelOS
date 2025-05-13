@@ -2,12 +2,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Room } from "../../../interfaces/Room";
 import { useLoading } from "../../../contexts/LoaderContext";
+import { useTranslation } from "react-i18next";
 
 export default function Admin_Hotel_Room_details() {
     const { roomId } = useParams<{ hotelId: string; roomId: string }>();
     const navigate = useNavigate();
     const [room, setRoom] = useState<Room | null>(null);
     const { showLoader, hideLoader } = useLoading();
+    const { t } = useTranslation();
 
     useEffect(() => {
         const fetchRoom = async () => {
@@ -15,15 +17,24 @@ export default function Admin_Hotel_Room_details() {
 
             console.log(`Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`)
             if (roomId) {
-                const res = await fetch(`http://localhost:8080/api/rooms/${roomId}`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                    },
-                });
-                const data = await res.json();
-                setRoom(data);
+                try {
+                    const res = await fetch(`http://localhost:8080/api/rooms/${roomId}`, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
+                        },
+                    });
+
+                    if (!res.ok) {
+                        throw new Error('Failed to fetch room data');
+                    }
+
+                    const data = await res.json();
+                    setRoom(data);
+                } catch (error) {
+                    console.error("Error fetching room data:", error);
+                }
             }
             hideLoader();
         };
@@ -43,27 +54,31 @@ export default function Admin_Hotel_Room_details() {
                             />
                         </div>
                         <div className="md:w-1/2 p-6">
-                            <h1 className="text-2xl font-bold mb-4">Room number: {room.roomNumber}</h1>
+                            <h1 className="text-2xl font-bold mb-4">
+                                {t('admin.hotels.rooms.details.roomNumber', 'Room number')}: {room.roomNumber}
+                            </h1>
                             <p className="text-gray-700 mb-2">
-                                <strong>ID:</strong> {room.roomId || "Unknown"}
+                                <strong>{t('admin.hotels.rooms.details.id', 'ID')}:</strong> {room.roomId || t('admin.hotels.unknown', 'Unknown')}
                             </p>
 
                             <hr className="block my-3" />
 
                             <p className="text-gray-700 mb-2">
-                                <strong>Description:</strong> {room.description || "Unknown"}
+                                <strong>{t('admin.hotels.rooms.details.description', 'Description')}:</strong> {room.description || t('admin.hotels.unknown', 'Unknown')}
                             </p>
                             <p className="text-gray-700 mb-2">
-                                <strong>Type:</strong> {room.type || "Unknown"}
+                                <strong>{t('admin.hotels.rooms.details.type', 'Type')}:</strong> {room.type || t('admin.hotels.unknown', 'Unknown')}
                             </p>
                             <p className="text-gray-700 mb-2">
-                                <strong>Price:</strong> ${room.rate || "Unknown"}
+                                <strong>{t('admin.hotels.rooms.details.price', 'Price')}:</strong> ${room.rate || t('admin.hotels.unknown', 'Unknown')}
                             </p>
                             <p className="text-gray-700 mb-2">
-                                <strong>Capacity:</strong> {room.capacity || "Unknown"}
+                                <strong>{t('admin.hotels.rooms.details.capacity', 'Capacity')}:</strong> {room.capacity || t('admin.hotels.unknown', 'Unknown')}
                             </p>
                             <p className="text-gray-700 mb-2">
-                                <strong>Status:</strong> {room.status ? "Available" : "Not Available"}
+                                <strong>{t('admin.hotels.rooms.details.status', 'Status')}:</strong> {room.status
+                                    ? t('admin.hotels.rooms.details.available', 'Available')
+                                    : t('admin.hotels.rooms.details.notAvailable', 'Not Available')}
                             </p>
 
                             <hr className="block my-3" />
@@ -71,12 +86,12 @@ export default function Admin_Hotel_Room_details() {
                                 onClick={() => navigate("/admin/hotels/" + room.hotel?.id + "/rooms/" + room.roomId + "/edit")}
                                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-2"
                             >
-                                Edit Room
+                                {t('admin.hotels.rooms.details.editRoom', 'Edit Room')}
                             </button>
                         </div>
                     </div>
                 ) : (
-                    <p className="text-center text-gray-500">Loading room information...</p>
+                    <p className="text-center text-gray-500">{t('admin.hotels.rooms.details.loading', 'Loading room information...')}</p>
                 )}
             </div>
         </div>

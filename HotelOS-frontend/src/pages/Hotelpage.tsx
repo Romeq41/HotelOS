@@ -1,24 +1,46 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Hotel } from "../interfaces/Hotel";
-import { Room } from "../interfaces/Room";
-import { User, UserType } from "../interfaces/User";
 import { useLoading } from "../contexts/LoaderContext";
+import { useTranslation } from "react-i18next";
+
+interface HotelStatisticsDto {
+    hotelId: number;
+    staffCount: number;
+    managerCount: number;
+    totalUserCount: number;
+    currentlyOccupiedCount: number;
+    currentlyAvailableCount: number;
+    totalRoomCount: number;
+    reservationsCount: number;
+}
+
 
 export default function HotelPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [hotel, setHotel] = useState<Hotel | null>(null);
-    const [rooms, setRooms] = useState<Room[] | null>(null);
     const { showLoader, hideLoader } = useLoading();
+    const { t } = useTranslation();
 
-    const [employees, setEmployees] = useState<User[] | null>(null);
+    const [statistics, setStatistics] = useState<HotelStatisticsDto>(
+        {
+            hotelId: 0,
+            staffCount: 0,
+            managerCount: 0,
+            totalUserCount: 0,
+            currentlyOccupiedCount: 0,
+            currentlyAvailableCount: 0,
+            totalRoomCount: 0,
+            reservationsCount: 0
+        }
+    );
 
     useEffect(() => {
-        const fetchEmployees = async () => {
+        const fetchStatistics = async () => {
             showLoader();
             try {
-                const res = await fetch("http://localhost:8080/api/users", {
+                const res = await fetch(`http://localhost:8080/api/hotels/${id}/statistics`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -27,16 +49,19 @@ export default function HotelPage() {
                 });
                 const data = await res.json();
 
-                const idParsed = parseInt(id || "", 10);
+                console.log("Hotel statistics data:", data);
 
-                const filteredEmployees = data.filter((employee: User) => employee.hotel?.id === idParsed);
-                setEmployees(filteredEmployees);
+                if (!data) {
+                    console.error("Invalid data format:", data);
+                    return;
+                }
+
+                setStatistics(data);
             } catch (error) {
                 console.error("Failed to fetch employees:", error);
             }
             hideLoader();
         }
-
 
         const fetchHotel = async () => {
             if (!id) return;
@@ -50,6 +75,7 @@ export default function HotelPage() {
                     }
                 });
                 const data = await res.json();
+                console.log("Hotel data:", data);
                 setHotel(data);
             } catch (error) {
                 console.error("Failed to fetch hotel:", error);
@@ -57,41 +83,18 @@ export default function HotelPage() {
             hideLoader();
         };
 
-        const fetchRooms = async () => {
-            if (!id) return;
-            showLoader();
-            try {
-                const res = await fetch(`http://localhost:8080/api/rooms/hotel/${id}`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                    }
-                });
-                const roomData = await res.json();
-
-                console.log("Room data:", roomData);
-                setRooms(roomData);
-            } catch (error) {
-                console.error("Failed to fetch rooms:", error);
-            }
-            hideLoader();
-        };
-
-        fetchEmployees();
+        fetchStatistics();
         fetchHotel();
-        fetchRooms();
     }, [id]);
 
-    const totalRooms = rooms?.length || 0;
-    const occupiedRooms = rooms?.filter((room) => room.status?.toLowerCase() === "occupied").length || 0;
-    const freeRooms = totalRooms - occupiedRooms;
-    const occupiedPercent = totalRooms ? ((occupiedRooms / totalRooms) * 100).toFixed(1) : "0";
+    const totalRooms = statistics.totalRoomCount;
+    const occupiedRooms = statistics.currentlyOccupiedCount;
+    const freeRooms = statistics.currentlyAvailableCount;
+    const occupiedPercent = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
 
-
-    const totalEmployees = employees?.length;
-    const managerCount = employees?.filter((emp) => emp.userType === UserType.MANAGER).length;
-    const staffCount = employees?.filter((emp) => emp.userType === UserType.STAFF).length;
+    const totalEmployees = statistics.totalUserCount;
+    const managerCount = statistics.managerCount;
+    const staffCount = statistics.staffCount;
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100 mt-20">
@@ -112,10 +115,18 @@ export default function HotelPage() {
                                     />
                                 </div>
                                 <div className="w-full h-fullbg-gray-50 p-4 rounded">
-                                    <h2 className="text-xl font-semibold mb-2">Hotel Statistics ({new Date().toLocaleDateString()}) </h2>
-                                    <p><strong>Total Rooms:</strong> {totalRooms}</p>
-                                    <p><strong>Occupied Rooms:</strong> {occupiedRooms} ({occupiedPercent}%)</p>
-                                    <p><strong>Free Rooms:</strong> {freeRooms}</p>
+                                    <h2 className="text-xl font-semibold mb-2">
+                                        {t('admin.hotels.details.statistics', 'Hotel Statistics')} ({new Date().toLocaleDateString()})
+                                    </h2>
+                                    <p>
+                                        <strong>{t('admin.hotels.statistics.totalRooms', 'Total Rooms')}:</strong> {totalRooms}
+                                    </p>
+                                    <p>
+                                        <strong>{t('admin.hotels.statistics.occupiedRooms', 'Occupied Rooms')}:</strong> {occupiedRooms} ({occupiedPercent}%)
+                                    </p>
+                                    <p>
+                                        <strong>{t('admin.hotels.statistics.freeRooms', 'Free Rooms')}:</strong> {freeRooms}
+                                    </p>
                                 </div>
                             </div>
 
@@ -123,39 +134,61 @@ export default function HotelPage() {
                             <div className="flex flex-col">
                                 <div className="w-full h-full bg-gray-50 p-4 rounded mb-4">
                                     <h2 className="text-xl font-semibold mb-2">{hotel.name}</h2>
-                                    <p><strong>ID:</strong> {hotel.id || "Unknown"}</p>
+                                    <p>
+                                        <strong>{t('admin.hotels.details.id', 'ID')}:</strong> {hotel.id || t('common.unknown', 'Unknown')}
+                                    </p>
                                     <hr className="my-2" />
-                                    <p><strong>Country:</strong> {hotel.country || "Unknown"}</p>
-                                    <p><strong>State:</strong> {hotel.state || "Unknown"}</p>
-                                    <p><strong>City:</strong> {hotel.city || "Unknown"}</p>
-                                    <p><strong>Address:</strong> {hotel.address || "Unknown"}</p>
-                                    <p><strong>Zip-code:</strong> {hotel.zipCode || "Unknown"}</p>
+                                    <p>
+                                        <strong>{t('admin.hotels.details.country', 'Country')}:</strong> {hotel.country || t('common.unknown', 'Unknown')}
+                                    </p>
+                                    <p>
+                                        <strong>{t('admin.hotels.details.state', 'State')}:</strong> {hotel.state || t('common.unknown', 'Unknown')}
+                                    </p>
+                                    <p>
+                                        <strong>{t('admin.hotels.details.city', 'City')}:</strong> {hotel.city || t('common.unknown', 'Unknown')}
+                                    </p>
+                                    <p>
+                                        <strong>{t('admin.hotels.details.address', 'Address')}:</strong> {hotel.address || t('common.unknown', 'Unknown')}
+                                    </p>
+                                    <p>
+                                        <strong>{t('admin.hotels.details.zipCode', 'Zip-code')}:</strong> {hotel.zipCode || t('common.unknown', 'Unknown')}
+                                    </p>
                                     <div className="mt-3">
                                         <button
-                                            onClick={() => navigate(`/admin/hotels/${hotel.id}/edit`)}
+                                            onClick={() => navigate(`/manager/hotel/${hotel.id}/edit`)}
                                             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2"
                                         >
-                                            Edit Hotel
+                                            {t('admin.hotels.actions.edit', 'Edit Hotel')}
                                         </button>
                                         <button
-                                            onClick={() => navigate(`/admin/hotels/${hotel.id}/rooms`)}
+                                            onClick={() => navigate(`/manager/hotel/${hotel.id}/rooms`)}
                                             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                                         >
-                                            See Rooms
+                                            {t('admin.hotels.actions.seeRooms', 'See Rooms')}
                                         </button>
                                     </div>
                                 </div>
                                 <div className="bg-gray-50 p-4 rounded">
-                                    <h2 className="text-xl font-semibold mb-2">Employees Statistics</h2>
-                                    <p><strong>Total Employees:</strong> {totalEmployees}</p>
-                                    <p><strong>Managers:</strong> {managerCount}</p>
-                                    <p><strong>Staff:</strong> {staffCount}</p>
+                                    <h2 className="text-xl font-semibold mb-2">
+                                        {t('admin.hotels.details.employeesStats', 'Employees Statistics')}
+                                    </h2>
+                                    <p>
+                                        <strong>{t('admin.hotels.statistics.totalEmployees', 'Total Employees')}:</strong> {totalEmployees}
+                                    </p>
+                                    <p>
+                                        <strong>{t('admin.hotels.statistics.managers', 'Managers')}:</strong> {managerCount}
+                                    </p>
+                                    <p>
+                                        <strong>{t('admin.hotels.statistics.staff', 'Staff')}:</strong> {staffCount}
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 ) : (
-                    <p className="text-center text-gray-500">Loading hotel information...</p>
+                    <p className="text-center text-gray-500">
+                        {t('admin.hotels.loading', 'Loading hotel information...')}
+                    </p>
                 )}
             </div>
         </div>

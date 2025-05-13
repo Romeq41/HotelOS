@@ -1,7 +1,21 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useLoading } from "../../../contexts/LoaderContext";
-
+import { useTranslation } from "react-i18next";
+import {
+    Form,
+    Input,
+    Button,
+    Upload,
+    Spin,
+    Row,
+    Col,
+    Card,
+    message,
+    Space
+} from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import type { UploadFile, UploadProps } from "antd/es/upload/interface";
 
 interface HotelData {
     id?: string;
@@ -16,20 +30,17 @@ interface HotelData {
 export default function Adminpage_hotel_edit() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [hotelData, setHotelData] = useState<HotelData>({
-        name: "",
-        address: "",
-        city: "",
-        state: "",
-        zipCode: "",
-        country: ""
-    });
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [imageUploadMessage, setImageUploadMessage] = useState<string | null>(null);
+    const [form] = Form.useForm();
+    const { t } = useTranslation();
+    const [hotelData, setHotelData] = useState<HotelData | null>(null);
+    const [fileList, setFileList] = useState<UploadFile[]>([]);
+    const [loading, setLoading] = useState(false);
     const { showLoader, hideLoader } = useLoading();
 
     useEffect(() => {
         const fetchHotelData = async () => {
+            showLoader();
+            if (!id) return;
             try {
                 const response = await fetch(`http://localhost:8080/api/hotels/${id}`, {
                     method: "GET",
@@ -41,34 +52,92 @@ export default function Adminpage_hotel_edit() {
                         )}`
                     }
                 });
+
+                if (response.status === 401 || response.status === 403) {
+                    message.error(t("common.unauthorized", "Unauthorized access"));
+                    navigate("/login");
+                    return;
+                }
+
                 if (!response.ok) throw new Error("Failed to fetch hotel data");
+
                 const data = await response.json();
                 setHotelData(data);
+                form.setFieldsValue(data);
+
+                try {
+                    const imageResponse = await fetch(`http://localhost:8080/api/hotels/${id}/image`, {
+                        method: "HEAD",
+                        headers: {
+                            Authorization: `Bearer ${document.cookie.replace(
+                                /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
+                                "$1"
+                            )}`
+                        }
+                    });
+
+                    if (imageResponse.ok) {
+                        const imageUrl = `http://localhost:8080/api/hotels/${id}/image`;
+                        setFileList([
+                            {
+                                uid: '-1',
+                                name: 'hotel-image.jpg',
+                                status: 'done',
+                                url: imageUrl,
+                            }
+                        ]);
+                    }
+                } catch (error) {
+                    console.log("No existing image found for this hotel");
+                }
+
             } catch (err) {
                 console.error("Error fetching hotel:", err);
+                message.error(t("admin.hotels.edit.fetchError", "Failed to load hotel data"));
+            } finally {
+                hideLoader();
             }
         };
 
         if (id) {
             fetchHotelData();
         }
-    }, [id]);
+    }, [id, form, t]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setHotelData((prev) => ({ ...prev, [name]: value }));
+    const uploadProps: UploadProps = {
+        onRemove: () => {
+            setFileList([]);
+        },
+        beforeUpload: (file) => {
+            const isImage = file.type.startsWith('image/');
+            if (!isImage) {
+                message.error(t("admin.hotels.edit.imageTypeError", "You can only upload image files!"));
+                return Upload.LIST_IGNORE;
+            }
+
+            const isLessThan5MB = file.size / 1024 / 1024 < 5;
+            if (!isLessThan5MB) {
+                message.error(t("admin.hotels.edit.imageSizeError", "Image must be smaller than 5MB!"));
+                return Upload.LIST_IGNORE;
+            }
+
+            setFileList([file]);
+            return false;
+        },
+        fileList,
+        maxCount: 1,
+        listType: "picture",
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setImageFile(e.target.files[0]);
-        }
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const onFinish = async (values: HotelData) => {
+        if (!id) return;
+        setLoading(true);
         showLoader();
+
+        values.id = id;
+
         try {
+            console.log("Form values:", values);
             const response = await fetch(`http://localhost:8080/api/hotels/${id}`, {
                 method: "PUT",
                 headers: {
@@ -78,14 +147,17 @@ export default function Adminpage_hotel_edit() {
                         "$1"
                     )}`
                 },
-                body: JSON.stringify(hotelData)
+                body: JSON.stringify(values)
             });
 
-            if (!response.ok) throw new Error("Failed to update hotel");
+            if (!response.ok) {
+                throw new Error(`Failed to update hotel: ${response.status}`);
+            }
 
-            if (imageFile) {
+            if (fileList.length > 0 && !fileList[0].url) {
                 const imageFormData = new FormData();
-                imageFormData.append("file", imageFile);
+                imageFormData.append("file", fileList[0] as any);
+
                 const imageResponse = await fetch(`http://localhost:8080/api/hotels/${id}/image_upload`, {
                     method: "POST",
                     headers: {
@@ -96,132 +168,201 @@ export default function Adminpage_hotel_edit() {
                     },
                     body: imageFormData
                 });
+
                 if (!imageResponse.ok) {
-                    const errorText = await imageResponse.text();
-                    console.error("Image upload error:", errorText);
-                    setImageUploadMessage("Failed to upload image.");
-                    throw new Error("Image upload failed.");
+                    message.warning(t("admin.hotels.edit.imageUploadPartialError", "Hotel updated but failed to upload image"));
+                } else {
+                    message.success(t("admin.hotels.edit.imageUploadSuccess", "Image uploaded successfully"));
                 }
-                setImageUploadMessage("Image uploaded successfully!");
             }
 
+            message.success(t("admin.hotels.edit.updateSuccess", "Hotel updated successfully"));
             navigate("/admin/hotels");
         } catch (error) {
             console.error("Error updating hotel:", error);
+            message.error(t("admin.hotels.edit.updateError", "Failed to update hotel"));
         } finally {
+            setLoading(false);
             hideLoader();
         }
     };
 
+    const validateZipCode = (_: any, value: string) => {
+        const country = form.getFieldValue('country');
+        if (!value) {
+            return Promise.reject(t("admin.hotels.validation.zipCodeRequired", "Please input zip code!"));
+        }
+
+        let pattern: RegExp;
+        let errorMessage: string;
+
+        switch (country?.toLowerCase()) {
+            case 'united states':
+            case 'usa':
+            case 'us':
+                pattern = /^\d{5}(-\d{4})?$/;
+                errorMessage = t("admin.hotels.validation.zipCodeUSInvalid", "US ZIP code must be in format: 12345 or 12345-6789");
+                break;
+            case 'canada':
+            case 'ca':
+                pattern = /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/;
+                errorMessage = t("admin.hotels.validation.zipCodeCAInvalid", "Canadian postal code must be in format: A1A 1A1");
+                break;
+            case 'poland':
+            case 'polska':
+            case 'pl':
+                pattern = /^\d{2}-\d{3}$/;
+                errorMessage = t("admin.hotels.validation.zipCodePLInvalid", "Polish postal code must be in format: 12-345");
+                break;
+            case 'united kingdom':
+            case 'uk':
+            case 'gb':
+                pattern = /^[A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}$/i;
+                errorMessage = t("admin.hotels.validation.zipCodeUKInvalid", "UK postal code is invalid");
+                break;
+            default:
+                // Generic validation for other countries - at least 3 chars
+                pattern = /^.{3,10}$/;
+                errorMessage = t("admin.hotels.validation.zipCodeInvalid", "Please enter a valid postal/ZIP code");
+        }
+
+        if (!pattern.test(value)) {
+            return Promise.reject(errorMessage);
+        }
+
+        return Promise.resolve();
+    };
+
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            <div className="container mt-20 mx-auto py-8 px-4">
+            <div style={{ marginTop: '5rem', padding: '20px' }}>
+                <Card
+                    title={t("admin.hotels.edit.title", "Edit Hotel")}
+                    variant="outlined"
+                    style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}
+                >
+                    <Form
+                        form={form}
+                        layout="vertical"
+                        onFinish={onFinish}
+                        initialValues={hotelData || {}}
+                    >
+                        {hotelData ? (
+                            <>
+                                <Row gutter={24}>
+                                    <Col span={12}>
+                                        <Form.Item
+                                            name="name"
+                                            label={t("admin.hotels.fields.name", "Hotel Name")}
+                                            rules={[{
+                                                required: true,
+                                                message: t("admin.hotels.validation.nameRequired", "Please input hotel name!")
+                                            }]}
+                                        >
+                                            <Input maxLength={100} />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Form.Item
+                                            name="address"
+                                            label={t("admin.hotels.fields.address", "Address")}
+                                            rules={[{
+                                                required: true,
+                                                message: t("admin.hotels.validation.addressRequired", "Please input address!")
+                                            }]}
+                                        >
+                                            <Input maxLength={200} />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Form.Item
+                                            name="city"
+                                            label={t("admin.hotels.fields.city", "City")}
+                                            rules={[{
+                                                required: true,
+                                                message: t("admin.hotels.validation.cityRequired", "Please input city!")
+                                            }]}
+                                        >
+                                            <Input maxLength={50} />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Form.Item
+                                            name="state"
+                                            label={t("admin.hotels.fields.state", "State/Province")}
+                                            rules={[{
+                                                required: true,
+                                                message: t("admin.hotels.validation.stateRequired", "Please input state/province!")
+                                            }]}
+                                        >
+                                            <Input maxLength={50} />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Form.Item
+                                            name="country"
+                                            label={t("admin.hotels.fields.country", "Country")}
+                                            rules={[{
+                                                required: true,
+                                                message: t("admin.hotels.validation.countryRequired", "Please input country!")
+                                            }]}
+                                        >
+                                            <Input maxLength={50} />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Form.Item
+                                            name="zipCode"
+                                            label={t("admin.hotels.fields.zipCode", "Postal/ZIP Code")}
+                                            dependencies={['country']}
+                                            rules={[
+                                                { validator: validateZipCode }
+                                            ]}
+                                        >
+                                            <Input maxLength={15} />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
 
-                <div className="bg-white shadow-md rounded-lg p-6">
-                    <form onSubmit={handleSubmit} className="bg-white rounded-lg">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-gray-700">Hotel Name</label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={hotelData.name}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full border rounded px-3 py-2"
-                                    placeholder="Enter hotel name"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-gray-700">Address</label>
-                                <input
-                                    type="text"
-                                    name="address"
-                                    value={hotelData.address}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full border rounded px-3 py-2"
-                                    placeholder="Enter address"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-gray-700">City</label>
-                                <input
-                                    type="text"
-                                    name="city"
-                                    value={hotelData.city}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full border rounded px-3 py-2"
-                                    placeholder="Enter city"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-gray-700">State</label>
-                                <input
-                                    type="text"
-                                    name="state"
-                                    value={hotelData.state}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full border rounded px-3 py-2"
-                                    placeholder="Enter state"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-gray-700">Zip Code</label>
-                                <input
-                                    type="text"
-                                    name="zipCode"
-                                    value={hotelData.zipCode}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full border rounded px-3 py-2"
-                                    placeholder="Enter zip code"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-gray-700">Country</label>
-                                <input
-                                    type="text"
-                                    name="country"
-                                    value={hotelData.country}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full border rounded px-3 py-2"
-                                    placeholder="Enter country"
-                                />
-                            </div>
-                        </div>
+                                <Form.Item
+                                    label={t("admin.hotels.fields.image", "Hotel Image")}
+                                    name="hotelImage"
+                                    extra={t("admin.hotels.edit.imageHint", "Upload a hotel image (max 5MB)")}
+                                >
+                                    <Upload {...uploadProps}>
+                                        <Button icon={<UploadOutlined />}>
+                                            {t("admin.hotels.edit.selectImage", "Select Image")}
+                                        </Button>
+                                    </Upload>
+                                </Form.Item>
 
-                        <div className="mt-4">
-                            <label className="block text-gray-700">Hotel Image</label>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageChange}
-                                className="border px-3 py-2 mt-1 block w-full rounded-md sm:text-sm p-2"
-                            />
-                        </div>
-
-                        <div className="mt-4 flex justify-end gap-4">
-                            <button
-                                type="button"
-                                onClick={() => navigate("/admin/hotels")}
-                                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="submit"
-                                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-                            >
-                                Save Changes
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                {imageUploadMessage && <p className="text-green-500 mt-4">{imageUploadMessage}</p>}
+                                <Form.Item>
+                                    <Space>
+                                        <Button
+                                            type="primary"
+                                            htmlType="submit"
+                                            loading={loading}
+                                        >
+                                            {t("admin.hotels.edit.saveChanges", "Save Changes")}
+                                        </Button>
+                                        <Button
+                                            onClick={() => navigate("/admin/hotels")}
+                                        >
+                                            {t("common.cancel", "Cancel")}
+                                        </Button>
+                                    </Space>
+                                </Form.Item>
+                            </>
+                        ) : (
+                            <div style={{ textAlign: 'center', padding: '20px' }}>
+                                <Spin size="large" />
+                                <p style={{ marginTop: '10px' }}>
+                                    {t("admin.hotels.edit.loading", "Loading hotel data...")}
+                                </p>
+                            </div>
+                        )}
+                    </Form>
+                </Card>
             </div>
         </div>
     );

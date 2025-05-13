@@ -1,0 +1,450 @@
+{
+    "general": {
+        "welcome": "Witaj",
+        "loading": "Ładowanie...",
+        "error": "Błąd",
+        "success": "Sukces",
+        "confirm": "Potwierdź",
+        "cancel": "Anuluj",
+        "save": "Zapisz",
+        "edit": "Edytuj",
+        "delete": "Usuń",
+        "back": "Wróć",
+        "next": "Dalej"
+    },
+    "common": {
+        "yes": "Tak",
+        "no": "Nie",
+        "ok": "OK",
+        "close": "Zamknij",
+        "search": "Szukaj",
+        "filter": "Filtruj",
+        "clear": "Wyczyść",
+        "apply": "Zastosuj",
+        "select": "Wybierz",
+        "deselect": "Odznacz",
+        "delete": "Usuń",
+        "cancel": "Anuluj"
+    },
+  
+    "header" : {
+        "language": "Język",
+        "hotels" : "Hotele",
+        "adminDashboard": "Panel Administratora",
+        "users": "Użytkownicy",
+        "profile": "Mój Profil",
+        "logout": "Wyloguj"
+    },
+    "admin": {
+        "reservations": {
+            "title": "Rezerwacje",
+            "addReservation": "Dodaj Rezerwację",
+            "noRoom": "Brak Pokoju",
+            "noGuest": "Brak Gościa",
+            "deleteConfirmation": "Czy na pewno chcesz usunąć tę rezerwację?",
+            "columns": {
+                "id": "ID",
+                "room": "Pokój",
+                "guest": "Gość",
+                "reservationName": "Nazwa Rezerwacji",
+                "checkIn": "Zameldowanie",
+                "checkOut": "Wymeldowanie",
+                "status_text": "Status",
+                "total": "Suma",
+                "actions": "Akcje",
+                "addReservation": "Dodaj Rezerwację",
+                "form": {
+                    "fields": {
+                        "guestId": "ID Gościa",
+                        "roomId": "ID Pokoju",
+                        "reservationName": "Nazwa Rezerwacji",
+                        "checkInDate": "Data Zameldowania",
+                        "checkOutDate": "Data Wymeldowania",
+                        "status": "Status",
+                        "totalAmount": "Łączna Kwota"
+                    },
+                    "errors": {
+                        "roomRequired": "ID pokoju jest wymagane",
+                        "checkInRequired": "Data zameldowania jest wymagana",
+                        "checkOutRequired": "Data wymeldowania jest wymagana",
+                        "statusRequired": "Status jest wymagany",
+                        "totalCalculationError": "Nie można obliczyć sumy"
+                    },
+                    "selectRoom": "Wybierz pokój",
+                    "rate": "Stawka",
+                    "success": "Rezerwacja Dodana!"
+                },
+                "status": {
+                    "pending": "Oczekująca",
+                    "confirmed": "Potwierdzona",
+                    "checked_in": "Zameldowany",
+                    "checked_out": "Wymeldowany",
+                    "cancelled": "Anulowana",
+                    "no_show": "Nie Pojawił Się"
+                }
+            },
+            "details": {
+                "title": "Szczegóły Rezerwacji",
+                "id": "ID",
+                "guestName": "Imię Gościa",
+                "roomNumber": "Numer Pokoju",
+                "checkInDate": "Data Zameldowania",
+                "checkOutDate": "Data Wymeldowania",
+                "status": "Status"
+            },
+            "edit": {
+                "title": "Edytuj Rezerwację",
+                "saveChanges": "Zapisz Zmiany"
+            },
+            "editReservation": "Edytuj Rezerwację",
+            "unknown": "Nieznane",
+            "loading": "Ładowanie informacji o rezerwacji..."
+        },
+        "hotels": {
+            "add": {
+                "title": "Dodaj Nowy Hotel",
+                "success": "Hotel dodany pomyślnie",
+                "error": "Nie udało się dodać hotelu",
+                "imageTypeError": "Możesz przesyłać tylko pliki graficzne!",
+                "imageSizeError": "Zdjęcie musi być mniejsze niż 5MB!",
+                "imageUploadSuccess": "Zdjęcie zostało przesłane pomyślnie",
+                "imageUploadPartialError": "Hotel dodany, ale nie udało się przesłać zdjęcia",
+                "selectImage": "Wybierz Zdjęcie",
+                "addHotel": "Dodaj Hotel",
+                "imageHint": "Prześlij zdjęcie hotelu (maks. 5MB)"
+            },
+            "edit": {
+                "title": "Edytuj Hotel",
+                "saveChanges": "Zapisz Zmiany",
+                "selectImage": "Wybierz Zdjęcie",
+                "loading": "Ładowanie danych hotelu...",
+                "fetchError": "Nie udało się załadować danych hotelu",
+                "updateSuccess": "Hotel zaktualizowany pomyślnie",
+                "updateError": "Nie udało się zaktualizować hotelu",
+                "imageUploadSuccess": "Zdjęcie zostało przesłane pomyślnie",
+                "imageUploadError": "Nie udało się przesłać zdjęcia",
+                "imageUploadPartialError": "Hotel zaktualizowany, ale nie udało się przesłać zdjęcia",
+                "imageTypeError": "Możesz przesyłać tylko pliki graficzne!",
+                "imageSizeError": "Zdjęcie musi być mniejsze niż 5MB!",
+                "imageHint": "Prześlij zdjęcie hotelu (maks. 5MB)"
+            },
+            "fields": {
+                "name": "Nazwa Hotelu",
+                "address": "Adres",
+                "city": "Miasto",
+                "state": "Województwo/Prowincja",
+                "zipCode": "Kod Pocztowy",
+                "country": "Kraj",
+                "image": "Zdjęcie Hotelu"
+            },
+            "validation": {
+                "nameRequired": "Proszę wprowadzić nazwę hotelu!",
+                "addressRequired": "Proszę wprowadzić adres!",
+                "cityRequired": "Proszę wprowadzić miasto!",
+                "stateRequired": "Proszę wprowadzić województwo/prowincję!",
+                "zipCodeRequired": "Proszę wprowadzić kod pocztowy!",
+                "countryRequired": "Proszę wprowadzić kraj!",
+                "zipCodeInvalid": "Proszę wprowadzić prawidłowy kod pocztowy",
+                "zipCodeUSInvalid": "Amerykański kod pocztowy musi być w formacie: 12345 lub 12345-6789",
+                "zipCodeCAInvalid": "Kanadyjski kod pocztowy musi być w formacie: A1A 1A1",
+                "zipCodePLInvalid": "Polski kod pocztowy musi być w formacie: 12-345",
+                "zipCodeUKInvalid": "Brytyjski kod pocztowy jest nieprawidłowy"
+            },
+            "title": "Hotele",
+            "searchPlaceholder": "Szukaj hoteli",
+            "addHotel": "Dodaj Hotel",
+            "deleteConfirmation": "Czy na pewno chcesz usunąć ten hotel?",
+            "columns": {
+                "id": "ID",
+                "name": "Nazwa Hotelu",
+                "city": "Miasto",
+                "state": "Województwo",
+                "address": "Adres",
+                "country": "Kraj",
+                "zipCode": "Kod Pocztowy",
+                "actions": "Akcje"
+            },
+            "unknown": "Nieznane",
+            "numberOfRooms": "Liczba pokoi",
+            "description": "Opis",
+            "noDescription": "Brak dostępnego opisu.",
+            "editHotel": "Edytuj hotel",
+            "seeRooms": "Zobacz pokoje",
+            "seeReservations": "Zobacz rezerwacje",
+            "seeEmployees": "Zobacz pracowników",
+            "loading": "Ładowanie informacji o hotelu...",
+            "title_users": "Użytkownicy Hotelu",
+            "rooms": {
+                "add": {
+                    "title": "Dodaj Nowy Pokój",
+                    "success": "Pokój dodany pomyślnie",
+                    "error": "Nie udało się utworzyć pokoju",
+                    "imageTypeError": "Możesz przesyłać tylko pliki graficzne!",
+                    "imageSizeError": "Zdjęcie musi być mniejsze niż 5MB!",
+                    "imageUploadSuccess": "Zdjęcie zostało przesłane pomyślnie",
+                    "imageUploadPartialError": "Pokój dodany, ale nie udało się przesłać zdjęcia",
+                    "selectImage": "Wybierz Zdjęcie",
+                    "addRoom": "Dodaj Pokój",
+                    "imageHint": "Prześlij zdjęcie pokoju (maks. 5MB)"
+                },
+                
+                "title": "Pokoje",
+                "searchPlaceholder": "Szukaj pokoi",
+                "addRoom": "Dodaj Pokój",
+                "deleteConfirmation": "Czy na pewno chcesz usunąć ten pokój?",
+                "columns": {
+                    "roomNumber": "Numer Pokoju",
+                    "type": "Typ",
+                    "rate": "Stawka", 
+                    "status": "Status"
+                },
+                "details": {
+                    "roomNumber": "Numer pokoju",
+                    "id": "ID",
+                    "description": "Opis",
+                    "type": "Typ",
+                    "price": "Cena",
+                    "capacity": "Pojemność",
+                    "status": "Status",
+                    "available": "Dostępny",
+                    "notAvailable": "Niedostępny",
+                    "editRoom": "Edytuj Pokój",
+                    "loading": "Ładowanie informacji o pokoju..."
+                },
+                "edit": {
+                    "title": "Edytuj Pokój",
+                    "fetchError": "Nie udało się załadować danych pokoju",
+                    "hotelFetchError": "Nie udało się załadować hoteli",
+                    "updateSuccess": "Pokój zaktualizowany pomyślnie",
+                    "updateError": "Nie udało się zaktualizować pokoju",
+                    "imageUploadSuccess": "Zdjęcie zostało przesłane pomyślnie",
+                    "imageUploadError": "Nie udało się przesłać zdjęcia"
+                },
+                "fields": {
+                    "roomNumber": "Numer Pokoju",
+                    "type": "Typ Pokoju",
+                    "capacity": "Pojemność",
+                    "rate": "Stawka",
+                    "status": "Status",
+                    "hotel": "Hotel",
+                    "hotelId": "ID Hotelu",
+                    "description": "Opis",
+                    "image": "Zdjęcie Pokoju"
+                },
+                "validation": {
+                    "roomNumberRequired": "Proszę wprowadzić numer pokoju!",
+                    "typeRequired": "Proszę wprowadzić typ pokoju!",
+                    "capacityRequired": "Proszę wprowadzić pojemność!",
+                    "rateRequired": "Proszę wprowadzić stawkę!",
+                    "statusRequired": "Proszę wybrać status!",
+                    "hotelRequired": "Proszę wybrać hotel!"
+                },
+                "status": {
+                    "available": "Dostępny",
+                    "reserved": "Zarezerwowany",
+                    "occupied": "Zajęty",
+                    "maintenance": "W Trakcie Konserwacji"
+                },
+                "selectHotel": "Wybierz hotel",
+                "noHotelsFound": "Nie znaleziono hoteli",
+                "selectImage": "Wybierz Zdjęcie",
+                "loading": "Ładowanie danych pokoju..."
+            }
+        },
+        "users": {
+            "edit": {
+                "title": "Edytuj Użytkownika"
+            },
+            "form": {
+                "fields": {
+                    "firstName": "Imię",
+                    "lastName": "Nazwisko",
+                    "userType": "Typ Użytkownika",
+                    "hotel": "Hotel",
+                    "email": "Email",
+                    "phone": "Telefon",
+                    "position": "Stanowisko",
+                    "country": "Kraj",
+                    "state": "Województwo",
+                    "city": "Miasto",
+                    "address": "Adres",
+                    "zipCode": "Kod Pocztowy",
+                    "userImage": "Zdjęcie Użytkownika"
+                },
+                "errors": {
+                    "firstNameRequired": "Proszę wprowadzić imię!",
+                    "lastNameRequired": "Proszę wprowadzić nazwisko!",
+                    "userTypeRequired": "Proszę wybrać typ użytkownika!",
+                    "emailRequired": "Proszę wprowadzić email!",
+                    "emailInvalid": "Proszę wprowadzić prawidłowy email!"
+                },
+                "selectHotel": "Wybierz hotel"
+            },
+            "userTypes": {
+                "guest": "Użytkownik",
+                "staff": "Personel",
+                "manager": "Kierownik"
+            },
+            "actions": {
+                "selectImage": "Wybierz Zdjęcie",
+                "saveChanges": "Zapisz Zmiany",
+                "edit": "Edytuj Użytkownika"
+            },
+            "messages": {
+                "loadFailed": "Nie udało się załadować danych użytkownika",
+                "hotelsLoadFailed": "Nie udało się załadować hoteli",
+                "noHotels": "Nie znaleziono hoteli",
+                "imageUploadFailed": "Nie udało się przesłać zdjęcia",
+                "imageUploaded": "Zdjęcie zostało przesłane pomyślnie",
+                "updateSuccess": "Użytkownik zaktualizowany pomyślnie",
+                "updateFailed": "Nie udało się zaktualizować użytkownika"
+            },
+            "columns": {
+                "email": "Email",
+                "firstName": "Imię",
+                "lastName": "Nazwisko",
+                "hotelName": "Nazwa Hotelu",
+                "position": "Stanowisko",
+                "address": "Adres",
+                "actions": "Akcje"
+            },
+            "details": {
+                "id": "ID",
+                "userType": "Typ Użytkownika",
+                "hotel": "Hotel",
+                "position": "Stanowisko",
+                "email": "Email",
+                "phone": "Telefon",
+                "country": "Kraj",
+                "state": "Województwo",
+                "city": "Miasto",
+                "address": "Adres",
+                "zipCode": "Kod Pocztowy"
+            },
+            "unknown": "Nieznane",
+            "loading": "Ładowanie informacji o użytkowniku...",
+            "noHotelAssigned": "Nie Przypisano Hotelu",
+            "deleteConfirmation": "Czy na pewno chcesz usunąć tego użytkownika?",
+            "searchPlaceholder": "Szukaj użytkowników",
+            "addUser": "Dodaj Użytkownika"
+        }
+    },
+    "auth": {
+        "welcomeMessage": "Witaj w HotelOS. Proszę zaloguj się",
+        "login": "Zaloguj",
+        "logout": "Wyloguj",
+        "signup": "Zarejestruj się",
+        "forgotPassword": "Zapomniałem Hasła",
+        "resetPassword": "Zresetuj Hasło",
+        "email": "Email",
+        "password": "Hasło",
+        "username": "Nazwa użytkownika",
+        "validationErrors": {
+            "email": "Proszę wprowadzić prawidłowy adres email",
+            "password": "Hasło musi zawierać co najmniej 6 znaków"
+        }
+    },
+    "hotel": {
+        "booking": "Rezerwacja",
+        "reservation": "Rezerwacja",
+        "checkIn": "Zameldowanie",
+        "checkOut": "Wymeldowanie",
+        "room": "Pokój",
+        "rooms": "Pokoje",
+        "guests": "Goście",
+        "amenities": "Udogodnienia",
+        "services": "Usługi"
+    },
+    "user": {
+        "profile": {
+            "title": "Profil Użytkownika",
+            "hotelInfo": "Informacje o Hotelu",
+            "personalInfo": "Informacje Osobiste",
+            "notProvided": "Nie podano",
+            "userPhoto": "Zdjęcie Użytkownika",
+            "fields": {
+                "hotelName": "Nazwa Hotelu",
+                "location": "Lokalizacja",
+                "checkInTime": "Czas Zameldowania",
+                "checkOutTime": "Czas Wymeldowania",
+                "contact": "Kontakt",
+                "email": "Email",
+                "address": "Adres",
+                "phone": "Telefon",
+                "position": "Stanowisko"
+            }
+        }
+    },
+    "features": {
+        "whyChoose": "Dlaczego Wybrać HotelOS?",
+        "revenueGrowth": {
+            "title": "Wzrost Przychodów",
+            "description": "Maksymalizuj przychody swojego hotelu dzięki analizie w czasie rzeczywistym i automatycznym strategiom cenowym."
+        },
+        "operationalOptimization": {
+            "title": "Optymalizacja Operacyjna",
+            "description": "Usprawnij swoje operacje i popraw wydajność dzięki naszym kompleksowym narzędziom zarządzania."
+        },
+        "guestExperience": {
+            "title": "Zwiększenie Zadowolenia Gości",
+            "description": "Zapewnij wyjątkowe doświadczenia gościom dzięki płynnemu zameldowaniu i spersonalizowanym usługom."
+        }
+    },
+    "pricing": {
+        "chooseYourPlan": "Wybierz Swój Plan",
+        "basic": {
+            "title": "Plan Podstawowy",
+            "price": "49 zł/miesiąc",
+            "features": [
+                "Podstawowe narzędzia zarządzania hotelem",
+                "Wsparcie przez email",
+                "Dostęp do panelu analitycznego"
+            ],
+            "buttonText": "Rozpocznij"
+        },
+        "pro": {
+            "title": "Plan Pro",
+            "price": "99 zł/miesiąc",
+            "features": [
+                "Zaawansowane narzędzia zarządzania",
+                "Priorytetowe wsparcie",
+                "Funkcje optymalizacji przychodów"
+            ],
+            "buttonText": "Ulepsz Teraz"
+        },
+        "enterprise": {
+            "title": "Plan Enterprise",
+            "price": "Indywidualna Wycena",
+            "features": [
+                "Pełny zestaw narzędzi",
+                "Dedykowany opiekun konta",
+                "Niestandardowe integracje"
+            ],
+            "buttonText": "Skontaktuj się z nami"
+        }
+    },
+    "messages": {
+        "loginSuccess": "Zalogowano pomyślnie",
+        "loginError": "Logowanie nie powiodło się. Spróbuj ponownie",
+        "bookingSuccess": "Rezerwacja potwierdzona pomyślnie",
+        "bookingError": "Nie udało się dokończyć rezerwacji"
+    },
+    "advertisements": [
+        {
+            "title": "🏨 HotelOS – Przyszłość Zarządzania Hotelami!",
+            "description": "Usprawniaj operacje, zwiększaj wydajność i zapewniaj wyjątkowe doświadczenia gościom – wszystko w jednym potężnym systemie!"
+        },
+        {
+            "title": "📊 Uprość, Automatyzuj i Rozwijaj się z HotelOS!",
+            "description": "Od rezerwacji do rozliczeń, zarządzaj każdym aspektem swojego hotelu z łatwością. Podnieś swój biznes na wyższy poziom już dziś!"
+        },
+        {
+            "title": "🔑 Płynne Zameldowania, Zadowoleni Goście!",
+            "description": "Zmniejsz czas oczekiwania, zwiększ zadowolenie gości i popraw wydajność dzięki naszemu inteligentnemu zarządzaniu recepcją."
+        },
+        {
+            "title": "💼 Optymalizuj Przychody Swojego Hotelu!",
+            "description": "Uzyskaj analizy w czasie rzeczywistym, automatyczne ustalanie cen i informacje o przychodach, aby bez wysiłku zmaksymalizować swoje zyski!"
+        }
+    ]
+}

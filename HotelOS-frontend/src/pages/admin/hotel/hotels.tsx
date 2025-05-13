@@ -3,9 +3,11 @@ import { Table, Button, Popconfirm, Input } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { Hotel } from '../../../interfaces/Hotel';
 import { useLoading } from '../../../contexts/LoaderContext';
+import { useTranslation } from 'react-i18next';
 
 export default function Hotels() {
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const [hotels, setHotels] = useState<Hotel[]>([]);
     const [page, setPage] = useState(0);
@@ -115,56 +117,56 @@ export default function Hotels() {
 
     const columns = [
         {
-            title: 'ID',
+            title: t('admin.hotels.columns.id', 'ID'),
             dataIndex: 'id',
             key: 'id',
         },
         {
-            title: 'Hotel Name',
+            title: t('admin.hotels.columns.name', 'Hotel Name'),
             dataIndex: 'name',
             key: 'name',
         },
         {
-            title: 'City',
+            title: t('admin.hotels.columns.city', 'City'),
             dataIndex: 'city',
             key: 'city',
         },
         {
-            title: 'State',
+            title: t('admin.hotels.columns.state', 'State'),
             dataIndex: 'state',
             key: 'state',
         },
         {
-            title: 'Address',
+            title: t('admin.hotels.columns.address', 'Address'),
             dataIndex: 'address',
             key: 'address',
         },
         {
-            title: 'Country',
+            title: t('admin.hotels.columns.country', 'Country'),
             dataIndex: 'country',
             key: 'country',
         },
         {
-            title: 'Zip Code',
+            title: t('admin.hotels.columns.zipCode', 'Zip Code'),
             dataIndex: 'zipCode',
             key: 'zipCode',
         },
         {
-            title: 'Actions',
+            title: t('admin.hotels.columns.actions', 'Actions'),
             key: 'actions',
             render: (_: any, record: Hotel) => (
                 <div onClick={(e) => e.stopPropagation()}>
                     <Popconfirm
-                        title="Are you sure you want to delete this hotel?"
+                        title={t('admin.hotels.deleteConfirmation', 'Are you sure you want to delete this hotel?')}
                         onConfirm={() => handleDelete(record.id)}
-                        okText="Yes"
-                        cancelText="No"
+                        okText={t('common.yes', 'Yes')}
+                        cancelText={t('common.no', 'No')}
                     >
                         <Button
                             type="primary"
                             danger
                         >
-                            Delete
+                            {t('common.delete', 'Delete')}
                         </Button>
                     </Popconfirm>
                 </div>
@@ -175,7 +177,7 @@ export default function Hotels() {
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
             <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-center gap-10 items-center">
-                <h1 className="text-2xl font-bold">Hotels</h1>
+                <h1 className="text-2xl font-bold">{t('admin.hotels.title', 'Hotels')}</h1>
             </div>
 
             <main className="flex-grow p-5">
@@ -185,19 +187,19 @@ export default function Hotels() {
                         {/* Left side: Input + Search button */}
                         <div className="flex items-center gap-2">
                             <Input
-                                placeholder="Search hotels"
+                                placeholder={t('admin.hotels.searchPlaceholder', 'Search hotels')}
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 onKeyPress={handleKeyPress}
                                 style={{ width: 200 }}
                             />
                             <Button type="default" onClick={handleSearch}>
-                                Search
+                                {t('common.search', 'Search')}
                             </Button>
                         </div>
 
                         <Button type="primary" href="/admin/hotels/add">
-                            Add Hotel
+                            {t('admin.hotels.addHotel', 'Add Hotel')}
                         </Button>
                     </div>
                     <Table

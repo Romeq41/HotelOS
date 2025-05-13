@@ -4,115 +4,88 @@ import { useUser } from '../contexts/UserContext';
 import { UserType } from '../interfaces/User';
 import { RoomStatus } from '../interfaces/Room';
 import { useLoading } from '../contexts/LoaderContext';
-
-interface ValidationErrors {
-    roomNumber?: string;
-    capacity?: string;
-    type?: string;
-    rate?: string;
-    status?: string;
-    hotelId?: string;
-}
+import { useTranslation } from 'react-i18next';
+import {
+    Form,
+    Input,
+    Button,
+    Upload,
+    Select,
+    InputNumber,
+    Row,
+    Col,
+    Card,
+    message,
+    Space
+} from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
 
 interface RoomDTO {
     hotel: { id: string };
     roomNumber: number;
     type: string;
-    capacity: string;
-    rate: string;
+    capacity: number;
+    rate: number;
     status: RoomStatus;
     description?: string;
-    imagePath?: string;
 }
 
 export default function AddRoom() {
     const { hotelId } = useParams();
     const navigate = useNavigate();
-
-    const [formData, setFormData] = useState<RoomDTO>({
-        hotel: { id: hotelId || '' },
-        roomNumber: 0,
-        type: '',
-        capacity: '',
-        rate: '',
-        status: RoomStatus.AVAILABLE,
-        description: ''
-    });
-
+    const [form] = Form.useForm();
     const { isAuth, user } = useUser();
     const { showLoader, hideLoader } = useLoading();
-
-    const [errors, setErrors] = useState<ValidationErrors>({});
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [imageUploadMessage, setImageUploadMessage] = useState<string | null>(null);
+    const { t } = useTranslation();
+    const [fileList, setFileList] = useState<UploadFile[]>([]);
+    const [loading, setLoading] = useState(false);
+    const { Option } = Select;
 
     if (!isAuth || (user?.userType === UserType.STAFF || user?.userType === UserType.GUEST)) {
         console.log('Unauthorized access. Redirecting to login page...');
-        // window.location.href = '/login';
+        // navigate('/login');
     }
 
-    const validate = (): ValidationErrors => {
-        const newErrors: ValidationErrors = {};
+    const uploadProps: UploadProps = {
+        onRemove: () => {
+            setFileList([]);
+        },
+        beforeUpload: (file) => {
+            const isImage = file.type.startsWith('image/');
+            if (!isImage) {
+                message.error(t('admin.rooms.add.imageTypeError', 'You can only upload image files!'));
+                return Upload.LIST_IGNORE;
+            }
 
-        if (!formData.hotel.id) {
-            newErrors.hotelId = 'Hotel ID is required';
-        }
+            const isLessThan5MB = file.size / 1024 / 1024 < 5;
+            if (!isLessThan5MB) {
+                message.error(t('admin.rooms.add.imageSizeError', 'Image must be smaller than 5MB!'));
+                return Upload.LIST_IGNORE;
+            }
 
-        if (!formData.roomNumber) {
-            newErrors.roomNumber = 'Room Number is required';
-        }
-
-        if (!formData.type) {
-            newErrors.type = 'Type is required';
-        }
-
-        if (!formData.capacity) {
-            newErrors.capacity = 'Capacity is required';
-        } else if (isNaN(Number(formData.capacity))) {
-            newErrors.capacity = 'Capacity must be a number';
-        }
-
-        if (!formData.rate) {
-            newErrors.rate = 'Rate is required';
-        } else if (isNaN(Number(formData.rate))) {
-            newErrors.rate = 'Rate must be a number';
-        }
-
-        if (!formData.status) {
-            newErrors.status = 'Status is required';
-        }
-
-        return newErrors;
+            setFileList([file]);
+            return false;
+        },
+        fileList,
+        maxCount: 1,
+        listType: "picture",
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        if (name === 'roomNumber') {
-            setFormData({
-                ...formData,
-                [name]: value === '' ? 0 : parseInt(value, 10)
-            });
-        } else {
-            setFormData({ ...formData, [name]: value });
-        }
-    };
-
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setImageFile(e.target.files[0]);
-        }
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        const validationErrors = validate();
-        setErrors(validationErrors);
-
-        console.log(formData);
-        const hasErrors = Object.values(validationErrors).some((error) => error);
-        if (hasErrors) return;
-
+    const onFinish = async (values: any) => {
+        setLoading(true);
         showLoader();
+
+        const roomData: RoomDTO = {
+            hotel: { id: hotelId || '' },
+            roomNumber: values.roomNumber,
+            type: values.type,
+            capacity: values.capacity,
+            rate: values.rate,
+            status: values.status,
+            description: values.description
+        };
+
         try {
             const response = await fetch('http://localhost:8080/api/rooms', {
                 method: 'POST',
@@ -120,11 +93,7 @@ export default function AddRoom() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
                 },
-                body: JSON.stringify({
-                    ...formData,
-                    capacity: Number(formData.capacity),
-                    rate: Number(formData.rate),
-                }),
+                body: JSON.stringify(roomData),
             });
 
             if (!response.ok) {
@@ -134,9 +103,9 @@ export default function AddRoom() {
             const data = await response.json();
             console.log('Room added:', data);
 
-            if (imageFile) {
+            if (fileList.length > 0) {
                 const imageFormData = new FormData();
-                imageFormData.append('file', imageFile);
+                imageFormData.append('file', fileList[0] as any);
 
                 const imageResponse = await fetch(`http://localhost:8080/api/rooms/${data.roomId}/image_upload`, {
                     method: 'POST',
@@ -147,197 +116,174 @@ export default function AddRoom() {
                 });
 
                 if (!imageResponse.ok) {
-                    const errorText = await imageResponse.text();
-                    console.error('Image upload error:', errorText);
-                    setImageUploadMessage('Failed to upload image.');
-                    throw new Error('Failed to upload image');
+                    message.warning(t('admin.rooms.add.imageUploadPartialError', 'Room added but failed to upload image'));
+                } else {
+                    message.success(t('admin.rooms.add.imageUploadSuccess', 'Image uploaded successfully'));
                 }
-
-                setImageUploadMessage('Image uploaded successfully!');
             }
 
-            setFormData({
-                hotel: { id: hotelId || '' },
-                roomNumber: 0,
-                type: '',
-                capacity: '',
-                rate: '',
-                status: RoomStatus.AVAILABLE,
-                description: ''
-            });
-            setImageFile(null);
-            setErrors({});
+            message.success(t('admin.rooms.add.success', 'Room added successfully'));
+            form.resetFields();
+            setFileList([]);
 
-            navigate(`/admin/hotels/${hotelId}/rooms`);
+            // Navigate to rooms list after successful creation
+            setTimeout(() => {
+                navigate(`/admin/hotels/${hotelId}/rooms`);
+            }, 1500);
+
         } catch (error) {
             console.error('Error submitting form:', error);
-            setImageUploadMessage('Failed to create room or upload image');
+            message.error(t('admin.rooms.add.error', 'Failed to create room'));
+        } finally {
+            setLoading(false);
+            hideLoader();
         }
-        hideLoader();
     };
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            <div className="container mt-20 mx-auto py-8 px-4">
-                <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6">
-                    <h1 className="text-2xl font-bold mb-4">Add New Room</h1>
+            <div style={{ marginTop: '5rem', padding: '20px' }}>
+                <Card
+                    title={t('admin.rooms.add.title', 'Add New Room')}
+                    variant="outlined"
+                    style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}
+                >
+                    <Form
+                        form={form}
+                        layout="vertical"
+                        onFinish={onFinish}
+                        initialValues={{
+                            status: RoomStatus.AVAILABLE,
+                        }}
+                    >
+                        <Row gutter={24}>
+                            <Col span={12}>
+                                <Form.Item
+                                    name="roomNumber"
+                                    label={t('admin.hotels.rooms.fields.roomNumber', 'Room Number')}
+                                    rules={[{
+                                        required: true,
+                                        message: t('admin.hotels.rooms.validation.roomNumberRequired', 'Please input room number!')
+                                    }]}
+                                >
+                                    <InputNumber style={{ width: '100%' }} min={1} />
+                                </Form.Item>
+                            </Col>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Room Number */}
-                        <div>
-                            <label className="block text-gray-700" htmlFor="roomNumber">
-                                Room Number
-                            </label>
-                            <input
-                                type="number"
-                                name="roomNumber"
-                                value={formData.roomNumber || ''}
-                                onChange={handleChange}
-                                min="1"
-                                className={`w-full border rounded px-3 py-2 ${errors.roomNumber ? "border-red-500" : "border-gray-400"}`}
-                            />
-                            {errors.roomNumber && (
-                                <p className="text-red-500 text-sm mt-1">{errors.roomNumber}</p>
-                            )}
-                        </div>
+                            <Col span={12}>
+                                <Form.Item
+                                    name="capacity"
+                                    label={t('admin.hotels.rooms.fields.capacity', 'Capacity')}
+                                    rules={[{
+                                        required: true,
+                                        message: t('admin.hotels.rooms.validation.capacityRequired', 'Please input capacity!')
+                                    }]}
+                                >
+                                    <InputNumber style={{ width: '100%' }} min={1} />
+                                </Form.Item>
+                            </Col>
 
-                        {/* Capacity */}
-                        <div>
-                            <label className="block text-gray-700" htmlFor="capacity">
-                                Capacity
-                            </label>
-                            <input
-                                type="number"
-                                name="capacity"
-                                value={formData.capacity || ''}
-                                onChange={handleChange}
-                                min="1"
-                                className={`w-full border rounded px-3 py-2 ${errors.capacity ? "border-red-500" : "border-gray-400"}`}
-                            />
-                            {errors.capacity && (
-                                <p className="text-red-500 text-sm mt-1">{errors.capacity}</p>
-                            )}
-                        </div>
+                            <Col span={12}>
+                                <Form.Item
+                                    name="type"
+                                    label={t('admin.hotels.rooms.fields.type', 'Room Type')}
+                                    rules={[{
+                                        required: true,
+                                        message: t('admin.hotels.rooms.validation.typeRequired', 'Please input room type!')
+                                    }]}
+                                >
+                                    <Input maxLength={50} />
+                                </Form.Item>
+                            </Col>
 
-                        {/* Room Type */}
-                        <div>
-                            <label className="block text-gray-700" htmlFor="type">
-                                Room Type
-                            </label>
-                            <input
-                                type="text"
-                                name="type"
-                                value={formData.type || ''}
-                                onChange={handleChange}
-                                className={`w-full border rounded px-3 py-2 ${errors.type ? "border-red-500" : "border-gray-400"}`}
-                            />
-                            {errors.type && (
-                                <p className="text-red-500 text-sm mt-1">{errors.type}</p>
-                            )}
-                        </div>
+                            <Col span={12}>
+                                <Form.Item
+                                    name="rate"
+                                    label={t('admin.hotels.rooms.fields.rate', 'Rate')}
+                                    rules={[{
+                                        required: true,
+                                        message: t('admin.hotels.rooms.validation.rateRequired', 'Please input rate!')
+                                    }]}
+                                >
+                                    <InputNumber
+                                        style={{ width: '100%' }}
+                                        min={0}
+                                        step={0.01}
+                                        precision={2}
+                                        formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                    />
+                                </Form.Item>
+                            </Col>
 
-                        {/* Description */}
-                        <div>
-                            <label className="block text-gray-700" htmlFor="description">
-                                Description
-                            </label>
-                            <input
-                                type="text"
-                                name="description"
-                                value={formData.description || ''}
-                                onChange={handleChange}
-                                className="w-full border rounded px-3 py-2 border-gray-400"
-                            />
-                        </div>
+                            <Col span={12}>
+                                <Form.Item
+                                    name="description"
+                                    label={t('admin.hotels.rooms.fields.description', 'Description')}
+                                >
+                                    <Input.TextArea rows={4} maxLength={500} />
+                                </Form.Item>
+                            </Col>
 
-                        {/* Rate */}
-                        <div>
-                            <label className="block text-gray-700" htmlFor="rate">
-                                Rate
-                            </label>
-                            <input
-                                type="number"
-                                name="rate"
-                                value={formData.rate || ''}
-                                onChange={handleChange}
-                                min="0"
-                                step="0.01"
-                                className={`w-full border rounded px-3 py-2 ${errors.rate ? "border-red-500" : "border-gray-400"}`}
-                            />
-                            {errors.rate && (
-                                <p className="text-red-500 text-sm mt-1">{errors.rate}</p>
-                            )}
-                        </div>
+                            <Col span={12}>
+                                <Form.Item
+                                    name="status"
+                                    label={t('admin.hotels.rooms.fields.status', 'Status')}
+                                    rules={[{
+                                        required: true,
+                                        message: t('admin.hotels.rooms.validation.statusRequired', 'Please select status!')
+                                    }]}
+                                >
+                                    <Select>
+                                        <Option value={RoomStatus.AVAILABLE}>{t('admin.hotels.rooms.status.available', 'Available')}</Option>
+                                        <Option value={RoomStatus.RESERVED}>{t('admin.hotels.rooms.status.reserved', 'Reserved')}</Option>
+                                        <Option value={RoomStatus.OCCUPIED}>{t('admin.hotels.rooms.status.occupied', 'Occupied')}</Option>
+                                        <Option value={RoomStatus.MAINTENANCE}>{t('admin.hotels.rooms.status.maintenance', 'Under Maintenance')}</Option>
+                                    </Select>
+                                </Form.Item>
+                            </Col>
+                        </Row>
 
-                        {/* Hotel ID (read-only) */}
-                        <div>
-                            <label className="block text-gray-700" htmlFor="hotelId">
-                                Hotel ID
-                            </label>
-                            <input
-                                type="text"
-                                name="hotelId"
-                                value={formData.hotel.id || ''}
-                                readOnly
-                                className="w-full border rounded px-3 py-2 bg-gray-100 cursor-not-allowed border-gray-400"
-                            />
-                            {errors.hotelId && (
-                                <p className="text-red-500 text-sm mt-1">{errors.hotelId}</p>
-                            )}
-                        </div>
-                    </div>
+                        <Row gutter={24}>
+                            <Col span={24}>
+                                <div className="info-box bg-gray-50 p-4 rounded mb-4">
+                                    <p>
+                                        <strong>{t('admin.hotels.rooms.fields.hotelId', 'Hotel ID')}:</strong> {hotelId}
+                                    </p>
+                                </div>
+                            </Col>
+                        </Row>
 
-                    {/* Status */}
-                    <div className="mt-4">
-                        <label className="block text-gray-700" htmlFor="status">
-                            Status
-                        </label>
-                        <select
-                            name="status"
-                            value={formData.status}
-                            onChange={handleChange}
-                            className={`w-full border rounded px-3 py-2 ${errors.status ? "border-red-500" : "border-gray-400"}`}
+                        <Form.Item
+                            label={t('admin.hotels.rooms.fields.image', 'Room Image')}
+                            name="roomImage"
+                            extra={t('admin.hotels.rooms.add.imageHint', 'Upload a room image (max 5MB)')}
                         >
-                            <option value={RoomStatus.AVAILABLE}>Available</option>
-                            <option value={RoomStatus.RESERVED}>Reserved</option>
-                            <option value={RoomStatus.OCCUPIED}>Occupied</option>
-                            <option value={RoomStatus.MAINTENANCE}>Under Maintenance</option>
-                        </select>
-                        {errors.status && (
-                            <p className="text-red-500 text-sm mt-1">{errors.status}</p>
-                        )}
-                    </div>
+                            <Upload {...uploadProps}>
+                                <Button icon={<UploadOutlined />}>
+                                    {t('admin.hotels.rooms.add.selectImage', 'Select Image')}
+                                </Button>
+                            </Upload>
+                        </Form.Item>
 
-                    {/* Image upload */}
-                    <div className="mt-4">
-                        <label htmlFor="image" className="block text-gray-700">
-                            Room Image
-                        </label>
-                        <input
-                            type="file"
-                            id="image"
-                            name="image"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            className="border px-3 py-2 mt-1 block w-full rounded-md border-gray-400"
-                        />
-                    </div>
-
-                    {/* Submit Button */}
-                    <div className="mt-6 flex justify-center">
-                        <button
-                            id="submitButton"
-                            type="submit"
-                            className="bg-blue-600 text-white py-2 px-6 rounded-md text-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
-                        >
-                            Add Room
-                        </button>
-                    </div>
-                </form>
-
-                {imageUploadMessage && (
-                    <p className="text-green-500 mt-4">{imageUploadMessage}</p>
-                )}
+                        <Form.Item>
+                            <Space>
+                                <Button
+                                    id="submitButton"
+                                    type="primary"
+                                    htmlType="submit"
+                                    loading={loading}
+                                >
+                                    {t('admin.hotels.rooms.add.addRoom', 'Add Room')}
+                                </Button>
+                                <Button
+                                    onClick={() => navigate(`/admin/hotels/${hotelId}/rooms`)}
+                                >
+                                    {t('common.cancel', 'Cancel')}
+                                </Button>
+                            </Space>
+                        </Form.Item>
+                    </Form>
+                </Card>
             </div>
         </div>
     );

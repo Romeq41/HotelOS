@@ -1,0 +1,472 @@
+{
+    "general": {
+        "welcome": "Welcome",
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "save": "Save",
+        "edit": "Edit",
+        "delete": "Delete",
+        "back": "Back",
+        "next": "Next"
+    },
+    "common": {
+        "yes": "Yes",
+        "no": "No",
+        "ok": "OK",
+        "close": "Close",
+        "search": "Search",
+        "filter": "Filter",
+        "clear": "Clear",
+        "apply": "Apply",
+        "select": "Select",
+        "deselect": "Deselect",
+        "delete": "Delete"
+    },
+  
+    "header" : {
+        "language": "Language",
+        "hotels" : "Hotels",
+        "adminDashboard": "Admin Dashboard",
+        "users": "Users",
+        "profile": "My Profile",
+        "logout": "Logout"
+    },
+    "admin": {
+        "reservations": {
+            "title": "Reservations",
+            "addReservation": "Add Reservation",
+            "noRoom": "No Room",
+            "noGuest": "No Guest",
+            "deleteConfirmation": "Are you sure you want to delete this reservation?",
+            "columns": {
+            "id": "ID",
+            "room": "Room",
+            "guest": "Guest",
+            "reservationName": "Reservation Name",
+            "checkIn": "Check In",
+            "checkOut": "Check Out",
+            "status_text": "Status",
+            "total": "Total",
+            "actions": "Actions",
+            "addReservation": "Add Reservation",
+                "form": {
+                    "fields": {
+                        "guestId": "Guest ID",
+                        "roomId": "Room ID",
+                        "reservationName": "Reservation Name",
+                        "checkInDate": "Check-in Date",
+                        "checkOutDate": "Check-out Date",
+                        "status": "Status",
+                        "totalAmount": "Total Amount"
+                    },
+                    "errors": {
+                        "roomRequired": "Room ID is required",
+                        "checkInRequired": "Check-in date is required",
+                        "checkOutRequired": "Check-out date is required",
+                        "statusRequired": "Status is required",
+                        "totalCalculationError": "Unable to calculate total"
+                    },
+                    "selectRoom": "Select a room",
+                    "rate": "Rate",
+                    "success": "Reservation Added!"
+                },
+                "status": {
+                    "pending": "Pending",
+                    "confirmed": "Confirmed",
+                    "checked_in": "Checked In",
+                    "checked_out": "Checked Out",
+                    "cancelled": "Cancelled",
+                    "no_show": "No Show"
+                }
+            },
+            "details": {
+                "title": "Reservation Details",
+                "id": "ID",
+                "guestName": "Guest Name",
+                "roomNumber": "Room Number",
+                "checkInDate": "Check-in Date",
+                "checkOutDate": "Check-out Date",
+                "status": "Status"
+            },
+            "edit": {
+                "title": "Edit Reservation",
+                "saveChanges": "Save Changes"
+            },
+            "editReservation": "Edit Reservation",
+            "unknown": "Unknown",
+            "loading": "Loading reservation information..."
+        },
+        "hotels": {
+            "add": {
+                "title": "Add New Hotel",
+                "success": "Hotel added successfully",
+                "error": "Failed to add hotel",
+                "imageTypeError": "You can only upload image files!",
+                "imageSizeError": "Image must be smaller than 5MB!",
+                "imageUploadSuccess": "Image uploaded successfully",
+                "imageUploadPartialError": "Hotel added but failed to upload image",
+                "selectImage": "Select Image",
+                "addHotel": "Add Hotel",
+                "imageHint": "Upload a hotel image (max 5MB)"
+            },
+            "details": {
+                "statistics": "Statystyki hotelu",
+                "id": "ID",
+                "country": "Kraj",
+                "state": "Województwo",
+                "city": "Miasto",
+                "address": "Adres",
+                "zipCode": "Kod pocztowy",
+                "employeesStats": "Statystyki pracowników"
+            },
+            "statistics": {
+                "totalRooms": "Wszystkie pokoje",
+                "occupiedRooms": "Zajęte pokoje",
+                "freeRooms": "Wolne pokoje",
+                "totalEmployees": "Wszyscy pracownicy",
+                "managers": "Menedżerowie",
+                "staff": "Personel"
+            },
+            "actions": {
+                "edit": "Edytuj hotel",
+                "seeRooms": "Zobacz pokoje"
+            },
+            "edit": {
+                "title": "Edit Hotel",
+                "saveChanges": "Save Changes",
+                "selectImage": "Select Image",
+                "loading": "Loading hotel data...",
+                "fetchError": "Failed to load hotel data",
+                "updateSuccess": "Hotel updated successfully",
+                "updateError": "Failed to update hotel",
+                "imageUploadSuccess": "Image uploaded successfully",
+                "imageUploadError": "Failed to upload image",
+                "imageUploadPartialError": "Hotel updated but failed to upload image",
+                "imageTypeError": "You can only upload image files!",
+                "imageSizeError": "Image must be smaller than 5MB!",
+                "imageHint": "Upload a hotel image (max 5MB)"
+            },
+            "fields": {
+                "name": "Hotel Name",
+                "address": "Address",
+                "city": "City",
+                "state": "State/Province",
+                "zipCode": "Postal/ZIP Code",
+                "country": "Country",
+                "image": "Hotel Image"
+            },
+            "validation": {
+                "nameRequired": "Please input hotel name!",
+                "nameLength": "Name must be at least 3 characters long",
+                "addressRequired": "Please input address!",
+                "cityRequired": "Please input city!",
+                "stateRequired": "Please input state/province!",
+                "countryRequired": "Please input country!",
+                "zipCodeRequired": "Please input zip code!",
+                "zipCodeInvalid": "Please enter a valid postal/ZIP code",
+                "zipCodeUSInvalid": "US ZIP code must be in format: 12345 or 12345-6789",
+                "zipCodeCAInvalid": "Canadian postal code must be in format: A1A 1A1",
+                "zipCodePLInvalid": "Polish postal code must be in format: 12-345",
+                "zipCodeUKInvalid": "UK postal code is invalid"
+            },
+            "title": "Hotels",
+            "searchPlaceholder": "Search hotels",
+            "addHotel": "Add Hotel",
+            "deleteConfirmation": "Are you sure you want to delete this hotel?",
+            "columns": {
+                "id": "ID",
+                "name": "Hotel Name",
+                "city": "City",
+                "state": "State",
+                "address": "Address",
+                "country": "Country",
+                "zipCode": "Zip Code",
+                "actions": "Actions"
+            },
+            "unknown": "Nieznane",
+            "numberOfRooms": "Liczba pokoi",
+            "description": "Opis",
+            "noDescription": "Brak dostępnego opisu.",
+            "editHotel": "Edytuj hotel",
+            "seeRooms": "Zobacz pokoje",
+            "seeReservations": "Zobacz rezerwacje",
+            "seeEmployees": "Zobacz pracowników",
+            "loading": "Ładowanie informacji o hotelu...",
+            "title_users": "Hotel Users",
+            "rooms": {
+                "add": {
+                    "title": "Add New Room",
+                    "success": "Room added successfully",
+                    "error": "Failed to create room",
+                    "imageTypeError": "You can only upload image files!",
+                    "imageSizeError": "Image must be smaller than 5MB!",
+                    "imageUploadSuccess": "Image uploaded successfully",
+                    "imageUploadPartialError": "Room added but failed to upload image",
+                    "selectImage": "Select Image",
+                    "addRoom": "Add Room",
+                    "imageHint": "Upload a room image (max 5MB)"
+                },
+                
+                "title": "Rooms",
+                "searchPlaceholder": "Search rooms",
+                "addRoom": "Add Room",
+                "deleteConfirmation": "Are you sure you want to delete this room?",
+                "columns": {
+                    "roomNumber": "Room Number",
+                    "type": "Type",
+                    "rate": "Rate", 
+                    "status": "Status"
+                },
+                "details": {
+                    "roomNumber": "Room number",
+                    "id": "ID",
+                    "description": "Description",
+                    "type": "Type",
+                    "price": "Price",
+                    "capacity": "Capacity",
+                    "status": "Status",
+                    "available": "Available",
+                    "notAvailable": "Not Available",
+                    "editRoom": "Edit Room",
+                    "loading": "Loading room information..."
+                },
+                "edit": {
+                    "title": "Edit Room",
+                    "fetchError": "Failed to load room data",
+                    "hotelFetchError": "Failed to load hotels",
+                    "updateSuccess": "Room updated successfully",
+                    "updateError": "Failed to update room",
+                    "imageUploadSuccess": "Image uploaded successfully",
+                    "imageUploadError": "Failed to upload image"
+                },
+                "fields": {
+                    "roomNumber": "Room Number",
+                    "type": "Room Type",
+                    "capacity": "Capacity",
+                    "rate": "Rate",
+                    "status": "Status",
+                    "hotel": "Hotel",
+                    "hotelId": "Hotel ID",
+                    "description": "Description",
+                    "image": "Room Image"
+                },
+                "validation": {
+                    "roomNumberRequired": "Please input room number!",
+                    "typeRequired": "Please input room type!",
+                    "capacityRequired": "Please input capacity!",
+                    "rateRequired": "Please input rate!",
+                    "statusRequired": "Please select status!",
+                    "hotelRequired": "Please select a hotel!"
+                },
+                "status": {
+                    "available": "Available",
+                    "reserved": "Reserved",
+                    "occupied": "Occupied",
+                    "maintenance": "Under Maintenance"
+                },
+                "selectHotel": "Select a hotel",
+                "noHotelsFound": "No hotels found",
+                "selectImage": "Select Image",
+                "loading": "Loading room data..."
+            }
+        },
+        "users": {
+            "edit": {
+                "title": "Edit User"
+            },
+            "form": {
+                "fields": {
+                    "firstName": "First Name",
+                    "lastName": "Last Name",
+                    "userType": "User Type",
+                    "hotel": "Hotel",
+                    "email": "Email",
+                    "phone": "Phone",
+                    "position": "Position",
+                    "country": "Country",
+                    "state": "State",
+                    "city": "City",
+                    "address": "Address",
+                    "zipCode": "Zip Code",
+                    "userImage": "User Image"
+                },
+                "errors": {
+                    "firstNameRequired": "Please input first name!",
+                    "lastNameRequired": "Please input last name!",
+                    "userTypeRequired": "Please select user type!",
+                    "emailRequired": "Please input email!",
+                    "emailInvalid": "Please enter a valid email!"
+                },
+                "selectHotel": "Select a hotel"
+            },
+            "userTypes": {
+                "guest": "User",
+                "staff": "Staff",
+                "manager": "Manager"
+            },
+            "actions": {
+                "selectImage": "Select Image",
+                "saveChanges": "Save Changes",
+                "edit": "Edit User"
+            },
+                "messages": {
+                "loadFailed": "Failed to load user data",
+                "hotelsLoadFailed": "Failed to load hotels",
+                "noHotels": "No hotels found",
+                "imageUploadFailed": "Failed to upload image",
+                "imageUploaded": "Image uploaded successfully",
+                "updateSuccess": "User updated successfully",
+                "updateFailed": "Failed to update user"
+            },
+            "columns": {
+                "email": "Email",
+                "firstName": "First Name",
+                "lastName": "Last Name",
+                "hotelName": "Hotel Name",
+                "position": "Position",
+                "address": "Address",
+                "actions": "Actions"
+            },
+            "details": {
+                "id": "ID",
+                "userType": "User Type",
+                "hotel": "Hotel",
+                "position": "Position",
+                "email": "Email",
+                "phone": "Phone",
+                "country": "Country",
+                "state": "State",
+                "city": "City",
+                "address": "Address",
+                "zipCode": "Zip-code"
+            },
+            "unknown": "Unknown",
+            "loading": "Loading User information...",
+            "noHotelAssigned": "No Hotel Assigned",
+            "deleteConfirmation": "Are you sure you want to delete this user?",
+            "searchPlaceholder": "Search users",
+            "addUser": "Add User"
+        }
+    },
+    "auth": {
+        "welcomeMessage": "Welcome to HotelOS. Please log in",
+        "login": "Login",
+        "logout": "Logout",
+        "signup": "Sign Up",
+        "forgotPassword": "Forgot Password",
+        "resetPassword": "Reset Password",
+        "email": "Email",
+        "password": "Password",
+        "username": "Username",
+        "validationErrors": {
+            "email": "Please enter a valid email address",
+            "password": "Password must be at least 6 characters"
+        }
+    },
+    "hotel": {
+        "booking": "Booking",
+        "reservation": "Reservation",
+        "checkIn": "Check-in",
+        "checkOut": "Check-out",
+        "room": "Room",
+        "rooms": "Rooms",
+        "guests": "Guests",
+        "amenities": "Amenities",
+        "services": "Services"
+    },
+    "user": {
+        "profile": {
+            "title": "User Profile",
+            "hotelInfo": "Hotel Information",
+            "personalInfo": "Personal Information",
+            "notProvided": "Not provided",
+            "userPhoto": "User Photo",
+            "fields": {
+            "hotelName": "Hotel Name",
+            "location": "Location",
+            "checkInTime": "Check-in Time",
+            "checkOutTime": "Check-out Time",
+            "contact": "Contact",
+            "email": "Email",
+            "address": "Address",
+            "phone": "Phone",
+            "position": "Position"
+            }
+        }
+    },
+    "features": {
+        "whyChoose": "Why Choose HotelOS?",
+        "revenueGrowth": {
+            "title": "Revenue Growth",
+            "description": "Maximize your hotel's revenue with real-time analytics and automated pricing strategies."
+        },
+        "operationalOptimization": {
+            "title": "Operational Optimization",
+            "description": "Streamline your operations and improve efficiency with our all-in-one management tools."
+        },
+        "guestExperience": {
+            "title": "Enhanced Guest Experience",
+            "description": "Deliver exceptional guest experiences with seamless check-ins and personalized services."
+        }
+    },
+    "pricing": {
+        "chooseYourPlan": "Choose Your Plan",
+        "basic": {
+            "title": "Basic Plan",
+            "price": "$49/month",
+            "features": [
+            "Basic hotel management tools",
+            "Email support",
+            "Access to analytics dashboard"
+            ],
+            "buttonText": "Get Started"
+        },
+        "pro": {
+            "title": "Pro Plan",
+            "price": "$99/month",
+            "features": [
+            "Advanced management tools",
+            "Priority support",
+            "Revenue optimization features"
+            ],
+            "buttonText": "Upgrade Now"
+        },
+        "enterprise": {
+            "title": "Enterprise Plan",
+            "price": "Custom Pricing",
+            "features": [
+            "Full suite of tools",
+            "Dedicated account manager",
+            "Custom integrations"
+            ],
+            "buttonText": "Contact Us"
+        }
+    },
+    "messages": {
+        "loginSuccess": "Logged in successfully",
+        "loginError": "Login failed. Please try again",
+        "bookingSuccess": "Booking confirmed successfully",
+        "bookingError": "Failed to complete booking"
+    },
+    "advertisements": [
+        {
+            "title": "🏨 HotelOS – The Future of Hotel Management!",
+            "description": "Streamline operations, boost efficiency, and deliver exceptional guest experiences—all in one powerful system!"
+        },
+        {
+            "title": "📊 Simplify, Automate, and Grow with HotelOS!",
+            "description": "From booking to billing, manage every aspect of your hotel with ease. Elevate your business today!"
+        },
+        {
+            "title": "🔑 Seamless Check-ins, Happier Guests!",
+            "description": "Reduce wait times, enhance guest satisfaction, and improve efficiency with our smart front desk management."
+        },
+        {
+            "title": "💼 Optimize Your Hotel's Revenue!",
+            "description": "Get real-time analytics, automated pricing, and revenue insights to maximize your earnings effortlessly!"
+        }
+    ]
+}

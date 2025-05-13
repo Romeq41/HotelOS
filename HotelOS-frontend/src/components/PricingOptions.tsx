@@ -1,34 +1,38 @@
+import { useTranslation } from "react-i18next";
+
 export default function PricingOptions() {
+    const { t } = useTranslation();
+
     const pricingPlans = [
         {
-            title: "Basic Plan",
-            price: "$49/month",
+            title: t("pricing.basic.title", "Basic Plan"),
+            price: t("pricing.basic.price", "$49/month"),
             features: [
-                "Basic hotel management tools",
-                "Email support",
-                "Access to analytics dashboard",
+                t("pricing.basic.features.0", "Basic hotel management tools"),
+                t("pricing.basic.features.1", "Email support"),
+                t("pricing.basic.features.2", "Access to analytics dashboard"),
             ],
-            buttonText: "Get Started",
+            buttonText: t("pricing.basic.buttonText", "Get Started"),
         },
         {
-            title: "Pro Plan",
-            price: "$99/month",
+            title: t("pricing.pro.title", "Pro Plan"),
+            price: t("pricing.pro.price", "$99/month"),
             features: [
-                "Advanced management tools",
-                "Priority support",
-                "Revenue optimization features",
+                t("pricing.pro.features.0", "Advanced management tools"),
+                t("pricing.pro.features.1", "Priority support"),
+                t("pricing.pro.features.2", "Revenue optimization features"),
             ],
-            buttonText: "Upgrade Now",
+            buttonText: t("pricing.pro.buttonText", "Upgrade Now"),
         },
         {
-            title: "Enterprise Plan",
-            price: "Custom Pricing",
+            title: t("pricing.enterprise.title", "Enterprise Plan"),
+            price: t("pricing.enterprise.price", "Custom Pricing"),
             features: [
-                "Full suite of tools",
-                "Dedicated account manager",
-                "Custom integrations",
+                t("pricing.enterprise.features.0", "Full suite of tools"),
+                t("pricing.enterprise.features.1", "Dedicated account manager"),
+                t("pricing.enterprise.features.2", "Custom integrations"),
             ],
-            buttonText: "Contact Us",
+            buttonText: t("pricing.enterprise.buttonText", "Contact Us"),
         },
     ];
 
@@ -36,7 +40,7 @@ export default function PricingOptions() {
         <div id="menu" className="w-full bg-white py-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-center text-gray-800 mb-12">
-                    Choose Your Plan
+                    {t("pricing.chooseYourPlan", "Choose Your Plan")}
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {pricingPlans.map((plan, index) => (

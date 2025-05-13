@@ -5,10 +5,12 @@ import { Room } from '../../../interfaces/Room';
 import { Popconfirm } from 'antd';
 import { Hotel } from '../../../interfaces/Hotel';
 import { useLoading } from '../../../contexts/LoaderContext';
+import { useTranslation } from 'react-i18next';
 
 export default function Admin_Hotel_Rooms() {
     const { hotelId } = useParams();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const [rooms, setRooms] = useState<Room[]>([]);
     const [hotel, setHotel] = useState<Hotel>();
@@ -150,41 +152,41 @@ export default function Admin_Hotel_Rooms() {
 
     const columns = [
         {
-            title: 'Room Number',
+            title: t('admin.hotels.rooms.columns.roomNumber', 'Room Number'),
             dataIndex: 'roomNumber',
             key: 'roomNumber',
         },
         {
-            title: 'Type',
+            title: t('admin.hotels.rooms.columns.type', 'Type'),
             dataIndex: 'type',
             key: 'type',
         },
         {
-            title: 'Rate',
+            title: t('admin.hotels.rooms.columns.rate', 'Rate'),
             dataIndex: 'rate',
             key: 'rate',
         },
         {
-            title: 'Status',
+            title: t('admin.hotels.rooms.columns.status', 'Status'),
             dataIndex: 'status',
             key: 'status',
         },
         {
-            title: 'Actions',
+            title: t('admin.hotels.columns.actions', 'Actions'),
             key: 'actions',
             render: (_: any, record: Room) => (
                 <div onClick={(e) => e.stopPropagation()}>
                     <Popconfirm
-                        title="Are you sure you want to delete this room?"
+                        title={t('admin.hotels.rooms.deleteConfirmation', 'Are you sure you want to delete this room?')}
                         onConfirm={() => handleDelete(record.roomId)}
-                        okText="Yes"
-                        cancelText="No"
+                        okText={t('common.yes', 'Yes')}
+                        cancelText={t('common.no', 'No')}
                     >
                         <Button
                             type="primary"
                             danger
                         >
-                            Delete
+                            {t('common.delete', 'Delete')}
                         </Button>
                     </Popconfirm>
                 </div>
@@ -195,7 +197,9 @@ export default function Admin_Hotel_Rooms() {
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
             <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-center gap-10 items-center">
-                <h1 className="text-2xl font-bold">{hotel?.name} : Rooms</h1>
+                <h1 className="text-2xl font-bold">
+                    {hotel?.name} : {t('hotel.rooms', 'Rooms')}
+                </h1>
             </div>
 
             {/* Content */}
@@ -205,21 +209,21 @@ export default function Admin_Hotel_Rooms() {
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                             <Input
-                                placeholder="Search rooms"
+                                placeholder={t('admin.hotels.rooms.searchPlaceholder', 'Search rooms')}
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 onKeyPress={handleKeyPress}
                                 style={{ width: 200 }}
                             />
                             <Button type="default" onClick={handleSearch}>
-                                Search
+                                {t('common.search', 'Search')}
                             </Button>
                         </div>
                         <Button
                             type="primary"
                             onClick={() => navigate(`/admin/hotels/${hotelId}/rooms/add`)}
                         >
-                            Add Room
+                            {t('admin.hotels.rooms.addRoom', 'Add Room')}
                         </Button>
                     </div>
 

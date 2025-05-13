@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { User } from "../../../interfaces/User";
 import { Hotel } from "../../../interfaces/Hotel";
 import { useLoading } from "../../../contexts/LoaderContext";
+import { useTranslation } from "react-i18next";
 import {
     Form,
     Input,
@@ -31,6 +32,7 @@ export default function Admin_User_Edit() {
     const [hotelLoading, setHotelLoading] = useState(false);
     const [fileList, setFileList] = useState<UploadFile[]>([]);
     const { showLoader, hideLoader } = useLoading();
+    const { t } = useTranslation();
     const PAGE_SIZE = 10;
     const { Option } = Select;
 
@@ -60,14 +62,14 @@ export default function Admin_User_Edit() {
                 });
             } catch (error) {
                 console.error("Error fetching user:", error);
-                message.error("Failed to load user data");
+                message.error(t('admin.users.messages.loadFailed', 'Failed to load user data'));
             }
             hideLoader();
         };
 
         fetchUser();
-        fetchHotels(0, ""); // Initial fetch of first page
-    }, [id, form]);
+        fetchHotels(0, "");
+    }, [id, form, t]);
 
     const fetchHotels = async (page: number, nameQuery: string) => {
         setHotelLoading(true);
@@ -95,8 +97,6 @@ export default function Admin_User_Edit() {
 
             const data = await response.json();
 
-            // If this is page 0, replace the hotels list
-            // If it's a subsequent page, append to the list
             if (page === 0) {
                 setHotels(data.content);
             } else {
@@ -107,12 +107,11 @@ export default function Admin_User_Edit() {
             setTotalHotelPages(data.totalPages);
         } catch (error) {
             console.error("Error fetching hotels:", error);
-            message.error("Failed to load hotels");
+            message.error(t('admin.users.messages.hotelsLoadFailed', 'Failed to load hotels'));
         }
         setHotelLoading(false);
     };
 
-    // Load more hotels when scrolling
     const handlePopupScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const target = e.target as HTMLDivElement;
         if (target.scrollTop + target.offsetHeight === target.scrollHeight && hotelPage < totalHotelPages - 1) {
@@ -120,7 +119,6 @@ export default function Admin_User_Edit() {
         }
     };
 
-    // Handle hotel search
     const handleHotelSearch = (value: string) => {
         setHotelSearchQuery(value);
         fetchHotels(0, value);
@@ -162,7 +160,6 @@ export default function Admin_User_Edit() {
         };
 
         try {
-            // Update user data
             const response = await fetch(`http://localhost:8080/api/users/${id}`, {
                 method: "PUT",
                 headers: {
@@ -179,7 +176,6 @@ export default function Admin_User_Edit() {
                 throw new Error("Failed to update user.");
             }
 
-            // Handle image upload if a file was selected
             if (fileList.length > 0) {
                 const imageFormData = new FormData();
                 imageFormData.append("file", fileList[0] as any);
@@ -201,18 +197,18 @@ export default function Admin_User_Edit() {
                 if (!imageResponse.ok) {
                     const errorText = await imageResponse.text();
                     console.error("Image upload error:", errorText);
-                    message.error("Failed to upload image");
+                    message.error(t('admin.users.messages.imageUploadFailed', 'Failed to upload image'));
                     throw new Error("Image upload failed.");
                 }
 
-                message.success("Image uploaded successfully");
+                message.success(t('admin.users.messages.imageUploaded', 'Image uploaded successfully'));
             }
 
-            message.success("User updated successfully");
+            message.success(t('admin.users.messages.updateSuccess', 'User updated successfully'));
             navigate("/admin/users");
         } catch (error) {
             console.error("Error updating user:", error);
-            message.error("Failed to update user");
+            message.error(t('admin.users.messages.updateFailed', 'Failed to update user'));
         }
         hideLoader();
     };
@@ -226,7 +222,7 @@ export default function Admin_User_Edit() {
         <div className="flex flex-col min-h-screen bg-gray-100">
             <div style={{ marginTop: '5rem', padding: '20px' }}>
                 <Card
-                    title="Edit User"
+                    title={t('admin.users.edit.title', 'Edit User')}
                     variant="outlined"
                     style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}
                 >
@@ -242,8 +238,11 @@ export default function Admin_User_Edit() {
                                     <Col span={12}>
                                         <Form.Item
                                             name="firstName"
-                                            label="First Name"
-                                            rules={[{ required: true, message: 'Please input first name!' }]}
+                                            label={t('admin.users.form.fields.firstName', 'First Name')}
+                                            rules={[{
+                                                required: true,
+                                                message: t('admin.users.form.errors.firstNameRequired', 'Please input first name!')
+                                            }]}
                                         >
                                             <Input />
                                         </Form.Item>
@@ -251,8 +250,11 @@ export default function Admin_User_Edit() {
                                     <Col span={12}>
                                         <Form.Item
                                             name="lastName"
-                                            label="Last Name"
-                                            rules={[{ required: true, message: 'Please input last name!' }]}
+                                            label={t('admin.users.form.fields.lastName', 'Last Name')}
+                                            rules={[{
+                                                required: true,
+                                                message: t('admin.users.form.errors.lastNameRequired', 'Please input last name!')
+                                            }]}
                                         >
                                             <Input />
                                         </Form.Item>
@@ -260,29 +262,34 @@ export default function Admin_User_Edit() {
                                     <Col span={12}>
                                         <Form.Item
                                             name="userType"
-                                            label="User Type"
-                                            rules={[{ required: true, message: 'Please select user type!' }]}
+                                            label={t('admin.users.form.fields.userType', 'User Type')}
+                                            rules={[{
+                                                required: true,
+                                                message: t('admin.users.form.errors.userTypeRequired', 'Please select user type!')
+                                            }]}
                                         >
                                             <Select>
-                                                <Option value="GUEST">User</Option>
-                                                <Option value="STAFF">Staff</Option>
-                                                <Option value="MANAGER">Manager</Option>
+                                                <Option value="GUEST">{t('admin.users.userTypes.guest', 'User')}</Option>
+                                                <Option value="STAFF">{t('admin.users.userTypes.staff', 'Staff')}</Option>
+                                                <Option value="MANAGER">{t('admin.users.userTypes.manager', 'Manager')}</Option>
                                             </Select>
                                         </Form.Item>
                                     </Col>
                                     <Col span={12}>
                                         <Form.Item
                                             name="hotel"
-                                            label="Hotel"
+                                            label={t('admin.users.form.fields.hotel', 'Hotel')}
                                         >
                                             <Select
                                                 showSearch
-                                                placeholder="Select a hotel"
+                                                placeholder={t('admin.users.form.selectHotel', 'Select a hotel')}
                                                 loading={hotelLoading}
                                                 filterOption={false}
                                                 onSearch={handleHotelSearch}
                                                 onPopupScroll={handlePopupScroll}
-                                                notFoundContent={hotelLoading ? <Spin size="small" /> : "No hotels found"}
+                                                notFoundContent={hotelLoading ?
+                                                    <Spin size="small" /> :
+                                                    t('admin.users.messages.noHotels', 'No hotels found')}
                                                 allowClear
                                             >
                                                 {hotels.map((hotel) => (
@@ -296,10 +303,16 @@ export default function Admin_User_Edit() {
                                     <Col span={12}>
                                         <Form.Item
                                             name="email"
-                                            label="Email"
+                                            label={t('admin.users.form.fields.email', 'Email')}
                                             rules={[
-                                                { required: true, message: 'Please input email!' },
-                                                { type: 'email', message: 'Please enter a valid email!' }
+                                                {
+                                                    required: true,
+                                                    message: t('admin.users.form.errors.emailRequired', 'Please input email!')
+                                                },
+                                                {
+                                                    type: 'email',
+                                                    message: t('admin.users.form.errors.emailInvalid', 'Please enter a valid email!')
+                                                }
                                             ]}
                                         >
                                             <Input />
@@ -308,7 +321,7 @@ export default function Admin_User_Edit() {
                                     <Col span={12}>
                                         <Form.Item
                                             name="phone"
-                                            label="Phone"
+                                            label={t('admin.users.form.fields.phone', 'Phone')}
                                         >
                                             <Input />
                                         </Form.Item>
@@ -316,7 +329,7 @@ export default function Admin_User_Edit() {
                                     <Col span={12}>
                                         <Form.Item
                                             name="position"
-                                            label="Position"
+                                            label={t('admin.users.form.fields.position', 'Position')}
                                         >
                                             <Input />
                                         </Form.Item>
@@ -324,7 +337,7 @@ export default function Admin_User_Edit() {
                                     <Col span={12}>
                                         <Form.Item
                                             name="country"
-                                            label="Country"
+                                            label={t('admin.users.form.fields.country', 'Country')}
                                         >
                                             <Input />
                                         </Form.Item>
@@ -332,7 +345,7 @@ export default function Admin_User_Edit() {
                                     <Col span={12}>
                                         <Form.Item
                                             name="state"
-                                            label="State"
+                                            label={t('admin.users.form.fields.state', 'State')}
                                         >
                                             <Input />
                                         </Form.Item>
@@ -340,7 +353,7 @@ export default function Admin_User_Edit() {
                                     <Col span={12}>
                                         <Form.Item
                                             name="city"
-                                            label="City"
+                                            label={t('admin.users.form.fields.city', 'City')}
                                         >
                                             <Input />
                                         </Form.Item>
@@ -348,7 +361,7 @@ export default function Admin_User_Edit() {
                                     <Col span={12}>
                                         <Form.Item
                                             name="address"
-                                            label="Address"
+                                            label={t('admin.users.form.fields.address', 'Address')}
                                         >
                                             <Input />
                                         </Form.Item>
@@ -356,7 +369,7 @@ export default function Admin_User_Edit() {
                                     <Col span={12}>
                                         <Form.Item
                                             name="zipCode"
-                                            label="Zip Code"
+                                            label={t('admin.users.form.fields.zipCode', 'Zip Code')}
                                         >
                                             <Input />
                                         </Form.Item>
@@ -364,23 +377,25 @@ export default function Admin_User_Edit() {
                                 </Row>
 
                                 <Form.Item
-                                    label="User Image"
+                                    label={t('admin.users.form.fields.userImage', 'User Image')}
                                     name="userImage"
                                 >
                                     <Upload {...uploadProps} listType="picture">
-                                        <Button icon={<UploadOutlined />}>Select Image</Button>
+                                        <Button icon={<UploadOutlined />}>
+                                            {t('admin.users.actions.selectImage', 'Select Image')}
+                                        </Button>
                                     </Upload>
                                 </Form.Item>
 
                                 <Form.Item>
                                     <Space>
                                         <Button type="primary" htmlType="submit">
-                                            Save Changes
+                                            {t('admin.users.actions.saveChanges', 'Save Changes')}
                                         </Button>
                                         <Button
                                             onClick={() => navigate("/admin/users")}
                                         >
-                                            Cancel
+                                            {t('common.cancel', 'Cancel')}
                                         </Button>
                                     </Space>
                                 </Form.Item>
@@ -388,7 +403,9 @@ export default function Admin_User_Edit() {
                         ) : (
                             <div style={{ textAlign: 'center', padding: '20px' }}>
                                 <Spin size="large" />
-                                <p style={{ marginTop: '10px' }}>Loading user data...</p>
+                                <p style={{ marginTop: '10px' }}>
+                                    {t('admin.users.loading', 'Loading user data...')}
+                                </p>
                             </div>
                         )}
                     </Form>

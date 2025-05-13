@@ -1,6 +1,7 @@
 package com.hotelos.hotelosbackend.controllers;
 
 import com.hotelos.hotelosbackend.dto.HotelDto;
+import com.hotelos.hotelosbackend.dto.HotelStatisticsDto;
 import com.hotelos.hotelosbackend.dto.RoomDto;
 import com.hotelos.hotelosbackend.dto.UserDto;
 import com.hotelos.hotelosbackend.mapper.HotelMapper;
@@ -107,6 +108,14 @@ public class HotelController {
     @GetMapping("/{id}")
     public ResponseEntity<Hotel> getHotelById(@PathVariable Long id) {
         return hotelServices.getHotelById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/statistics")
+    public ResponseEntity<HotelStatisticsDto> getHotelStatistics(@PathVariable Long id) {
+        return hotelServices.getHotelById(id).map(hotel -> {
+            HotelStatisticsDto statistics = hotelServices.getHotelStatistics(hotel);
+            return ResponseEntity.ok(statistics);
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{id}/users")

@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useUser } from "../contexts/UserContext.tsx";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function LoginView() {
+    const { t } = useTranslation();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [emailValid, setEmailValid] = useState(true);
@@ -34,8 +36,6 @@ export default function LoginView() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (emailValid && passwordValid) {
-            console.log('Email:', email);
-            console.log('Password:', password);
             login(email, password);
         }
     }
@@ -44,32 +44,36 @@ export default function LoginView() {
         <div className="flex items-center justify-center h-screen bg-gray-100">
             <div className="flex flex-col items-center">
                 <div className="text-center mb-12 text-4xl font-bold">
-                    Welcome to HotelOS. Please log in
+                    {t("auth.welcomeMessage", "Welcome to HotelOS. Please log in")}
                 </div>
                 <form className="flex flex-col w-80 p-6 bg-white rounded-lg shadow-md"
                     onSubmit={handleSubmit}
                 >
                     <input
                         type="email"
-                        placeholder="Email"
+                        placeholder={t("auth.email", "Email")}
                         value={email}
                         onChange={handleEmailChange}
                         className={`p-2 mb-4 border-2 rounded ${emailValid ? 'border-green-500' : 'border-red-500'
                             }`}
                     />
+                    {!emailValid && <p className="text-red-500 text-sm mb-2">{t("auth.validationErrors.email", "Please enter a valid email address")}</p>}
+
                     <input
                         type="password"
-                        placeholder="Password"
+                        placeholder={t("auth.password", "Password")}
                         value={password}
                         onChange={handlePasswordChange}
                         className={`p-2 mb-4 border-2 rounded ${passwordValid ? 'border-green-500' : 'border-red-500'
                             }`}
                     />
+                    {!passwordValid && <p className="text-red-500 text-sm mb-2">{t("auth.validationErrors.password", "Password must be at least 6 characters")}</p>}
+
                     <button
                         type="submit"
                         className="p-2 text-white bg-blue-500 rounded hover:bg-blue-600 font-bold cursor-pointer"
                     >
-                        Login
+                        {t("auth.login", "Login")}
                     </button>
                 </form>
             </div>

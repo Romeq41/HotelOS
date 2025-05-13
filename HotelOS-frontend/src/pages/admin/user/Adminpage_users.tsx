@@ -4,9 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { User, UserType } from '../../../interfaces/User';
 import { Popconfirm } from 'antd';
 import { useLoading } from '../../../contexts/LoaderContext';
+import { useTranslation } from 'react-i18next';
 
 export default function Users() {
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const [users, setUsers] = useState<User[]>([]);
     const [page, setPage] = useState(0);
@@ -109,51 +111,51 @@ export default function Users() {
 
     const columns = [
         {
-            title: 'Email',
+            title: t('admin.users.columns.email', 'Email'),
             dataIndex: 'email',
             key: 'email',
         },
         {
-            title: 'First Name',
+            title: t('admin.users.columns.firstName', 'First Name'),
             dataIndex: 'firstName',
             key: 'firstName',
         },
         {
-            title: 'Last Name',
+            title: t('admin.users.columns.lastName', 'Last Name'),
             dataIndex: 'lastName',
             key: 'lastName',
         },
         {
-            title: 'Name',
+            title: t('admin.users.columns.hotelName', 'Hotel Name'),
             key: 'name',
-            render: (_: any, record: User) => record.hotel?.name || 'No Hotel Assigned',
+            render: (_: any, record: User) => record.hotel?.name || t('admin.users.noHotelAssigned', 'No Hotel Assigned'),
         },
         {
-            title: 'Position',
+            title: t('admin.users.columns.position', 'Position'),
             dataIndex: 'position',
             key: 'position',
         },
         {
-            title: 'Address',
+            title: t('admin.users.columns.address', 'Address'),
             dataIndex: 'address',
             key: 'address',
         },
         {
-            title: 'Actions',
+            title: t('admin.users.columns.actions', 'Actions'),
             key: 'actions',
             render: (_: any, record: User) => (
                 <div onClick={(e) => e.stopPropagation()}>
                     <Popconfirm
-                        title="Are you sure you want to delete this user?"
+                        title={t('admin.users.deleteConfirmation', 'Are you sure you want to delete this user?')}
                         onConfirm={() => handleDelete(record.userId)}
-                        okText="Yes"
-                        cancelText="No"
+                        okText={t('common.yes', 'Yes')}
+                        cancelText={t('common.no', 'No')}
                     >
                         <Button
                             type="primary"
                             danger
                         >
-                            Delete
+                            {t('common.delete', 'Delete')}
                         </Button>
                     </Popconfirm>
                 </div>
@@ -165,7 +167,7 @@ export default function Users() {
         <div className="flex flex-col min-h-screen bg-gray-100">
             {/* Title & Add User */}
             <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-center gap-10 items-center">
-                <h1 className="text-2xl font-bold">Users</h1>
+                <h1 className="text-2xl font-bold">{t('admin.hotels.title_users', 'Hotel Users')}</h1>
             </div>
 
             {/* Content */}
@@ -175,17 +177,19 @@ export default function Users() {
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                             <Input
-                                placeholder="Search users"
+                                placeholder={t('admin.users.searchPlaceholder', 'Search users')}
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 onKeyPress={handleKeyPress}
                                 style={{ width: 200 }}
                             />
                             <Button type="default" onClick={handleSearch}>
-                                Search
+                                {t('common.search', 'Search')}
                             </Button>
                         </div>
-                        <Button type="primary" href="/admin/users/add">Add User</Button>
+                        <Button type="primary" href="/admin/users/add">
+                            {t('admin.users.addUser', 'Add User')}
+                        </Button>
                     </div>
 
                     <Table

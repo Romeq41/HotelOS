@@ -70,6 +70,13 @@ const App = () => {
                             <Route path="/admin/users/:id" element={<Admin_user_overview />} />
                             <Route path="/admin/users/:id/edit" element={<Admin_User_Edit />} />
 
+                            {/* Manager */}
+                            {/* <Route path="/manager/hotel/:id/overview" element={<HotelPage />} />
+                            <Route path="/manager/hotel/:hotelId/rooms" element={<Admin_Hotel_Rooms />} />
+                            <Route path="/manager/hotel/:hotelId/rooms/:roomId" element={<Admin_Hotel_Room_details />} />
+                            <Route path="/manager/hotel/:hotelId/rooms/:roomId/edit" element={<Admin_Hotel_Room_Details_Edit />} />
+                            <Route path="/manager/hotel/:id/edit" element={<Admin_Hotel_Edit />} /> */}
+
                             {/* 404 route */}
                             <Route path="*" element={<h1>Not Found</h1>} />
 

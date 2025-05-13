@@ -4,10 +4,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { User, UserType } from '../../../interfaces/User';
 import { Popconfirm } from 'antd';
 import { useLoading } from '../../../contexts/LoaderContext';
+import { useTranslation } from 'react-i18next';
 
 export default function Admin_Hotel_Users() {
     const { hotelId } = useParams<{ hotelId: string }>();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const [users, setUsers] = useState<User[]>([]);
     const [page, setPage] = useState(0);
@@ -49,9 +51,7 @@ export default function Admin_Hotel_Users() {
                 const data = await response.json();
                 console.log('Users data:', data);
 
-                // Check if response is paginated (has content property)
                 if (data.content) {
-                    // Paginated response
                     const nonAdminUsers = data.content.filter((user: User) => user.userType !== UserType.ADMIN);
 
                     const usersWithKeys = nonAdminUsers.map((user: User) => ({
@@ -63,7 +63,6 @@ export default function Admin_Hotel_Users() {
                     setTotalPages(data.totalPages);
                     setPage(data.number);
                 } else {
-                    // Non-paginated response (fallback)
                     const nonAdminUsers = data.filter((user: User) => user.userType !== UserType.ADMIN);
 
                     const usersWithKeys = nonAdminUsers.map((user: User) => ({
@@ -72,7 +71,6 @@ export default function Admin_Hotel_Users() {
                     }));
 
                     setUsers(usersWithKeys);
-                    // Create fake pagination info
                     setTotalPages(Math.ceil(usersWithKeys.length / PAGE_SIZE));
                     setPage(0);
                 }
@@ -122,51 +120,51 @@ export default function Admin_Hotel_Users() {
 
     const columns = [
         {
-            title: 'Email',
+            title: t('admin.users.columns.email', 'Email'),
             dataIndex: 'email',
             key: 'email',
         },
         {
-            title: 'First Name',
+            title: t('admin.users.columns.firstName', 'First Name'),
             dataIndex: 'firstName',
             key: 'firstName',
         },
         {
-            title: 'Last Name',
+            title: t('admin.users.columns.lastName', 'Last Name'),
             dataIndex: 'lastName',
             key: 'lastName',
         },
         {
-            title: 'Name',
+            title: t('admin.users.columns.hotelName', 'Hotel Name'),
             key: 'name',
-            render: (_: any, record: User) => record.hotel?.name || 'No Hotel Assigned',
+            render: (_: any, record: User) => record.hotel?.name || t('admin.users.noHotelAssigned', 'No Hotel Assigned'),
         },
         {
-            title: 'Position',
+            title: t('admin.users.columns.position', 'Position'),
             dataIndex: 'position',
             key: 'position',
         },
         {
-            title: 'Address',
+            title: t('admin.users.columns.address', 'Address'),
             dataIndex: 'address',
             key: 'address',
         },
         {
-            title: 'Actions',
+            title: t('admin.users.columns.actions', 'Actions'),
             key: 'actions',
             render: (_: any, record: User) => (
                 <div onClick={(e) => e.stopPropagation()}>
                     <Popconfirm
-                        title="Are you sure you want to delete this user?"
+                        title={t('admin.users.deleteConfirmation', 'Are you sure you want to delete this user?')}
                         onConfirm={() => handleDelete(record.userId)}
-                        okText="Yes"
-                        cancelText="No"
+                        okText={t('common.yes', 'Yes')}
+                        cancelText={t('common.no', 'No')}
                     >
                         <Button
                             type="primary"
                             danger
                         >
-                            Delete
+                            {t('common.delete', 'Delete')}
                         </Button>
                     </Popconfirm>
                 </div>
@@ -176,33 +174,31 @@ export default function Admin_Hotel_Users() {
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            {/* Title */}
             <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-center gap-10 items-center">
-                <h1 className="text-2xl font-bold">Hotel Users</h1>
+                <h1 className="text-2xl font-bold">{t('admin.hotels.title_users', 'Hotel Users')}</h1>
             </div>
 
-            {/* Content */}
             <main className="flex-grow p-5">
                 <div className="bg-white shadow-md rounded-lg p-5">
                     {/* Search bar */}
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                             <Input
-                                placeholder="Search users"
+                                placeholder={t('admin.users.searchPlaceholder', 'Search users')}
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 onKeyPress={handleKeyPress}
                                 style={{ width: 200 }}
                             />
                             <Button type="default" onClick={handleSearch}>
-                                Search
+                                {t('common.search', 'Search')}
                             </Button>
                         </div>
                         <Button
                             type="primary"
                             href={`/admin/hotels/${hotelId}/users/add`}
                         >
-                            Add User
+                            {t('admin.users.addUser', 'Add User')}
                         </Button>
                     </div>
                     <Table

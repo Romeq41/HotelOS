@@ -3,12 +3,15 @@ import { Room } from '../../../interfaces/Room';
 import { ReservationStatus } from '../../../interfaces/Reservation';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLoading } from '../../../contexts/LoaderContext';
+import { useTranslation } from 'react-i18next';
 
 export default function EditReservation() {
     const { hotelId, reservationId } = useParams<{ hotelId: string; reservationId: string }>();
     const navigate = useNavigate();
     const [rooms, setRooms] = useState<Room[]>([]);
     const { showLoader, hideLoader } = useLoading();
+    const { t } = useTranslation();
+
     const [formData, setFormData] = useState({
         guestId: '',
         roomId: '',
@@ -109,11 +112,11 @@ export default function EditReservation() {
 
     const validate = () => {
         const newErrors: any = {};
-        if (!formData.roomId) newErrors.roomId = 'Room ID is required';
-        if (!formData.checkInDate) newErrors.checkInDate = 'Check-in date is required';
-        if (!formData.checkOutDate) newErrors.checkOutDate = 'Check-out date is required';
-        if (!formData.status) newErrors.status = 'Status is required';
-        if (!formData.totalAmount) newErrors.totalAmount = 'Unable to calculate total';
+        if (!formData.roomId) newErrors.roomId = t('admin.reservations.form.errors.roomRequired', 'Room ID is required');
+        if (!formData.checkInDate) newErrors.checkInDate = t('admin.reservations.form.errors.checkInRequired', 'Check-in date is required');
+        if (!formData.checkOutDate) newErrors.checkOutDate = t('admin.reservations.form.errors.checkOutRequired', 'Check-out date is required');
+        if (!formData.status) newErrors.status = t('admin.reservations.form.errors.statusRequired', 'Status is required');
+        if (!formData.totalAmount) newErrors.totalAmount = t('admin.reservations.form.errors.totalCalculationError', 'Unable to calculate total');
         return newErrors;
     };
 
@@ -170,12 +173,15 @@ export default function EditReservation() {
     return (
         <div className="min-h-screen bg-gray-100">
             <div className="container mt-20 mx-auto py-8 px-4">
-                <h1 className="text-3xl font-bold text-gray-800 mb-6">Edit Reservation</h1>
+                <h1 className="text-3xl font-bold text-gray-800 mb-6">
+                    {t('admin.reservations.edit.title', 'Edit Reservation')}
+                </h1>
                 <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6 space-y-4">
                     {/* Guest ID */}
                     <div>
                         <label htmlFor="guestId" className="block text-sm font-medium text-gray-700">
-                            guestId (optional)
+                            {t('admin.reservations.form.fields.guestId', 'Guest ID')}
+                            ({t('common.optional', 'optional')})
                         </label>
                         <input
                             type="text"
@@ -191,7 +197,7 @@ export default function EditReservation() {
                     {/* Room ID */}
                     <div>
                         <label htmlFor="roomId" className="block text-sm font-medium text-gray-700">
-                            roomId
+                            {t('admin.reservations.form.fields.roomId', 'Room ID')}
                         </label>
                         <select
                             id="roomId"
@@ -200,10 +206,10 @@ export default function EditReservation() {
                             onChange={handleChange}
                             className={`mt-1 block w-full rounded-md p-2 border shadow focus:ring-1 focus:ring-blue-500 ${getInputClass('roomId')}`}
                         >
-                            <option value="">Select a room</option>
+                            <option value="">{t('admin.reservations.form.selectRoom', 'Select a room')}</option>
                             {rooms.length > 1 && rooms.map((r) => (
                                 <option key={r.roomId} value={r.roomId}>
-                                    {`${r.roomNumber} (Rate: ${r.rate ?? 0})`}
+                                    {`${r.roomNumber} (${t('admin.reservations.form.rate', 'Rate')}: ${r.rate ?? 0})`}
                                 </option>
                             ))}
                         </select>
@@ -213,7 +219,7 @@ export default function EditReservation() {
                     {/* Reservation Name */}
                     <div>
                         <label htmlFor="reservationName" className="block text-sm font-medium text-gray-700">
-                            reservationName
+                            {t('admin.reservations.form.fields.reservationName', 'Reservation Name')}
                         </label>
                         <input
                             type="text"
@@ -231,7 +237,7 @@ export default function EditReservation() {
                     {/* Check-In */}
                     <div>
                         <label htmlFor="checkInDate" className="block text-sm font-medium text-gray-700">
-                            checkInDate
+                            {t('admin.reservations.form.fields.checkInDate', 'Check-in Date')}
                         </label>
                         <input
                             type="date"
@@ -247,7 +253,7 @@ export default function EditReservation() {
                     {/* Check-Out */}
                     <div>
                         <label htmlFor="checkOutDate" className="block text-sm font-medium text-gray-700">
-                            checkOutDate
+                            {t('admin.reservations.form.fields.checkOutDate', 'Check-out Date')}
                         </label>
                         <input
                             type="date"
@@ -263,7 +269,7 @@ export default function EditReservation() {
                     {/* Status */}
                     <div>
                         <label htmlFor="status" className="block text-sm font-medium text-gray-700">
-                            status
+                            {t('admin.reservations.form.fields.status', 'Status')}
                         </label>
                         <select
                             id="status"
@@ -274,7 +280,7 @@ export default function EditReservation() {
                         >
                             {reservationStatuses.map((stat) => (
                                 <option key={stat} value={stat}>
-                                    {stat}
+                                    {t(`admin.reservations.status.${stat.toLowerCase()}`, stat)}
                                 </option>
                             ))}
                         </select>
@@ -284,7 +290,7 @@ export default function EditReservation() {
                     {/* Total Amount */}
                     <div>
                         <label htmlFor="totalAmount" className="block text-sm font-medium text-gray-700">
-                            totalAmount
+                            {t('admin.reservations.form.fields.totalAmount', 'Total Amount')}
                         </label>
                         <input
                             type="text"
@@ -305,7 +311,7 @@ export default function EditReservation() {
                             type="submit"
                             className="bg-blue-600 text-white py-2 px-6 rounded-md text-lg hover:bg-blue-700"
                         >
-                            Save Changes
+                            {t('admin.reservations.edit.saveChanges', 'Save Changes')}
                         </button>
                     </div>
                 </form>
