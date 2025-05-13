@@ -37,8 +37,8 @@ class MaintenanceRequestRepositoryTest {
         hotel = hotelRepository.save(hotel);
 
         Room room = new Room();
-        room.setHotelId(hotel.getId());
-        room.setRoomNumber("101");
+        room.setHotel(hotel);
+        room.setRoomNumber(101L);
         room = roomRepository.save(room);
 
         MaintenanceRequest maintenanceRequest = new MaintenanceRequest();
@@ -61,8 +61,8 @@ class MaintenanceRequestRepositoryTest {
         hotel = hotelRepository.save(hotel);
 
         Room room = new Room();
-        room.setHotelId(hotel.getId());
-        room.setRoomNumber("101");
+        room.setHotel(hotel);
+        room.setRoomNumber(101L);
         room = roomRepository.save(room);
 
         MaintenanceRequest maintenanceRequest = new MaintenanceRequest();
@@ -84,8 +84,8 @@ class MaintenanceRequestRepositoryTest {
         hotel = hotelRepository.save(hotel);
 
         Room room = new Room();
-        room.setHotelId(hotel.getId());
-        room.setRoomNumber("101");
+        room.setHotel(hotel);
+        room.setRoomNumber(101L);
         room = roomRepository.save(room);
 
         MaintenanceRequest maintenanceRequest = new MaintenanceRequest();

@@ -15,7 +15,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest (classes = HotelOsBackendApplication.class)
+@SpringBootTest(classes = HotelOsBackendApplication.class)
 @Transactional
 class RoomRepositoryTest {
 
@@ -32,8 +32,8 @@ class RoomRepositoryTest {
         hotel = hotelRepository.save(hotel);
 
         Room room = new Room();
-        room.setHotelId(hotel.getId());
-        room.setRoomNumber("101");
+        room.setHotel(hotel);
+        room.setRoomNumber(101L);
         room.setType("Standard");
         room.setCapacity(2);
         room.setRate(BigDecimal.valueOf(100.00));
@@ -53,11 +53,11 @@ class RoomRepositoryTest {
         hotel = hotelRepository.save(hotel);
 
         Room room = new Room();
-        room.setHotelId(hotel.getId());
-        room.setRoomNumber("101");
+        room.setHotel(hotel);
+        room.setRoomNumber(101L);
         room = roomRepository.save(room);
 
-        room.setRoomNumber("102");
+        room.setRoomNumber(102L);
         Room updatedRoom = roomRepository.save(room);
 
         assertThat(updatedRoom.getRoomNumber()).isEqualTo("102");
@@ -70,8 +70,8 @@ class RoomRepositoryTest {
         hotel = hotelRepository.save(hotel);
 
         Room room = new Room();
-        room.setHotelId(hotel.getId());
-        room.setRoomNumber("101");
+        room.setHotel(hotel);
+        room.setRoomNumber(101L);
         room = roomRepository.save(room);
 
         roomRepository.delete(room);

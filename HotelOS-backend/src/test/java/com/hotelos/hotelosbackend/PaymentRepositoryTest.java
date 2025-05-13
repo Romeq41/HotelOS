@@ -37,7 +37,7 @@ class PaymentRepositoryTest {
         payment.setReservationId(reservation.getReservationId());
         payment.setPaymentDate(Date.valueOf(LocalDate.now()));
         payment.setAmount(BigDecimal.valueOf(100.00));
-        payment.setMethod("Credit Card");
+        payment.setPaymentMethod("Credit Card");
         payment.setStatus("Completed");
 
         Payment savedPayment = paymentRepository.save(payment);

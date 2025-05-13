@@ -1,11 +1,14 @@
 package com.hotelos.hotelosbackend.implementation;
 
+import com.hotelos.hotelosbackend.mapper.UserMapper;
 import com.hotelos.hotelosbackend.models.Hotel;
 import com.hotelos.hotelosbackend.models.User;
 import com.hotelos.hotelosbackend.models.UserType;
 import com.hotelos.hotelosbackend.repository.UserRepository;
 import com.hotelos.hotelosbackend.services.FileStorageService;
 import com.hotelos.hotelosbackend.services.UserServices;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,7 +21,7 @@ public class IUserServices implements UserServices {
     private final UserRepository userRepository;
     private final FileStorageService fileStorageService;
 
-    public IUserServices(UserRepository userRepository, FileStorageService fileStorageService) {
+    public IUserServices(UserRepository userRepository, FileStorageService fileStorageService, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.fileStorageService = fileStorageService;
     }
@@ -44,8 +47,29 @@ public class IUserServices implements UserServices {
     }
 
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public Page<User> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<User> getUsersByEmail(Pageable pageable, String email) {
+        return userRepository.findByEmailContainingIgnoreCase(email, pageable);
+    }
+
+    @Override
+    public Page<User> getUsersWithFilters(String email, long hotel_id, Pageable pageable) {
+        Optional<String> emailOpt = Optional.ofNullable(email).filter(e -> !e.isBlank());
+        Optional<Long> hotel_idOpt = Optional.of(hotel_id).filter(e -> e > 0);
+
+        if (emailOpt.isPresent() && hotel_idOpt.isPresent()) {
+            return userRepository.findByEmailContainingIgnoreCaseAndHotelId(email, hotel_id, pageable);
+        } else if (emailOpt.isPresent()) {
+            return userRepository.findByEmailContainingIgnoreCase(email, pageable);
+        } else if (hotel_idOpt.isPresent()) {
+            return userRepository.findByHotelId(hotel_id, pageable);
+        } else {
+            return userRepository.findAll(pageable);
+        }
     }
 
     @Override

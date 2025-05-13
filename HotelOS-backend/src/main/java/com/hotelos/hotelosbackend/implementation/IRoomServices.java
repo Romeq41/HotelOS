@@ -1,10 +1,14 @@
 package com.hotelos.hotelosbackend.implementation;
 
+import com.hotelos.hotelosbackend.dto.RoomDto;
+import com.hotelos.hotelosbackend.mapper.RoomMapper;
 import com.hotelos.hotelosbackend.models.Room;
 import com.hotelos.hotelosbackend.repository.RoomRepository;
 import com.hotelos.hotelosbackend.services.FileStorageService;
 import com.hotelos.hotelosbackend.services.RoomServices;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,10 +21,11 @@ public class IRoomServices implements RoomServices {
     private final RoomRepository roomRepository;
 
     private final FileStorageService fileStorageService;
-
-    public IRoomServices(RoomRepository roomRepository, FileStorageService fileStorageService) {
+    private final RoomMapper roomMapper;
+    public IRoomServices(RoomRepository roomRepository, FileStorageService fileStorageService, RoomMapper roomMapper) {
         this.roomRepository = roomRepository;
         this.fileStorageService = fileStorageService;
+        this.roomMapper = roomMapper;
     }
 
     @Override
@@ -44,8 +49,9 @@ public class IRoomServices implements RoomServices {
     }
 
     @Override
-    public List<Room> getAllRooms() {
-        return roomRepository.findAll();
+    public Page<RoomDto> getAllRooms(Pageable pageable) {
+        return roomRepository.findAll(pageable)
+                .map(roomMapper::toDto);
     }
 
     @Override
@@ -56,6 +62,17 @@ public class IRoomServices implements RoomServices {
     @Override
     public List<Room> getRoomsByHotel(Long id) {
         return roomRepository.findByHotelId(id);
+    }
+
+    @Override
+    public Page<Room> getRoomsWithFilters(long hotel_id, Long roomNumber, Pageable pageable) {
+        Optional<Long> roomOpt = Optional.ofNullable(roomNumber).filter(e -> e > 0);
+
+        if(roomOpt.isPresent()) {
+            return roomRepository.findByRoomNumberAndHotelId(roomNumber, hotel_id, pageable);
+        } else {
+            return roomRepository.findByHotelId(hotel_id, pageable);
+        }
     }
 
     @Override

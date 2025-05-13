@@ -1,19 +1,21 @@
 package com.hotelos.hotelosbackend.controllers;
 
+import com.hotelos.hotelosbackend.dto.RoomDto;
+import com.hotelos.hotelosbackend.mapper.RoomMapper;
 import com.hotelos.hotelosbackend.models.Room;
 import com.hotelos.hotelosbackend.services.RoomServices;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/rooms")
@@ -21,6 +23,9 @@ public class RoomController {
 
     @Autowired
     private RoomServices roomServices;
+
+    @Autowired
+    private RoomMapper roomMapper;
 
     @PostMapping
     public ResponseEntity<Room> addRoom(@RequestBody Room room) {
@@ -74,38 +79,27 @@ public class RoomController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Room>> getAllRooms() {
-        List<Room> rooms = roomServices.getAllRooms();
-        return ResponseEntity.ok(rooms);
+    public ResponseEntity<Page<RoomDto>> getAllRooms(Pageable pageable) {
+        return ResponseEntity.ok(roomServices.getAllRooms(pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Room> getRoomById(@PathVariable Long id) {
-        return roomServices.getRoomById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/hotel/{id}")
-    public ResponseEntity<List<Room>> getRoomsByHotel(@PathVariable Long id) {
-        List<Room> rooms = roomServices.getRoomsByHotel(id);
-        return ResponseEntity.ok(rooms);
+    public ResponseEntity<RoomDto> getRoomById(@PathVariable Long id) {
+        return roomServices.getRoomById(id).map(roomMapper::toDto).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Room> updateRoom(@PathVariable Long id, @RequestBody Room room) {
-        return roomServices.getRoomById(id)
-                .map(roomObj -> {
-                    roomObj.setRoomNumber(room.getRoomNumber());
-                    roomObj.setType(room.getType());
-                    roomObj.setRate(room.getRate());
-                    roomObj.setStatus(room.getStatus());
-                    roomObj.setHotelId(room.getHotelId());
-                    roomObj.setDescription(room.getDescription());
-                    Room updatedRoom = roomServices.saveRoom(room);
-                    return ResponseEntity.ok(updatedRoom);
-                })
-                .orElse(ResponseEntity.notFound().build());
+        return roomServices.getRoomById(id).map(roomObj -> {
+            roomObj.setRoomNumber(room.getRoomNumber());
+            roomObj.setType(room.getType());
+            roomObj.setRate(room.getRate());
+            roomObj.setStatus(room.getStatus());
+            roomObj.setHotel(room.getHotel());
+            roomObj.setDescription(room.getDescription());
+            Room updatedRoom = roomServices.saveRoom(roomObj);
+            return ResponseEntity.ok(updatedRoom);
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

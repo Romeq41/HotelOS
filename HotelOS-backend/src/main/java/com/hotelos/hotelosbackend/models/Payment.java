@@ -32,7 +32,7 @@ public class Payment {
     private BigDecimal amount;
     @Basic
     @Column(name = "method")
-    private String method;
+    private String paymentMethod;
     @Basic
     @Column(name = "status")
     private String status;
@@ -42,11 +42,11 @@ public class Payment {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Payment payment = (Payment) o;
-        return paymentId == payment.paymentId && Objects.equals(reservationId, payment.reservationId) && Objects.equals(paymentDate, payment.paymentDate) && Objects.equals(amount, payment.amount) && Objects.equals(method, payment.method) && Objects.equals(status, payment.status);
+        return paymentId == payment.paymentId && Objects.equals(reservationId, payment.reservationId) && Objects.equals(paymentDate, payment.paymentDate) && Objects.equals(amount, payment.amount) && Objects.equals(paymentMethod, payment.paymentMethod) && Objects.equals(status, payment.status);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(paymentId, reservationId, paymentDate, amount, method, status);
+        return Objects.hash(paymentId, reservationId, paymentDate, amount, paymentMethod, status);
     }
 }

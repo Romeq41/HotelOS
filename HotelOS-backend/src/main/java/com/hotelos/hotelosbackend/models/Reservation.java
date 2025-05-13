@@ -24,7 +24,7 @@ public class Reservation {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User guest;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "room_id")
@@ -56,11 +56,11 @@ public class Reservation {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Reservation that = (Reservation) o;
-        return reservationId == that.reservationId && Objects.equals(guest, that.guest) && Objects.equals(room, that.room) && Objects.equals(checkInDate, that.checkInDate) && Objects.equals(checkOutDate, that.checkOutDate) && Objects.equals(status, that.status) && Objects.equals(totalAmount, that.totalAmount);
+        return reservationId == that.reservationId && Objects.equals(user, that.user) && Objects.equals(room, that.room) && Objects.equals(checkInDate, that.checkInDate) && Objects.equals(checkOutDate, that.checkOutDate) && Objects.equals(status, that.status) && Objects.equals(totalAmount, that.totalAmount);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(reservationId, guest, room, checkInDate, checkOutDate, status, totalAmount);
+        return Objects.hash(reservationId, user, room, checkInDate, checkOutDate, status, totalAmount);
     }
 }

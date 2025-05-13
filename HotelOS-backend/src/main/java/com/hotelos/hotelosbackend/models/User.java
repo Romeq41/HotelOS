@@ -70,7 +70,6 @@ public class User implements UserDetails {
     @Column(name = "user_type")
     private UserType userType;
 
-    // Fields for staff/managers/admins only - null for guests
     @Basic
     @Column(name = "position")
     private String position;

@@ -40,8 +40,8 @@ class ReservationRepositoryTest {
         hotel = hotelRepository.save(hotel);
 
         Room room = new Room();
-        room.setHotelId(hotel.getId());
-        room.setRoomNumber("101");
+        room.setHotel(hotel);
+        room.setRoomNumber(101L);
         room = roomRepository.save(room);
 
         User user = new User();
@@ -50,7 +50,7 @@ class ReservationRepositoryTest {
         user = userRepository.save(user);
 
         Reservation reservation = new Reservation();
-        reservation.setGuest(user);
+        reservation.setUser(user);
         reservation.setRoom(room);
         reservation.setCheckInDate(Date.valueOf(LocalDate.now()));
         reservation.setCheckOutDate(Date.valueOf(LocalDate.now().plusDays(1)));
@@ -71,8 +71,8 @@ class ReservationRepositoryTest {
         hotel = hotelRepository.save(hotel);
 
         Room room = new Room();
-        room.setHotelId(hotel.getId());
-        room.setRoomNumber("101");
+        room.setHotel(hotel);
+        room.setRoomNumber(101L);
         room = roomRepository.save(room);
 
         User guest = new User();
@@ -81,7 +81,7 @@ class ReservationRepositoryTest {
         guest = userRepository.save(guest);
 
         Reservation reservation = new Reservation();
-        reservation.setGuest(guest);
+        reservation.setUser(guest);
         reservation.setRoom(room);
         reservation.setCheckInDate(Date.valueOf(LocalDate.now()));
         reservation.setCheckOutDate(Date.valueOf(LocalDate.now().plusDays(1)));
@@ -101,8 +101,8 @@ class ReservationRepositoryTest {
         hotel = hotelRepository.save(hotel);
 
         Room room = new Room();
-        room.setHotelId(hotel.getId());
-        room.setRoomNumber("101");
+        room.setHotel(hotel);
+        room.setRoomNumber(101L);
         room = roomRepository.save(room);
 
         User guest = new User();
@@ -111,7 +111,7 @@ class ReservationRepositoryTest {
         guest = userRepository.save(guest);
 
         Reservation reservation = new Reservation();
-        reservation.setGuest(guest);
+        reservation.setUser(guest);
         reservation.setRoom(room);
         reservation.setCheckInDate(Date.valueOf(LocalDate.now()));
         reservation.setCheckOutDate(Date.valueOf(LocalDate.now().plusDays(1)));

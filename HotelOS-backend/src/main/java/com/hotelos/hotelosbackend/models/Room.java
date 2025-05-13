@@ -1,6 +1,7 @@
 package com.hotelos.hotelosbackend.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -18,11 +19,9 @@ public class Room {
     @Column(name = "room_id")
     private long roomId;
     @Basic
-    @Column(name = "hotel_id")
-    private long hotelId;
-    @Basic
+    @NotNull
     @Column(name = "room_number")
-    private String roomNumber;
+    private long roomNumber;
     @Basic
     @Column(name = "type")
     private String type;
@@ -45,6 +44,10 @@ public class Room {
     @Column(name = "image_path")
     private String imagePath;
 
+    @ManyToOne
+    @JoinColumn(name = "hotel_id")
+    private Hotel hotel;
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -52,7 +55,7 @@ public class Room {
         if (o == null || getClass() != o.getClass())
             return false;
         Room room = (Room) o;
-        return roomId == room.roomId && Objects.equals(hotelId, room.hotelId)
+        return roomId == room.roomId && Objects.equals(hotel, room.hotel)
                 && Objects.equals(roomNumber, room.roomNumber) && Objects.equals(type, room.type)
                 && Objects.equals(capacity, room.capacity) && Objects.equals(rate, room.rate)
                 && Objects.equals(status, room.status);
@@ -60,6 +63,6 @@ public class Room {
 
     @Override
     public int hashCode() {
-        return Objects.hash(roomId, hotelId, roomNumber, type, capacity, rate, status);
+        return Objects.hash(roomId, hotel, roomNumber, type, capacity, rate, status);
     }
 }

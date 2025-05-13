@@ -1,11 +1,15 @@
 package com.hotelos.hotelosbackend.controllers;
 
-import com.hotelos.hotelosbackend.models.Hotel;
+import com.hotelos.hotelosbackend.dto.UserDto;
+import com.hotelos.hotelosbackend.mapper.UserMapper;
 import com.hotelos.hotelosbackend.models.User;
 import com.hotelos.hotelosbackend.models.UserType;
 import com.hotelos.hotelosbackend.services.UserServices;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +18,16 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-
     @Autowired
     private UserServices userServices;
+
+    @Autowired
+    private UserMapper userMapper;
 
     @PostMapping
     public ResponseEntity<User> addUser(@RequestBody User user) {
@@ -75,39 +81,35 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userServices.getAllUsers();
+    public ResponseEntity<Page<UserDto>> getAllUsers(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) String email) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<UserDto> users = userServices.getUsersWithFilters(email, 0L, pageable).map(userMapper::toDto);
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        return userServices.getUserById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
+        return userServices.getUserById(id).map(userMapper::toDto).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUserById(@RequestBody User userDetails) {
-        return userServices.getUserById(userDetails.getUserId())
-                .map(user -> {
-                    user.setFirstName(userDetails.getFirstName());
-                    user.setLastName(userDetails.getLastName());
-                    user.setEmail(userDetails.getEmail());
-                    user.setPhone(userDetails.getPhone());
-                    user.setAddress(userDetails.getAddress());
-                    user.setCity(userDetails.getCity());
-                    user.setState(userDetails.getState());
-                    user.setCountry(userDetails.getCountry());
-                    user.setZipCode(userDetails.getZipCode());
-                    user.setHotel(userDetails.getHotel());
-                    user.setPassword(userDetails.getPassword());
-                    user.setUserType(userDetails.getUserType());
-                    user.setPosition(userDetails.getPosition());
-                    User updatedUser = userServices.updateUser(user);
-                    return ResponseEntity.ok(updatedUser);
-                })
-                .orElse(ResponseEntity.notFound().build());
+        return userServices.getUserById(userDetails.getUserId()).map(user -> {
+            user.setFirstName(userDetails.getFirstName());
+            user.setLastName(userDetails.getLastName());
+            user.setEmail(userDetails.getEmail());
+            user.setPhone(userDetails.getPhone());
+            user.setAddress(userDetails.getAddress());
+            user.setCity(userDetails.getCity());
+            user.setState(userDetails.getState());
+            user.setCountry(userDetails.getCountry());
+            user.setZipCode(userDetails.getZipCode());
+            user.setHotel(userDetails.getHotel());
+            user.setUserType(userDetails.getUserType());
+            user.setPosition(userDetails.getPosition());
+            User updatedUser = userServices.updateUser(user);
+            return ResponseEntity.ok(updatedUser);
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
