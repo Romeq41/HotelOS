@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
+import { useLoading } from '../contexts/LoaderContext';
 
 export default function AddUser() {
+    const { showLoader, hideLoader } = useLoading();
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -57,6 +58,7 @@ export default function AddUser() {
         setErrors(validationErrors);
 
         if (Object.values(validationErrors).every((error) => error === '')) {
+            showLoader();
             console.log('Form submitted:', formData);
 
             const handleUserAdd = async () => {
@@ -73,7 +75,7 @@ export default function AddUser() {
                     }
                     const data = await response.json();
                     console.log('User added:', data);
-
+                    hideLoader();
                     const submitButton = document.getElementById('submitButton') as HTMLButtonElement;
                     if (submitButton) {
                         submitButton.classList.remove('bg-blue-600');
@@ -87,6 +89,7 @@ export default function AddUser() {
                         }, 2000);
                     }
                 } catch (error) {
+                    hideLoader();
                     console.error('Error adding user:', error);
                 }
             }
@@ -122,7 +125,6 @@ export default function AddUser() {
 
     return (
         <div className="min-h-screen bg-gray-100">
-            <Header isGradient={false} bg_color="white" textColor='black' />
             <div className="container mt-20 mx-auto py-8 px-4">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6">Add User</h1>
                 <form

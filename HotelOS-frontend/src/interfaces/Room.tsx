@@ -1,3 +1,4 @@
+import { Hotel } from "./Hotel";
 
 export enum RoomStatus {
     AVAILABLE = "AVAILABLE",
@@ -8,7 +9,7 @@ export enum RoomStatus {
 
 export interface Room {
     roomId: string;
-    hotel: any;
+    hotel: Hotel | null;
     roomNumber: string;
     type: string;
     capacity: number | null;

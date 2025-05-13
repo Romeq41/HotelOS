@@ -7,7 +7,6 @@ import Hotel3 from "../assets/hotel3.webp";
 import Hotel4 from "../assets/hotel4.webp";
 
 
-
 export default function AdvertisementBanner() {
     const scrollToMenu = () => {
         const productsSection = document.getElementById("menu");
@@ -77,7 +76,7 @@ export default function AdvertisementBanner() {
                                 </p>
                                 <button
                                     onClick={scrollToMenu}
-                                    className="mt-2 md:mt-4 px-6 md:px-8 py-2 md:py-3 bg-amber-700 text-white font-bold text-sm md:text-base lg:text-lg rounded-full hover:bg-amber-600 transition-transform transform hover:scale-105 shadow-lg"
+                                    className="mt-2 md:mt-4 px-6 md:px-8 py-2 md:py-3 bg-amber-700 text-white font-bold text-sm md:text-base lg:text-lg rounded-full hover:bg-amber-600 transition-transform transform hover:scale-105 shadow-lg cursor-pointer"
                                 >
                                     Explore Now
                                 </button>

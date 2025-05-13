@@ -1,22 +1,30 @@
 import { useEffect, useState } from 'react';
-import { Table, Button } from 'antd';
+import { Table, Button, Input } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Room } from '../interfaces/Room';
+import { Room } from '../../../interfaces/Room';
 import { Popconfirm } from 'antd';
-import Header from '../components/Header';
-import { Hotel } from '../interfaces/Hotel';
+import { Hotel } from '../../../interfaces/Hotel';
+import { useLoading } from '../../../contexts/LoaderContext';
 
 export default function Admin_Hotel_Rooms() {
-    const { id } = useParams();
+    const { hotelId } = useParams();
     const navigate = useNavigate();
 
     const [rooms, setRooms] = useState<Room[]>([]);
     const [hotel, setHotel] = useState<Hotel>();
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [inputValue, setInputValue] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const { showLoader, hideLoader } = useLoading();
+    const PAGE_SIZE = 10;
 
     useEffect(() => {
         const fetchHotelData = async () => {
+            showLoader();
             try {
-                const response = await fetch(`http://localhost:8080/api/hotels/${id}`, {
+                const response = await fetch(`http://localhost:8080/api/hotels/${hotelId}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -41,20 +49,28 @@ export default function Admin_Hotel_Rooms() {
             } catch (error) {
                 console.error('Error fetching hotel data:', error);
             }
+            hideLoader();
         };
         fetchHotelData();
+    }, [hotelId]);
 
-        const fetchRoomsData = async () => {
+    useEffect(() => {
+        const fetchRoomsData = async (searchValue: string, pageNumber: number) => {
+            showLoader();
+            const params = new URLSearchParams({
+                page: pageNumber.toString(),
+                size: PAGE_SIZE.toString(),
+                ...(searchValue ? { roomNumber: searchValue } : {})
+            });
+
             try {
-                const response = await fetch('http://localhost:8080/api/rooms/hotel/' + id, {
+                const response = await fetch(`http://localhost:8080/api/hotels/${hotelId}/rooms?${params}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
                     },
                 });
-
-                console.log(response)
 
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -63,27 +79,53 @@ export default function Admin_Hotel_Rooms() {
                 if (response.status === 401 || response.status === 403) {
                     console.log('Unauthorized or forbidden access. Redirecting to login page...');
                     window.location.href = '/login';
+                    return;
                 }
 
                 const data = await response.json();
                 console.log('Rooms data:', data);
 
-                const roomsWithKeys = data.map((room: Room) => ({
-                    ...room,
-                    key: room.roomId,
-                }));
+                if (data.content) {
+                    const roomsWithKeys = data.content.map((room: Room) => ({
+                        ...room,
+                        key: room.roomId,
+                    }));
 
-                setRooms(roomsWithKeys);
+                    setRooms(roomsWithKeys);
+                    setTotalPages(data.totalPages);
+                    setPage(data.number);
+                } else {
+                    const roomsWithKeys = data.map((room: Room) => ({
+                        ...room,
+                        key: room.roomId,
+                    }));
 
+                    setRooms(roomsWithKeys);
+                    setTotalPages(Math.ceil(roomsWithKeys.length / PAGE_SIZE));
+                    setPage(0);
+                }
             } catch (error) {
                 console.error('Error fetching rooms data:', error);
             }
+            hideLoader();
         };
 
-        fetchRoomsData();
-    }, []);
+        fetchRoomsData(searchQuery, page);
+    }, [hotelId, searchQuery, page]);
+
+    const handleSearch = () => {
+        setPage(0);
+        setSearchQuery(inputValue);
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
 
     const handleDelete = async (roomId: string) => {
+        showLoader();
         try {
             const response = await fetch(`http://localhost:8080/api/rooms/${roomId}`, {
                 method: 'DELETE',
@@ -103,6 +145,7 @@ export default function Admin_Hotel_Rooms() {
         } catch (error) {
             console.error('Error deleting room:', error);
         }
+        hideLoader();
     };
 
     const columns = [
@@ -150,26 +193,47 @@ export default function Admin_Hotel_Rooms() {
     ];
 
     return (
-
-        console.log('Rooms:', rooms),
-
         <div className="flex flex-col min-h-screen bg-gray-100">
-            {/* Header */}
-            <Header isGradient={false} bg_color="white" textColor='black' />
-
             <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-center gap-10 items-center">
                 <h1 className="text-2xl font-bold">{hotel?.name} : Rooms</h1>
-
-                <Button type="primary" onClick={() => navigate(`/admin/hotels/${id}/rooms/add`)}>Add Room</Button>
             </div>
+
             {/* Content */}
             <main className="flex-grow p-5">
                 <div className="bg-white shadow-md rounded-lg p-5">
+                    {/* Search bar and Add Room button */}
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <Input
+                                placeholder="Search rooms"
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                                style={{ width: 200 }}
+                            />
+                            <Button type="default" onClick={handleSearch}>
+                                Search
+                            </Button>
+                        </div>
+                        <Button
+                            type="primary"
+                            onClick={() => navigate(`/admin/hotels/${hotelId}/rooms/add`)}
+                        >
+                            Add Room
+                        </Button>
+                    </div>
+
                     <Table
                         columns={columns}
                         dataSource={rooms}
+                        pagination={{
+                            current: page + 1,
+                            pageSize: PAGE_SIZE,
+                            total: totalPages * PAGE_SIZE,
+                            onChange: (page) => setPage(page - 1),
+                        }}
                         onRow={(record) => ({
-                            onClick: () => navigate(`/admin/hotels/${id}/rooms/${record.roomId}`),
+                            onClick: () => navigate(`/admin/hotels/${hotelId}/rooms/${record.roomId}`),
                         })}
                         rowClassName="cursor-pointer hover:bg-gray-100 hover:shadow-md transition-all"
                     />
@@ -177,4 +241,4 @@ export default function Admin_Hotel_Rooms() {
             </main>
         </div>
     );
-};
+}

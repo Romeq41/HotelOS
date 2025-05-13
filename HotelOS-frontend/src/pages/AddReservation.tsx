@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import Header from '../components/Header';
 import { Room } from '../interfaces/Room';
 import { ReservationStatus } from '../interfaces/Reservation';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useLoading } from '../contexts/LoaderContext';
 
 export default function AddReservation() {
-    const { id } = useParams<{ id: string }>();
+    const { hotelId } = useParams<{ hotelId: string }>();
     const navigate = useNavigate();
     const [rooms, setRooms] = useState<Room[]>([]);
+    const { showLoader, hideLoader } = useLoading();
     const [formData, setFormData] = useState({
         guestId: '',
         roomId: '',
@@ -30,8 +31,10 @@ export default function AddReservation() {
 
     useEffect(() => {
         const fetchRooms = async () => {
+            console.log(hotelId);
+            showLoader();
             try {
-                const res = await fetch('http://localhost:8080/api/rooms', {
+                const res = await fetch(`http://localhost:8080/api/hotels/${hotelId}/rooms`, {
                     headers: {
                         Authorization: `Bearer ${document.cookie.replace(
                             /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
@@ -40,16 +43,20 @@ export default function AddReservation() {
                     },
                 });
                 if (res.ok) {
-                    setRooms(await res.json());
+                    hideLoader();
+                    const data = await res.json();
+                    console.log('Rooms data:', data.content);
+                    setRooms(data.content);
+                    console.log('Rooms:', rooms);
                 }
             } catch (err) {
+                hideLoader();
                 console.error('Error fetching rooms:', err);
             }
         };
         fetchRooms();
     }, []);
 
-    // Recalculate total amount
     useEffect(() => {
         if (formData.checkInDate && formData.checkOutDate && formData.roomId) {
             const checkIn = new Date(formData.checkInDate);
@@ -89,6 +96,8 @@ export default function AddReservation() {
         console.log('Form Data:', formData);
 
         if (Object.values(validationErrors).every((err) => err === '')) {
+            showLoader();
+
             try {
 
                 console.log(rooms.find((r) => r.roomId.toString() === formData.roomId));
@@ -124,7 +133,9 @@ export default function AddReservation() {
                         totalAmount: '',
                     });
                 }
+                hideLoader();
             } catch (error) {
+                hideLoader();
                 console.error('Error adding reservation:', error);
             }
         }
@@ -142,7 +153,7 @@ export default function AddReservation() {
             }, 2000);
         }
 
-        navigate(`/admin/hotels/${id}/reservations`);
+        navigate(`/admin/hotels/${hotelId}/reservations`);
     };
 
     const getInputClass = (field: keyof typeof formData) => {
@@ -155,7 +166,6 @@ export default function AddReservation() {
 
     return (
         <div className="min-h-screen bg-gray-100">
-            <Header isGradient={false} bg_color="white" textColor="black" />
             <div className="container mt-20 mx-auto py-8 px-4">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6">Add Reservation</h1>
                 <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6 space-y-4">
@@ -188,7 +198,8 @@ export default function AddReservation() {
                             className={`mt-1 block w-full rounded-md p-2 border shadow focus:ring-1 focus:ring-blue-500 ${getInputClass('roomId')}`}
                         >
                             <option value="">Select a room</option>
-                            {rooms.map((r) => (
+
+                            {rooms && rooms.map((r) => (
                                 <option key={r.roomId} value={r.roomId}>
                                     {`${r.roomNumber} (Rate: ${r.rate ?? 0})`}
                                 </option>

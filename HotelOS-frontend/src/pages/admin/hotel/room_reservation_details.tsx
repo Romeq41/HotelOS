@@ -1,18 +1,20 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Reservation } from "../interfaces/Reservation";
-import Header from "../components/Header";
+import { Reservation } from "../../../interfaces/Reservation";
+import { useLoading } from "../../../contexts/LoaderContext";
 
 export default function Admin_Hotel_Room_Reservation_Details() {
     const { hotelId, reservationId } = useParams<{ hotelId: string; reservationId: string }>();
     console.log(hotelId, reservationId);
     const navigate = useNavigate();
     const [reservation, setReservation] = useState<Reservation | null>(null);
+    const { showLoader, hideLoader } = useLoading();
 
     useEffect(() => {
         const fetchReservation = async () => {
             console.log(`Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`);
             if (reservationId) {
+                showLoader();
                 const res = await fetch(`http://localhost:8080/api/reservations/${reservationId}`, {
                     method: "GET",
                     headers: {
@@ -23,6 +25,7 @@ export default function Admin_Hotel_Room_Reservation_Details() {
                 const data = await res.json();
                 setReservation(data);
                 console.log(data);
+                hideLoader();
             }
         };
         fetchReservation();
@@ -30,9 +33,6 @@ export default function Admin_Hotel_Room_Reservation_Details() {
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            {/* Header */}
-            <Header isGradient={false} bg_color="white" textColor='black' />
-            {/* Title */}
             <div className="container mt-20 mx-auto py-8 px-4">
                 {reservation ? (
                     <div className="flex flex-col md:flex-row bg-white shadow-md rounded-lg overflow-hidden">
@@ -59,7 +59,6 @@ export default function Admin_Hotel_Room_Reservation_Details() {
 
                             <hr className="block my-3" />
                             <button
-                                // /admin/hotels/:hotelId/reservations/:reservationId/edit
                                 onClick={() => navigate(`/admin/hotels/${hotelId}/reservations/${reservationId}/edit`)}
                                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-2"
                             >

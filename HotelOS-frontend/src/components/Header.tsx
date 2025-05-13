@@ -1,6 +1,5 @@
-//// filepath: e:\Projekty\HotelOS\HotelOS-frontend\src\components\Header.tsx
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faBars, faTimes, faHotel } from "@fortawesome/free-solid-svg-icons";
 import { useUser } from "../contexts/UserContext.tsx";
@@ -14,7 +13,7 @@ interface HeaderProps {
     fixedHeight?: string;
     textColor?: string;
     onHover?: string;
-    isGradient?: boolean; // New prop to toggle gradient
+    isGradient?: boolean;
 }
 
 export default function Header({
@@ -23,7 +22,7 @@ export default function Header({
     showLogo = true,
     fixedHeight = "h-20",
     textColor = "white",
-    onHover = "opacity-60",
+    onHover = "gray-700",
     isGradient = true,
 }: HeaderProps) {
     const navigate = useNavigate();
@@ -32,11 +31,44 @@ export default function Header({
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
+    const userMenuRef = useRef<HTMLDivElement>(null);
+    const mobileMenuRef = useRef<HTMLDivElement>(null);
+    const userButtonRef = useRef<HTMLButtonElement>(null);
+    const menuButtonRef = useRef<HTMLButtonElement>(null);
+
     useEffect(() => {
         const handleResize = () => setCurrentWidth(window.innerWidth);
         window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
+
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                isMenuOpen &&
+                mobileMenuRef.current &&
+                !mobileMenuRef.current.contains(event.target as Node) &&
+                menuButtonRef.current &&
+                !menuButtonRef.current.contains(event.target as Node)
+            ) {
+                setIsMenuOpen(false);
+            }
+
+            if (
+                isUserMenuOpen &&
+                userMenuRef.current &&
+                !userMenuRef.current.contains(event.target as Node) &&
+                userButtonRef.current &&
+                !userButtonRef.current.contains(event.target as Node)
+            ) {
+                setIsUserMenuOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            window.removeEventListener("resize", handleResize);
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isMenuOpen, isUserMenuOpen]);
 
     const handleUserClick = () => {
         if (isAuth) {
@@ -49,10 +81,17 @@ export default function Header({
     const handleProfileClick = () => {
         navigate("/user");
         setIsUserMenuOpen(false);
+        setIsMenuOpen(false);
     };
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
+    };
+
+    const navigateAndCloseMenus = (path: string) => {
+        navigate(path);
+        setIsMenuOpen(false);
+        setIsUserMenuOpen(false);
     };
 
     const renderMenuItems = () => {
@@ -62,17 +101,17 @@ export default function Header({
                 return (
                     <>
                         <li className="py-4 border-b border-gray-300">
-                            <button onClick={() => navigate("/admin/hotels")} className="block w-full text-left text-lg hover:bg-gray-100">
+                            <button onClick={() => navigateAndCloseMenus("/admin/hotels")} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
                                 Adminpage
                             </button>
                         </li>
                         <li className="py-4 border-b border-gray-300">
-                            <button onClick={() => navigate("/admin/hotels")} className="block w-full text-left text-lg hover:bg-gray-100">
+                            <button onClick={() => navigateAndCloseMenus("/admin/hotels")} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
                                 Hotels
                             </button>
                         </li>
                         <li className="py-4 border-b border-gray-300">
-                            <button onClick={() => navigate("/admin/users")} className="block w-full text-left text-lg hover:bg-gray-100">
+                            <button onClick={() => navigateAndCloseMenus("/admin/users")} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
                                 Users
                             </button>
                         </li>
@@ -82,17 +121,17 @@ export default function Header({
                 return (
                     <>
                         <li className="py-4 border-b border-gray-300">
-                            <button onClick={() => navigate(`/hotels/${user.hotel.id}/overview`)} className="block w-full text-left text-lg hover:bg-gray-100">
+                            <button onClick={() => navigateAndCloseMenus(`/hotels/${user.hotel.id}/overview`)} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
                                 Hotel Overview
                             </button>
                         </li>
                         <li className="py-4 border-b border-gray-300">
-                            <button onClick={() => navigate(`/hotels/${user.hotel.id}/staff`)} className="block w-full text-left text-lg hover:bg-gray-100">
+                            <button onClick={() => navigateAndCloseMenus(`/hotels/${user.hotel.id}/staff`)} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
                                 Staff
                             </button>
                         </li>
                         <li className="py-4 border-b border-gray-300">
-                            <button onClick={() => navigate(`/hotels/${user.hotel.id}/rooms`)} className="block w-full text-left text-lg hover:bg-gray-100">
+                            <button onClick={() => navigateAndCloseMenus(`/hotels/${user.hotel.id}/rooms`)} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
                                 Rooms
                             </button>
                         </li>
@@ -101,7 +140,7 @@ export default function Header({
             case UserType.STAFF:
                 return (
                     <li className="py-4 border-b border-gray-300">
-                        <button onClick={() => navigate(`/hotels/${user.hotel.id}/rooms`)} className="block w-full text-left text-lg hover:bg-gray-100">
+                        <button onClick={() => navigateAndCloseMenus(`/hotels/${user.hotel.id}/rooms`)} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
                             Room Occupancy
                         </button>
                     </li>
@@ -109,6 +148,13 @@ export default function Header({
             default:
                 return null;
         }
+    };
+
+    const handleLogout = () => {
+        logout();
+        setIsMenuOpen(false);
+        setIsUserMenuOpen(false);
+        navigate("/login");
     };
 
     return (
@@ -130,11 +176,17 @@ export default function Header({
             {currentWidth < 640 ? (
                 // Mobile menu
                 <div className="relative">
-                    <button className="mr-4" onClick={toggleMenu} style={{ color: textColor }}>
+                    <button
+                        ref={menuButtonRef}
+                        className="mr-4"
+                        onClick={toggleMenu}
+                        style={{ color: textColor }}
+                    >
                         <FontAwesomeIcon icon={isMenuOpen ? faTimes : faBars} size="2xl" />
                     </button>
                     <div
-                        className={`fixed top-0 left-0 bg-white text-black h-full w-64 shadow-lg transition-transform duration-500 ease-in-out transform ${isMenuOpen ? "translate-x-0" : "-translate-x-full"
+                        ref={mobileMenuRef}
+                        className={`fixed top-0 left-0 bg-white text-black h-full w-64 shadow-lg cursor-pointer transition-transform duration-500 ease-in-out transform ${isMenuOpen ? "translate-x-0" : "-translate-x-full"
                             }`}
                     >
                         <a href="/" className="flex items-center p-5">
@@ -145,14 +197,14 @@ export default function Header({
                         </a>
                         <ul className="text-left p-6">
                             <li className="py-4 border-b border-gray-300">
-                                <button onClick={handleProfileClick} className="block w-full text-left text-lg hover:bg-gray-100">
+                                <button onClick={handleProfileClick} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
                                     {isAuth ? "Profile" : "Login"}
                                 </button>
                             </li>
                             {isAuth && renderMenuItems()}
                             {isAuth && (
                                 <li className="py-4 border-b border-gray-300">
-                                    <button onClick={logout} className="block w-full text-left text-lg hover:bg-gray-100">
+                                    <button onClick={handleLogout} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
                                         Logout
                                     </button>
                                 </li>
@@ -165,8 +217,9 @@ export default function Header({
                 <section className="flex space-x-4 p-4">
                     <div className="relative">
                         <button
+                            ref={userButtonRef}
                             onClick={handleUserClick}
-                            className={`hover:${onHover} flex gap-2 items-center border text-${textColor} border-${textColor} px-4 py-2 rounded-lg ease-in-out duration-200`}
+                            className={`flex gap-2 items-center border text-${textColor} border-${textColor} hover:bg-${onHover} px-4 py-2 rounded-lg ease-in-out duration-200 cursor-pointer`}
                         >
                             <FontAwesomeIcon icon={faUser} size="lg" />
                             <p>{isAuth ? `${user?.firstName} ${user?.lastName}` : "Login"}</p>
@@ -174,17 +227,18 @@ export default function Header({
 
                         {isAuth && (
                             <div
+                                ref={userMenuRef}
                                 className={`fixed top-20 right-0 bg-white text-black h-full w-64 z-20 shadow-lg transition-transform duration-500 ease-in-out transform ${isUserMenuOpen ? "translate-x-0" : "translate-x-full"}`}
                             >
                                 <ul className="text-left p-6">
                                     <li className="py-4 border-b border-gray-300">
-                                        <button onClick={handleProfileClick} className="block w-full text-left text-lg hover:bg-gray-100">
+                                        <button onClick={handleProfileClick} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
                                             Profile
                                         </button>
                                     </li>
                                     {renderMenuItems()}
                                     <li className="py-4 border-b border-gray-300">
-                                        <button onClick={logout} className="block w-full text-left text-lg hover:bg-gray-100">
+                                        <button onClick={handleLogout} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
                                             Logout
                                         </button>
                                     </li>

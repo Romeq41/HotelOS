@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { User } from "../interfaces/User"
+import { useLoading } from "./LoaderContext";
 
 interface UserContextType {
     user: User | null;
@@ -29,11 +30,12 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isAuth, setIsAuth] = useState<boolean>(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const { showLoader, hideLoader } = useLoading();
+
 
     useEffect(() => {
         const fetchUser = async () => {
-            setIsLoading(true);
+            showLoader();
             const token = document.cookie.replace(/(?:^|.*;\s*)token\s*=\s*([^;]*).*$|^.*$/, "$1");
             if (token) {
                 await fetch("http://localhost:8080/api/auth/authenticate", {
@@ -73,10 +75,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                         console.error("Error fetching user:", error);
                     })
                     .finally(() => {
-                        setIsLoading(false);
+                        hideLoader();
                     });
             } else {
-                setIsLoading(false);
+                hideLoader();
+                console.log("No token found, user is not authenticated.");
             }
         };
 
@@ -84,7 +87,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const login = async (email: string, password: string): Promise<void> => {
-        setIsLoading(true);
+        showLoader();
         await fetch("http://localhost:8080/api/auth/login", {
             method: "POST",
             headers: {
@@ -94,7 +97,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         })
             .then((res) => {
                 if (!res.ok) {
-                    // Log the response status and status text for debugging
                     console.error(`HTTP error! status: ${res.status}, statusText: ${res.statusText}`);
                     throw new Error(`HTTP error! status: ${res.status}`);
                 }
@@ -118,7 +120,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                 alert(`An error occurred during login: ${error.message}`);
             })
             .finally(() => {
-                setIsLoading(false);
+                hideLoader();
             });
     };
 
@@ -147,7 +149,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         country: string
     ): Promise<User | null> => {
         try {
-            setIsLoading(true);
+            showLoader();
             const res = await fetch("http://localhost:3000/register", {
                 method: "POST",
                 headers: {
@@ -197,7 +199,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             setUser(newUser);
             setIsAuth(true);
             localStorage.setItem("user", JSON.stringify(newUser));
-            setIsLoading(false);
+            hideLoader();
             return newUser;
 
         } catch (error) {
@@ -211,11 +213,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     return (
         <UserContext.Provider value={{ user, isAuth, setIsAuth, login, logout, register }}>
-            {isLoading && (
-                <div className="loading-screen fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-                    <div className="loading-spinner border-t-4 border-b-4 border-white rounded-full w-16 h-16 animate-spin"></div>
-                </div>
-            )}
             {children}
         </UserContext.Provider>
     );

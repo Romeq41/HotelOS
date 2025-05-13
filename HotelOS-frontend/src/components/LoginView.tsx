@@ -67,7 +67,7 @@ export default function LoginView() {
                     />
                     <button
                         type="submit"
-                        className="p-2 text-white bg-blue-500 rounded hover:bg-blue-600 font-bold"
+                        className="p-2 text-white bg-blue-500 rounded hover:bg-blue-600 font-bold cursor-pointer"
                     >
                         Login
                     </button>

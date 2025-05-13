@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import AdminHeader from '../components/Adminpage/AdminHeader';
-import Header from '../components/Header';
+import { useLoading } from '../contexts/LoaderContext';
 
 export default function AddHotel() {
     const [formData, setFormData] = useState({
@@ -23,6 +22,7 @@ export default function AddHotel() {
 
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imageUploadMessage, setImageUploadMessage] = useState<string | null>(null);
+    const { showLoader, hideLoader } = useLoading();
 
     const validate = () => {
         const newErrors: any = {};
@@ -74,6 +74,7 @@ export default function AddHotel() {
         setErrors(validationErrors);
 
         if (Object.values(validationErrors).every((err) => err === '')) {
+            showLoader();
             try {
                 const response = await fetch('http://localhost:8080/api/hotels', {
                     method: 'POST',
@@ -137,6 +138,7 @@ export default function AddHotel() {
                         country: '',
                     });
                     setImageFile(null);
+                    hideLoader();
 
                     const submitButton = document.getElementById('submitButton') as HTMLButtonElement;
                     if (submitButton) {
@@ -152,6 +154,7 @@ export default function AddHotel() {
                     }
                 }
             } catch (error) {
+                hideLoader();
                 console.error('Error adding Hotel:', error);
             }
         }
@@ -168,8 +171,7 @@ export default function AddHotel() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            <Header isGradient={false} bg_color="white" textColor='black' />
+        <>
             <div className="container mt-20 mx-auto py-8 px-4">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6">Add Hotel</h1>
                 <form
@@ -230,6 +232,6 @@ export default function AddHotel() {
                     <p className="text-green-500 mt-4">{imageUploadMessage}</p>
                 )}
             </div>
-        </div>
+        </>
     );
 }

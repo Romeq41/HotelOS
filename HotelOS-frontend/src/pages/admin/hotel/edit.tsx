@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Header from "../components/Header";
+import { useLoading } from "../../../contexts/LoaderContext";
+
 
 interface HotelData {
     id?: string;
@@ -25,7 +26,7 @@ export default function Adminpage_hotel_edit() {
     });
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imageUploadMessage, setImageUploadMessage] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
+    const { showLoader, hideLoader } = useLoading();
 
     useEffect(() => {
         const fetchHotelData = async () => {
@@ -66,7 +67,7 @@ export default function Adminpage_hotel_edit() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
+        showLoader();
         try {
             const response = await fetch(`http://localhost:8080/api/hotels/${id}`, {
                 method: "PUT",
@@ -108,13 +109,12 @@ export default function Adminpage_hotel_edit() {
         } catch (error) {
             console.error("Error updating hotel:", error);
         } finally {
-            setLoading(false);
+            hideLoader();
         }
     };
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            <Header isGradient={false} bg_color="white" textColor='black' />
             <div className="container mt-20 mx-auto py-8 px-4">
 
                 <div className="bg-white shadow-md rounded-lg p-6">
@@ -214,10 +214,9 @@ export default function Adminpage_hotel_edit() {
                             </button>
                             <button
                                 type="submit"
-                                disabled={loading}
                                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
                             >
-                                {loading ? "Saving..." : "Save Changes"}
+                                Save Changes
                             </button>
                         </div>
                     </form>

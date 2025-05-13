@@ -1,17 +1,19 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Hotel } from "../interfaces/Hotel";
-import Header from "../components/Header";
+import { Hotel } from "../../../interfaces/Hotel";
+import { useLoading } from "../../../contexts/LoaderContext";
 
 export default function Admin_Hotel_overview() {
     const { id } = useParams<{ id: string }>();
     console.log(id);
     const navigate = useNavigate();
     const [hotel, setHotel] = useState<Hotel | null>(null);
+    const { showLoader, hideLoader } = useLoading();
 
     useEffect(() => {
         const fetchHotel = async () => {
             console.log(`Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`)
+            showLoader();
             if (id) {
                 const res = await fetch(`http://localhost:8080/api/hotels/${id}`, {
                     method: "GET",
@@ -24,31 +26,14 @@ export default function Admin_Hotel_overview() {
                 console.log(data);
                 setHotel(data);
             }
+            hideLoader();
         };
 
-        const fetchUsers = async () => {
-            if (id) {
-                const res = await fetch(`http://localhost:8080/api/hotels/${id}/users`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                    },
-                });
-                const data = await res.json();
-                console.log(data);
-            }
-        }
-
         fetchHotel();
-        fetchUsers();
     }, [id]);
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            {/* Header */}
-            <Header isGradient={false} bg_color="white" textColor='black' />
-            {/* Title */}
             <div className="container mt-20 mx-auto py-8 px-4">
                 {hotel ? (
                     <div className="flex flex-col md:flex-row bg-white shadow-md rounded-lg overflow-hidden">

@@ -1,16 +1,18 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { User } from "../interfaces/User";
-import Header from "../components/Header";
+import { User } from "../../../interfaces/User";
+import { useLoading } from "../../../contexts/LoaderContext";
 
 export default function Admin_User_overview() {
     const { id } = useParams<{ id: string }>();
     console.log(id);
     const navigate = useNavigate();
     const [user, setUser] = useState<User | null>(null);
+    const { showLoader, hideLoader } = useLoading();
 
     useEffect(() => {
         const fetchUser = async () => {
+            showLoader();
             console.log(`Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`)
             if (id) {
                 const res = await fetch(`http://localhost:8080/api/users/${id}`, {
@@ -24,6 +26,7 @@ export default function Admin_User_overview() {
                 setUser(data);
                 console.log(data);
             }
+            hideLoader();
         };
         fetchUser();
     }, [id]);
@@ -31,8 +34,6 @@ export default function Admin_User_overview() {
     return (
 
         <div className="flex flex-col min-h-screen bg-gray-100">
-            {/* Header */}
-            <Header isGradient={false} bg_color="white" textColor='black' />
             {/* Title */}
             <div className="container mt-20 mx-auto py-8 px-4">
                 {user ? (

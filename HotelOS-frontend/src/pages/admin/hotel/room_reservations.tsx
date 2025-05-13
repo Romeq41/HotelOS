@@ -2,20 +2,21 @@ import { useEffect, useState } from 'react';
 import { Table, Button } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Popconfirm } from 'antd';
-import Header from '../components/Header';
-import { Reservation } from '../interfaces/Reservation';
+import { Reservation } from '../../../interfaces/Reservation';
+import { useLoading } from '../../../contexts/LoaderContext';
 
 export default function Admin_Hotel_Room_Reservations() {
-    const { id } = useParams<{ id: string }>();
+    const { hotelId } = useParams<{ hotelId: string }>();
     const navigate = useNavigate();
     const [reservations, setReservations] = useState<Reservation[]>([]);
+    const { showLoader, hideLoader } = useLoading();
 
     useEffect(() => {
         const fetchReservationsData = async () => {
-
+            showLoader();
             console.log(`Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`)
             try {
-                const response = await fetch(`http://localhost:8080/api/reservations/hotel/${id}`, {
+                const response = await fetch(`http://localhost:8080/api/reservations/hotel/${hotelId}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -36,11 +37,13 @@ export default function Admin_Hotel_Room_Reservations() {
             } catch (error) {
                 console.error('Error fetching reservations:', error);
             }
+            hideLoader();
         };
         fetchReservationsData();
-    }, [id]);
+    }, [hotelId]);
 
     const handleDelete = async (reservationId: number) => {
+        showLoader();
         try {
             const response = await fetch(`http://localhost:8080/api/reservations/${reservationId}`, {
                 method: 'DELETE',
@@ -58,6 +61,7 @@ export default function Admin_Hotel_Room_Reservations() {
         } catch (error) {
             console.error('Error deleting reservation:', error);
         }
+        hideLoader();
     };
 
     const columns = [
@@ -131,11 +135,10 @@ export default function Admin_Hotel_Room_Reservations() {
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            <Header isGradient={false} bg_color="white" textColor="black" />
             <div className="mt-20 rounded-lg pt-10 pb-5 w-full flex justify-center gap-10 items-center">
                 <h1 className="text-2xl font-bold">Reservations</h1>
 
-                <Button type="primary" href={`/admin/hotels/${id}/reservations/add`}>Add Reservation</Button>
+                <Button type="primary" href={`/admin/hotels/${hotelId}/reservations/add`}>Add Reservation</Button>
             </div>
 
             <main className="flex-grow p-5">
@@ -145,7 +148,7 @@ export default function Admin_Hotel_Room_Reservations() {
                         dataSource={reservations}
                         rowKey="reservationId"
                         onRow={(record) => ({
-                            onClick: () => navigate(`/admin/hotels/${id}/reservations/${record.reservationId}`),
+                            onClick: () => navigate(`/admin/hotels/${hotelId}/reservations/${record.reservationId}`),
                         })}
                         rowClassName="cursor-pointer hover:bg-gray-100 hover:shadow-md transition-all"
                     />

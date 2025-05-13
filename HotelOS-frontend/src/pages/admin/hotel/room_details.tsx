@@ -1,19 +1,21 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Room } from "../interfaces/Room";
-import Header from "../components/Header";
+import { Room } from "../../../interfaces/Room";
+import { useLoading } from "../../../contexts/LoaderContext";
 
 export default function Admin_Hotel_Room_details() {
-    const { id } = useParams<{ id: string }>();
-    console.log(id);
+    const { roomId } = useParams<{ hotelId: string; roomId: string }>();
     const navigate = useNavigate();
     const [room, setRoom] = useState<Room | null>(null);
+    const { showLoader, hideLoader } = useLoading();
 
     useEffect(() => {
         const fetchRoom = async () => {
+            showLoader();
+
             console.log(`Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`)
-            if (id) {
-                const res = await fetch(`http://localhost:8080/api/rooms/${id}`, {
+            if (roomId) {
+                const res = await fetch(`http://localhost:8080/api/rooms/${roomId}`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -22,17 +24,14 @@ export default function Admin_Hotel_Room_details() {
                 });
                 const data = await res.json();
                 setRoom(data);
-                console.log(data);
             }
+            hideLoader();
         };
         fetchRoom();
-    }, [id]);
+    }, [roomId]);
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            {/* Header */}
-            <Header isGradient={false} bg_color="white" textColor='black' />
-            {/* Title */}
             <div className="container mt-20 mx-auto py-8 px-4">
                 {room ? (
                     <div className="flex flex-col md:flex-row bg-white shadow-md rounded-lg overflow-hidden">
@@ -69,7 +68,7 @@ export default function Admin_Hotel_Room_details() {
 
                             <hr className="block my-3" />
                             <button
-                                onClick={() => navigate("/admin/hotels/" + room.hotel + "/rooms/" + room.roomId + "/edit")}
+                                onClick={() => navigate("/admin/hotels/" + room.hotel?.id + "/rooms/" + room.roomId + "/edit")}
                                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-2"
                             >
                                 Edit Room

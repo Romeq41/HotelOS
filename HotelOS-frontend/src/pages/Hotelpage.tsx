@@ -2,19 +2,21 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Hotel } from "../interfaces/Hotel";
 import { Room } from "../interfaces/Room";
-import Header from "../components/Header";
 import { User, UserType } from "../interfaces/User";
+import { useLoading } from "../contexts/LoaderContext";
 
 export default function HotelPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [hotel, setHotel] = useState<Hotel | null>(null);
     const [rooms, setRooms] = useState<Room[] | null>(null);
+    const { showLoader, hideLoader } = useLoading();
 
     const [employees, setEmployees] = useState<User[] | null>(null);
 
     useEffect(() => {
         const fetchEmployees = async () => {
+            showLoader();
             try {
                 const res = await fetch("http://localhost:8080/api/users", {
                     method: "GET",
@@ -32,11 +34,13 @@ export default function HotelPage() {
             } catch (error) {
                 console.error("Failed to fetch employees:", error);
             }
+            hideLoader();
         }
 
 
         const fetchHotel = async () => {
             if (!id) return;
+            showLoader();
             try {
                 const res = await fetch(`http://localhost:8080/api/hotels/${id}`, {
                     method: "GET",
@@ -50,11 +54,12 @@ export default function HotelPage() {
             } catch (error) {
                 console.error("Failed to fetch hotel:", error);
             }
+            hideLoader();
         };
 
-        // Fetch rooms for stats (if applicable)
         const fetchRooms = async () => {
             if (!id) return;
+            showLoader();
             try {
                 const res = await fetch(`http://localhost:8080/api/rooms/hotel/${id}`, {
                     method: "GET",
@@ -70,6 +75,7 @@ export default function HotelPage() {
             } catch (error) {
                 console.error("Failed to fetch rooms:", error);
             }
+            hideLoader();
         };
 
         fetchEmployees();
@@ -89,7 +95,6 @@ export default function HotelPage() {
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100 mt-20">
-            <Header />
             <div className="container mx-auto py-8 px-4">
                 {hotel ? (
                     <div className="bg-white shadow-md rounded-lg overflow-hidden p-4 md:p-6">

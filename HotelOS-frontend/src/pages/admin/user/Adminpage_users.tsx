@@ -1,21 +1,33 @@
 import { useEffect, useState } from 'react';
-import { Table, Button } from 'antd';
+import { Table, Button, Input } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { User, UserType } from '../interfaces/User';
+import { User, UserType } from '../../../interfaces/User';
 import { Popconfirm } from 'antd';
-import Header from '../components/Header';
-
-
+import { useLoading } from '../../../contexts/LoaderContext';
 
 export default function Users() {
     const navigate = useNavigate();
 
     const [users, setUsers] = useState<User[]>([]);
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [inputValue, setInputValue] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const { showLoader, hideLoader } = useLoading();
+    const PAGE_SIZE = 10;
 
     useEffect(() => {
-        const fetchUsersData = async () => {
+        const fetchUsersData = async (searchValue: string, pageNumber: number) => {
+            showLoader();
+            const params = new URLSearchParams({
+                page: pageNumber.toString(),
+                size: PAGE_SIZE.toString(),
+                ...(searchValue ? { email: searchValue } : {})
+            });
+
             try {
-                const response = await fetch('http://localhost:8080/api/users', {
+                const response = await fetch(`http://localhost:8080/api/users?${params}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -39,7 +51,7 @@ export default function Users() {
                 const data = await response.json();
                 console.log('Users data:', data);
 
-                const nonAdminUsers = data.filter((user: User) => user.userType !== UserType.ADMIN);
+                const nonAdminUsers = data.content.filter((user: User) => user.userType !== UserType.ADMIN);
 
                 const usersWithKeys = nonAdminUsers.map((user: User) => ({
                     ...user,
@@ -47,16 +59,31 @@ export default function Users() {
                 }));
 
                 setUsers(usersWithKeys);
-
+                setTotalPages(data.totalPages);
+                setPage(data.number);
             } catch (error) {
                 console.error('Error fetching users data:', error);
             }
+            hideLoader();
         };
 
-        fetchUsersData();
-    }, []);
+
+        fetchUsersData(searchQuery, page);
+    }, [searchQuery, page]);
+
+    const handleSearch = () => {
+        setPage(0);
+        setSearchQuery(inputValue);
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
 
     const handleDelete = async (userId: string) => {
+        showLoader();
         try {
             const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
                 method: 'DELETE',
@@ -76,6 +103,7 @@ export default function Users() {
         } catch (error) {
             console.error('Error deleting user:', error);
         }
+        hideLoader();
     };
 
 
@@ -114,7 +142,7 @@ export default function Users() {
             title: 'Actions',
             key: 'actions',
             render: (_: any, record: User) => (
-                <div onClick={(e) => e.stopPropagation() /* Prevent row click when interacting with Popconfirm */}>
+                <div onClick={(e) => e.stopPropagation()}>
                     <Popconfirm
                         title="Are you sure you want to delete this user?"
                         onConfirm={() => handleDelete(record.userId)}
@@ -135,20 +163,40 @@ export default function Users() {
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            {/* Header */}
-            <Header isGradient={false} bg_color="white" textColor='black' />
-
-            {/* Title */}
+            {/* Title & Add User */}
             <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-center gap-10 items-center">
                 <h1 className="text-2xl font-bold">Users</h1>
-                <Button type="primary" href="/admin/users/add">Add User</Button>
             </div>
+
             {/* Content */}
             <main className="flex-grow p-5">
                 <div className="bg-white shadow-md rounded-lg p-5">
+                    {/* Search bar */}
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <Input
+                                placeholder="Search users"
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                                style={{ width: 200 }}
+                            />
+                            <Button type="default" onClick={handleSearch}>
+                                Search
+                            </Button>
+                        </div>
+                        <Button type="primary" href="/admin/users/add">Add User</Button>
+                    </div>
+
                     <Table
                         columns={columns}
                         dataSource={users}
+                        pagination={{
+                            current: page + 1,
+                            pageSize: PAGE_SIZE,
+                            total: totalPages * PAGE_SIZE,
+                            onChange: (page) => setPage(page - 1),
+                        }}
                         onRow={(record) => ({
                             onClick: () => navigate(`/admin/users/${record.userId}`),
                         })}
@@ -158,4 +206,4 @@ export default function Users() {
             </main>
         </div>
     );
-};
+}

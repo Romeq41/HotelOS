@@ -33,7 +33,7 @@ export default function PricingOptions() {
     ];
 
     return (
-        <div className="w-full bg-white py-16">
+        <div id="menu" className="w-full bg-white py-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-center text-gray-800 mb-12">
                     Choose Your Plan
@@ -53,7 +53,7 @@ export default function PricingOptions() {
                                     </li>
                                 ))}
                             </ul>
-                            <button className="px-6 py-2 bg-amber-700 text-white font-bold rounded-full hover:bg-amber-600 transition-transform transform hover:scale-105">
+                            <button className="px-6 py-2 bg-amber-700 text-white font-bold rounded-full hover:bg-amber-600 transition-transform transform hover:scale-105 cursor-pointer">
                                 {plan.buttonText}
                             </button>
                         </div>
