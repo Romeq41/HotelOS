@@ -49,7 +49,6 @@ export default function Admin_Hotel_Users() {
                 }
 
                 const data = await response.json();
-                console.log('Users data:', data);
 
                 if (data.content) {
                     const nonAdminUsers = data.content.filter((user: User) => user.userType !== UserType.ADMIN);
@@ -175,7 +174,7 @@ export default function Admin_Hotel_Users() {
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
             <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-center gap-10 items-center">
-                <h1 className="text-2xl font-bold">{t('admin.hotels.title_users', 'Hotel Users')}</h1>
+                <h1 className="text-2xl font-bold">{t('admin.hotels.title_users', 'Hotel Staff')}</h1>
             </div>
 
             <main className="flex-grow p-5">
@@ -196,7 +195,7 @@ export default function Admin_Hotel_Users() {
                         </div>
                         <Button
                             type="primary"
-                            href={`/admin/hotels/${hotelId}/users/add`}
+                            onClick={() => navigate(`/admin/users/add`)}
                         >
                             {t('admin.users.addUser', 'Add User')}
                         </Button>

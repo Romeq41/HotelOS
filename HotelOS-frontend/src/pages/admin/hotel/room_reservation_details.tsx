@@ -1,20 +1,42 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Reservation } from "../../../interfaces/Reservation";
 import { useLoading } from "../../../contexts/LoaderContext";
 import { useTranslation } from "react-i18next";
+import { UserType } from "../../../interfaces/User";
 
 export default function Admin_Hotel_Room_Reservation_Details() {
     const { hotelId, reservationId } = useParams<{ hotelId: string; reservationId: string }>();
-    console.log(hotelId, reservationId);
     const navigate = useNavigate();
+    const location = useLocation();
     const [reservation, setReservation] = useState<Reservation | null>(null);
     const { showLoader, hideLoader } = useLoading();
     const { t } = useTranslation();
 
+    const getPermissionContext = () => {
+        if (location.pathname.includes('/admin/')) {
+            return UserType.ADMIN;
+        } else if (location.pathname.includes('/manager/')) {
+            return UserType.MANAGER;
+        } else if (location.pathname.includes('/staff/')) {
+            return UserType.STAFF;
+        }
+    };
+
+    const getBaseUrl = () => {
+        const permissionContext = getPermissionContext();
+        if (permissionContext === UserType.ADMIN) {
+            return `/admin/hotels/${hotelId}`;
+        } else if (permissionContext === UserType.MANAGER) {
+            return `/manager/hotel/${hotelId}`;
+        } else if (permissionContext === UserType.STAFF) {
+            return `/staff/${hotelId}`;
+        }
+        return '';
+    };
+
     useEffect(() => {
         const fetchReservation = async () => {
-            console.log(`Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`);
             if (reservationId) {
                 showLoader();
                 try {
@@ -32,7 +54,6 @@ export default function Admin_Hotel_Room_Reservation_Details() {
 
                     const data = await res.json();
                     setReservation(data);
-                    console.log(data);
                 } catch (error) {
                     console.error("Error fetching reservation:", error);
                 } finally {
@@ -70,17 +91,23 @@ export default function Admin_Hotel_Room_Reservation_Details() {
                             <p className="text-gray-700 mb-2">
                                 <strong>{t('admin.reservations.details.status', 'Status')}:</strong> {
                                     reservation.status ?
-                                        t(`admin.reservations.status.${reservation.status.toLowerCase()}`, reservation.status) :
+                                        t(`admin.reservations.columns.status.${reservation.status.toLowerCase()}`, reservation.status) :
                                         t('admin.reservations.unknown', 'Unknown')
                                 }
                             </p>
 
                             <hr className="block my-3" />
                             <button
-                                onClick={() => navigate(`/admin/hotels/${hotelId}/reservations/${reservationId}/edit`)}
+                                onClick={() => navigate(`${getBaseUrl()}/reservations/${reservationId}/edit`)}
                                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-2"
                             >
                                 {t('admin.reservations.editReservation', 'Edit Reservation')}
+                            </button>
+                            <button
+                                onClick={() => navigate(`${getBaseUrl()}/reservations`)}
+                                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 m-2"
+                            >
+                                {t('general.back', 'Back')}
                             </button>
                         </div>
                     </div>

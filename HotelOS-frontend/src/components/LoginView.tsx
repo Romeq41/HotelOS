@@ -10,11 +10,12 @@ export default function LoginView() {
     const [emailValid, setEmailValid] = useState(true);
     const [passwordValid, setPasswordValid] = useState(true);
     const navigate = useNavigate();
-    const { login, isAuth } = useUser();
+    const { login, isAuth, error } = useUser();
 
     useEffect(() => {
         if (isAuth) {
             navigate('/');
+            console.log("token", document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1"));
         }
     }, [isAuth, navigate]);
 
@@ -75,6 +76,10 @@ export default function LoginView() {
                     >
                         {t("auth.login", "Login")}
                     </button>
+                    <p className="text-center text-sm mt-2">
+                        {t("auth.forgotPassword", "Forgot your password?")} <a href="/reset-password" className="text-blue-500 hover:underline">{t("auth.resetPassword", "Reset Password")}</a>
+                    </p>
+                    {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
                 </form>
             </div>
         </div>

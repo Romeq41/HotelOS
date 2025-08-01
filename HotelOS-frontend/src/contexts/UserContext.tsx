@@ -6,8 +6,10 @@ interface UserContextType {
     user: User | null;
     isAuth: boolean;
     setIsAuth: React.Dispatch<React.SetStateAction<boolean>>;
+    isAuthDone: boolean;
+    setIsAuthDone: React.Dispatch<React.SetStateAction<boolean>>;
     logout: () => void;
-    login: (email: string, password: string) => void;
+    login: (email: string, password: string) => Promise<void>;
     register: (
         email: string,
         password: string,
@@ -22,7 +24,9 @@ interface UserContextType {
         hotel: string,
         state: string,
         country: string
-    ) => void;
+    ) => Promise<User | null>;
+    error: any;
+    clearError: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -31,11 +35,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isAuth, setIsAuth] = useState<boolean>(false);
     const { showLoader, hideLoader } = useLoading();
+    const [error, setError] = useState<string | null>(null);
+    const [isAuthDone, setIsAuthDone] = useState<boolean>(false);
 
 
     useEffect(() => {
         const fetchUser = async () => {
             showLoader();
+            setIsAuthDone(false);
             const token = document.cookie.replace(/(?:^|.*;\s*)token\s*=\s*([^;]*).*$|^.*$/, "$1");
             if (token) {
                 await fetch("http://localhost:8080/api/auth/authenticate", {
@@ -47,6 +54,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                 })
                     .then((res) => {
                         if (!res.ok) {
+                            setError("Authentication failed");
                             throw new Error("Not authenticated");
                         }
                         return res.json();
@@ -70,6 +78,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                         };
                         setUser(user);
                         setIsAuth(true);
+                        setIsAuthDone(true);
                     })
                     .catch((error) => {
                         console.error("Error fetching user:", error);
@@ -79,7 +88,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                     });
             } else {
                 hideLoader();
-                console.log("No token found, user is not authenticated.");
             }
         };
 
@@ -88,6 +96,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     const login = async (email: string, password: string): Promise<void> => {
         showLoader();
+        setIsAuthDone(false);
         await fetch("http://localhost:8080/api/auth/login", {
             method: "POST",
             headers: {
@@ -97,27 +106,27 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         })
             .then((res) => {
                 if (!res.ok) {
-                    console.error(`HTTP error! status: ${res.status}, statusText: ${res.statusText}`);
+                    setError("Login failed. Please check your credentials.");
                     throw new Error(`HTTP error! status: ${res.status}`);
                 }
                 return res.json();
             })
             .then((data) => {
-                console.log("Login response:", data);
                 if (data.message || data.error) {
                     alert(data.message || data.error);
                     return false;
                 }
                 setUser(data.user as User);
                 setIsAuth(true);
+                setIsAuthDone(true);
 
                 const expires = new Date();
                 expires.setTime(expires.getTime() + 7 * 24 * 60 * 60 * 1000);
                 document.cookie = `token=${data.token}; expires=${expires.toUTCString()}; path=/`;
             })
             .catch((error) => {
-                console.error("Error during login:", error);
-                alert(`An error occurred during login: ${error.message}`);
+                console.error("Error logging in:", error);
+                setError("Login failed. Please check your credentials.");
             })
             .finally(() => {
                 hideLoader();
@@ -212,7 +221,20 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
 
     return (
-        <UserContext.Provider value={{ user, isAuth, setIsAuth, login, logout, register }}>
+        <UserContext.Provider value={
+            {
+                user,
+                isAuth,
+                setIsAuth,
+                login,
+                logout,
+                register,
+                error,
+                clearError: () => setError(null),
+                isAuthDone,
+                setIsAuthDone
+
+            }}>
             {children}
         </UserContext.Provider>
     );

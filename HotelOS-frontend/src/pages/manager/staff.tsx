@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Table, Button, Input } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { User, UserType } from '../../../interfaces/User';
+import { useNavigate, useParams } from 'react-router-dom';
+import { User, UserType } from '../../interfaces/User';
 import { Popconfirm } from 'antd';
-import { useLoading } from '../../../contexts/LoaderContext';
+import { useLoading } from '../../contexts/LoaderContext';
 import { useTranslation } from 'react-i18next';
 
-export default function Users() {
+export default function Admin_Hotel_Users() {
+    const { hotelId } = useParams<{ hotelId: string }>();
     const navigate = useNavigate();
     const { t } = useTranslation();
 
@@ -29,7 +30,7 @@ export default function Users() {
             });
 
             try {
-                const response = await fetch(`http://localhost:8080/api/users?${params}`, {
+                const response = await fetch(`http://localhost:8080/api/hotels/${hotelId}/users?${params}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -41,36 +42,45 @@ export default function Users() {
                     throw new Error('Network response was not ok');
                 }
 
-                if (response.status === 401) {
-                    console.log('Unauthorized access. Redirecting to login page...');
+                if (response.status === 401 || response.status === 403) {
+                    console.log('Unauthorized/Forbidden access. Redirecting to login page...');
                     window.location.href = '/login';
-                }
-                if (response.status === 403) {
-                    console.log('Forbidden access. Redirecting to login page...');
-                    window.location.href = '/login';
+                    return;
                 }
 
                 const data = await response.json();
 
-                const nonAdminUsers = data.content.filter((user: User) => user.userType !== UserType.ADMIN);
+                if (data.content) {
+                    const nonAdminUsers = data.content.filter((user: User) => user.userType !== UserType.ADMIN);
 
-                const usersWithKeys = nonAdminUsers.map((user: User) => ({
-                    ...user,
-                    key: user.userId,
-                }));
+                    const usersWithKeys = nonAdminUsers.map((user: User) => ({
+                        ...user,
+                        key: user.userId,
+                    }));
 
-                setUsers(usersWithKeys);
-                setTotalPages(data.totalPages);
-                setPage(data.number);
+                    setUsers(usersWithKeys);
+                    setTotalPages(data.totalPages);
+                    setPage(data.number);
+                } else {
+                    const nonAdminUsers = data.filter((user: User) => user.userType !== UserType.ADMIN);
+
+                    const usersWithKeys = nonAdminUsers.map((user: User) => ({
+                        ...user,
+                        key: user.userId,
+                    }));
+
+                    setUsers(usersWithKeys);
+                    setTotalPages(Math.ceil(usersWithKeys.length / PAGE_SIZE));
+                    setPage(0);
+                }
             } catch (error) {
                 console.error('Error fetching users data:', error);
             }
             hideLoader();
         };
 
-
         fetchUsersData(searchQuery, page);
-    }, [searchQuery, page]);
+    }, [hotelId, searchQuery, page]);
 
     const handleSearch = () => {
         setPage(0);
@@ -98,15 +108,12 @@ export default function Users() {
                 throw new Error('Failed to delete user');
             }
 
-            console.log(`User with ID ${userId} deleted successfully`);
-
             setUsers((prevUsers) => prevUsers.filter((user) => user.userId !== userId));
         } catch (error) {
             console.error('Error deleting user:', error);
         }
         hideLoader();
     };
-
 
     const columns = [
         {
@@ -164,12 +171,10 @@ export default function Users() {
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            {/* Title & Add User */}
             <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-center gap-10 items-center">
                 <h1 className="text-2xl font-bold">{t('admin.hotels.title_users', 'Hotel Users')}</h1>
             </div>
 
-            {/* Content */}
             <main className="flex-grow p-5">
                 <div className="bg-white shadow-md rounded-lg p-5">
                     {/* Search bar */}
@@ -188,12 +193,11 @@ export default function Users() {
                         </div>
                         <Button
                             type="primary"
-                            onClick={() => navigate(`/admin/users/add`)}
+                            onClick={() => navigate(`/manager/hotel/${hotelId}/staff/add`)}
                         >
                             {t('admin.users.addUser', 'Add User')}
                         </Button>
                     </div>
-
                     <Table
                         columns={columns}
                         dataSource={users}
@@ -204,7 +208,7 @@ export default function Users() {
                             onChange: (page) => setPage(page - 1),
                         }}
                         onRow={(record) => ({
-                            onClick: () => navigate(`/admin/users/${record.userId}`),
+                            onClick: () => navigate(`/manager/hotel/${hotelId}/staff/${record.userId}`),
                         })}
                         rowClassName="cursor-pointer hover:bg-gray-100 hover:shadow-md transition-all"
                     />

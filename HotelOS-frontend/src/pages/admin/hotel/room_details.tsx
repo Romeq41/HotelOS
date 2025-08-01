@@ -1,21 +1,38 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Room } from "../../../interfaces/Room";
 import { useLoading } from "../../../contexts/LoaderContext";
 import { useTranslation } from "react-i18next";
+import { useUser } from "../../../contexts/UserContext";
+import { UserType } from "../../../interfaces/User";
 
 export default function Admin_Hotel_Room_details() {
     const { roomId } = useParams<{ hotelId: string; roomId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
     const [room, setRoom] = useState<Room | null>(null);
     const { showLoader, hideLoader } = useLoading();
     const { t } = useTranslation();
+    const { user: currentUser } = useUser();
+
+    const getEditUrl = () => {
+        const path = location.pathname;
+
+        if (path.includes('/admin/')) {
+            return `/admin/hotels/${room?.hotel?.id}/rooms/${roomId}/edit`;
+        } else if (path.includes('/manager/')) {
+            return `/manager/hotel/${room?.hotel?.id}/rooms/${roomId}/edit`;
+        } else {
+            return currentUser?.userType === UserType.ADMIN
+                ? `/admin/hotels/${room?.hotel?.id}/rooms/${roomId}/edit`
+                : `/manager/hotel/${room?.hotel?.id}/rooms/${roomId}/edit`;
+        }
+    };
 
     useEffect(() => {
         const fetchRoom = async () => {
             showLoader();
 
-            console.log(`Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`)
             if (roomId) {
                 try {
                     const res = await fetch(`http://localhost:8080/api/rooms/${roomId}`, {
@@ -83,7 +100,7 @@ export default function Admin_Hotel_Room_details() {
 
                             <hr className="block my-3" />
                             <button
-                                onClick={() => navigate("/admin/hotels/" + room.hotel?.id + "/rooms/" + room.roomId + "/edit")}
+                                onClick={() => navigate(getEditUrl())}
                                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-2"
                             >
                                 {t('admin.hotels.rooms.details.editRoom', 'Edit Room')}

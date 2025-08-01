@@ -70,7 +70,7 @@
                         "totalCalculationError": "Unable to calculate total"
                     },
                     "selectRoom": "Select a room",
-                    "rate": "Rate",
+                    "rate": "Rate (USD)",
                     "success": "Reservation Added!"
                 },
                 "status": {
@@ -113,26 +113,26 @@
                 "imageHint": "Upload a hotel image (max 5MB)"
             },
             "details": {
-                "statistics": "Statystyki hotelu",
+                "statistics": "Hotel Statistics",
                 "id": "ID",
-                "country": "Kraj",
-                "state": "Województwo",
-                "city": "Miasto",
-                "address": "Adres",
-                "zipCode": "Kod pocztowy",
-                "employeesStats": "Statystyki pracowników"
+                "country": "Country",
+                "state": "State/Province",
+                "city": "City",
+                "address": "Address",
+                "zipCode": "Postal/ZIP Code",
+                "employeesStats": "Employee Statistics"
             },
             "statistics": {
-                "totalRooms": "Wszystkie pokoje",
-                "occupiedRooms": "Zajęte pokoje",
-                "freeRooms": "Wolne pokoje",
-                "totalEmployees": "Wszyscy pracownicy",
-                "managers": "Menedżerowie",
-                "staff": "Personel"
+                "totalRooms": "All Rooms",
+                "occupiedRooms": "Occupied Rooms",
+                "freeRooms": "Available Rooms",
+                "totalEmployees": "All Employees",
+                "managers": "Managers",
+                "staff": "Staff"
             },
             "actions": {
-                "edit": "Edytuj hotel",
-                "seeRooms": "Zobacz pokoje"
+                "edit": "Edit Hotel",
+                "seeRooms": "See Rooms"
             },
             "edit": {
                 "title": "Edit Hotel",
@@ -186,16 +186,16 @@
                 "zipCode": "Zip Code",
                 "actions": "Actions"
             },
-            "unknown": "Nieznane",
-            "numberOfRooms": "Liczba pokoi",
-            "description": "Opis",
-            "noDescription": "Brak dostępnego opisu.",
-            "editHotel": "Edytuj hotel",
-            "seeRooms": "Zobacz pokoje",
-            "seeReservations": "Zobacz rezerwacje",
-            "seeEmployees": "Zobacz pracowników",
-            "loading": "Ładowanie informacji o hotelu...",
-            "title_users": "Hotel Users",
+            "unknown": "Unknown",
+            "numberOfRooms": "Number of Rooms",
+            "description": "Description",
+            "noDescription": "No description available.",
+            "editHotel": "Edit Hotel",
+            "seeRooms": "See Rooms",
+            "seeReservations": "See Reservations",
+            "seeEmployees": "See Employees",
+            "loading": "Loading hotel information...",
+            "title_users": "Hotel Staff",
             "rooms": {
                 "add": {
                     "title": "Add New Room",
@@ -217,7 +217,7 @@
                 "columns": {
                     "roomNumber": "Room Number",
                     "type": "Type",
-                    "rate": "Rate", 
+                    "rate": "Rate (USD)", 
                     "status": "Status"
                 },
                 "details": {
@@ -246,7 +246,7 @@
                     "roomNumber": "Room Number",
                     "type": "Room Type",
                     "capacity": "Capacity",
-                    "rate": "Rate",
+                    "rate": "Rate (USD)",
                     "status": "Status",
                     "hotel": "Hotel",
                     "hotelId": "Hotel ID",
@@ -294,11 +294,18 @@
                     "userImage": "User Image"
                 },
                 "errors": {
-                    "firstNameRequired": "Please input first name!",
-                    "lastNameRequired": "Please input last name!",
-                    "userTypeRequired": "Please select user type!",
-                    "emailRequired": "Please input email!",
-                    "emailInvalid": "Please enter a valid email!"
+                    "firstNameRequired": "First name is required",
+                    "lastNameRequired": "Last name is required",
+                    "userTypeRequired": "User type is required",
+                    "emailRequired": "Email is required",
+                    "emailInvalid": "email is invalid",
+                    "phoneRequired": "Phone number is required",
+                    "positionRequired": "Position is required",
+                    "countryRequired": "Country is required",
+                    "stateRequired": "State is required",
+                    "cityRequired": "City is required",
+                    "addressRequired": "Address is required",
+                    "zipcodeRequired": "Zip code is required"
                 },
                 "selectHotel": "Select a hotel"
             },
@@ -368,6 +375,7 @@
     },
     "hotel": {
         "booking": "Booking",
+        "reservations": "Reservations",
         "reservation": "Reservation",
         "checkIn": "Check-in",
         "checkOut": "Check-out",

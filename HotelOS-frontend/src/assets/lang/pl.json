@@ -71,7 +71,7 @@
                         "totalCalculationError": "Nie można obliczyć sumy"
                     },
                     "selectRoom": "Wybierz pokój",
-                    "rate": "Stawka",
+                    "rate": "Stawka (USD)",
                     "success": "Rezerwacja Dodana!"
                 },
                 "status": {
@@ -137,6 +137,16 @@
                 "country": "Kraj",
                 "image": "Zdjęcie Hotelu"
             },
+            "details": {
+                "statistics": "Statystyki hotelu",
+                "id": "ID",
+                "country": "Kraj",
+                "state": "Województwo",
+                "city": "Miasto",
+                "address": "Adres",
+                "zipCode": "Kod pocztowy",
+                "employeesStats": "Statystyki pracowników"
+            },
             "validation": {
                 "nameRequired": "Proszę wprowadzić nazwę hotelu!",
                 "addressRequired": "Proszę wprowadzić adres!",
@@ -170,10 +180,11 @@
             "noDescription": "Brak dostępnego opisu.",
             "editHotel": "Edytuj hotel",
             "seeRooms": "Zobacz pokoje",
+            "seeStaff" : "Zobacz personel",
             "seeReservations": "Zobacz rezerwacje",
             "seeEmployees": "Zobacz pracowników",
             "loading": "Ładowanie informacji o hotelu...",
-            "title_users": "Użytkownicy Hotelu",
+            "title_users": "Pracownicy Hotelu",
             "rooms": {
                 "add": {
                     "title": "Dodaj Nowy Pokój",
@@ -195,7 +206,7 @@
                 "columns": {
                     "roomNumber": "Numer Pokoju",
                     "type": "Typ",
-                    "rate": "Stawka", 
+                    "rate": "Stawka (USD)", 
                     "status": "Status"
                 },
                 "details": {
@@ -224,7 +235,7 @@
                     "roomNumber": "Numer Pokoju",
                     "type": "Typ Pokoju",
                     "capacity": "Pojemność",
-                    "rate": "Stawka",
+                    "rate": "Stawka (USD)",
                     "status": "Status",
                     "hotel": "Hotel",
                     "hotelId": "ID Hotelu",
@@ -346,6 +357,7 @@
     },
     "hotel": {
         "booking": "Rezerwacja",
+        "reservations": "Rezerwacje",
         "reservation": "Rezerwacja",
         "checkIn": "Zameldowanie",
         "checkOut": "Wymeldowanie",

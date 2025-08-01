@@ -80,7 +80,6 @@ export default function AddHotel() {
             }
 
             const data = await response.json();
-            console.log('Hotel added:', data);
 
             if (fileList.length > 0) {
                 const imageFormData = new FormData();

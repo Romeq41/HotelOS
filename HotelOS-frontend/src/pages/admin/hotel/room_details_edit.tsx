@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Room, RoomStatus } from "../../../interfaces/Room";
 import { Hotel } from "../../../interfaces/Hotel";
 import { useLoading } from "../../../contexts/LoaderContext";
 import { useTranslation } from "react-i18next";
+import { useUser } from "../../../contexts/UserContext";
+import { UserType } from "../../../interfaces/User";
 import {
     Form,
     Input,
@@ -24,6 +26,8 @@ import type { UploadFile, UploadProps } from "antd/es/upload/interface";
 export default function Admin_Hotel_Room_Details_Edit() {
     const { hotelId, roomId } = useParams<{ hotelId: string; roomId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
+    const { user: currentUser } = useUser();
     const [form] = Form.useForm();
     const [room, setRoom] = useState<Room | null>(null);
     const [hotels, setHotels] = useState<Hotel[]>([]);
@@ -37,6 +41,20 @@ export default function Admin_Hotel_Room_Details_Edit() {
     const PAGE_SIZE = 10;
     const { Option } = Select;
 
+    // Helper function to determine the correct base path
+    const getBasePath = () => {
+        const path = location.pathname;
+        if (path.includes('/admin/')) {
+            return '/admin/hotels';
+        } else if (path.includes('/manager/')) {
+            return '/manager/hotel';
+        }
+        // Default fallback based on user role
+        return currentUser?.userType === UserType.ADMIN
+            ? '/admin/hotels'
+            : '/manager/hotel';
+    };
+
     useEffect(() => {
         const fetchRoom = async () => {
             if (!roomId) return;
@@ -46,7 +64,7 @@ export default function Admin_Hotel_Room_Details_Edit() {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${document.cookie.replace(
+                        "Authorization": `Bearer ${document.cookie.replace(
                             /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
                             "$1"
                         )}`
@@ -66,7 +84,8 @@ export default function Admin_Hotel_Room_Details_Edit() {
                 });
 
                 if (roomData.hotel?.id && !hotelId) {
-                    navigate(`/admin/hotels/${roomData.hotel.id}/rooms/${roomId}/edit`, { replace: true });
+                    const basePath = getBasePath();
+                    navigate(`${basePath}/${roomData.hotel.id}/rooms/${roomId}/edit`, { replace: true });
                 }
             } catch (error) {
                 console.error("Error fetching room:", error);
@@ -92,7 +111,7 @@ export default function Admin_Hotel_Room_Details_Edit() {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${document.cookie.replace(
+                    "Authorization": `Bearer ${document.cookie.replace(
                         /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
                         "$1"
                     )}`
@@ -160,13 +179,11 @@ export default function Admin_Hotel_Room_Details_Edit() {
                 hotel: values.hotel ? { id: values.hotel } : null
             };
 
-            console.log("Room data to update:", roomDto);
-
             const response = await fetch(`http://localhost:8080/api/rooms/${roomId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${document.cookie.replace(
+                    "Authorization": `Bearer ${document.cookie.replace(
                         /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
                         "$1"
                     )}`
@@ -187,7 +204,7 @@ export default function Admin_Hotel_Room_Details_Edit() {
                     {
                         method: "POST",
                         headers: {
-                            Authorization: `Bearer ${document.cookie.replace(
+                            "Authorization": `Bearer ${document.cookie.replace(
                                 /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
                                 "$1"
                             )}`
@@ -207,7 +224,10 @@ export default function Admin_Hotel_Room_Details_Edit() {
             }
 
             message.success(t('admin.hotels.rooms.edit.updateSuccess', 'Room updated successfully'));
-            navigate(`/admin/hotels/${values.hotel}/rooms`);
+
+            // Use path-aware navigation
+            const basePath = getBasePath();
+            navigate(`${basePath}/${values.hotel}/rooms`);
         } catch (error) {
             console.error("Error updating room:", error);
             message.error(t('admin.hotels.rooms.edit.updateError', 'Failed to update room'));
@@ -271,10 +291,11 @@ export default function Admin_Hotel_Room_Details_Edit() {
                                             rules={[{ required: true, message: t('admin.hotels.rooms.validation.rateRequired', 'Please input rate!') }]}
                                         >
                                             <InputNumber
+                                                prefix="$"
                                                 style={{ width: '100%' }}
-                                                min={0}
-                                                step={0.01}
-                                                precision={2}
+                                                min={1}
+                                                step={1}
+                                                precision={0}
                                             />
                                         </Form.Item>
                                     </Col>
@@ -340,7 +361,10 @@ export default function Admin_Hotel_Room_Details_Edit() {
                                             {t('general.save', 'Save Changes')}
                                         </Button>
                                         <Button
-                                            onClick={() => navigate(`/admin/hotels/${hotelId || room.hotel?.id || room.hotel?.id}/rooms`)}
+                                            onClick={() => {
+                                                const basePath = getBasePath();
+                                                navigate(`${basePath}/${hotelId || room.hotel?.id}/rooms`);
+                                            }}
                                         >
                                             {t('general.cancel', 'Cancel')}
                                         </Button>

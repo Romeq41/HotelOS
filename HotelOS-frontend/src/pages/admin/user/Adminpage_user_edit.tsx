@@ -322,6 +322,10 @@ export default function Admin_User_Edit() {
                                         <Form.Item
                                             name="phone"
                                             label={t('admin.users.form.fields.phone', 'Phone')}
+                                            rules={[{
+                                                required: true,
+                                                message: t('admin.users.form.errors.phoneRequired', 'Please input first name!')
+                                            }]}
                                         >
                                             <Input />
                                         </Form.Item>
@@ -330,6 +334,10 @@ export default function Admin_User_Edit() {
                                         <Form.Item
                                             name="position"
                                             label={t('admin.users.form.fields.position', 'Position')}
+                                            rules={[{
+                                                required: true,
+                                                message: t('admin.users.form.errors.positionRequired', 'Please input first name!')
+                                            }]}
                                         >
                                             <Input />
                                         </Form.Item>
@@ -338,6 +346,10 @@ export default function Admin_User_Edit() {
                                         <Form.Item
                                             name="country"
                                             label={t('admin.users.form.fields.country', 'Country')}
+                                            rules={[{
+                                                required: true,
+                                                message: t('admin.users.form.errors.countryRequired', 'Please input first name!')
+                                            }]}
                                         >
                                             <Input />
                                         </Form.Item>
@@ -346,6 +358,10 @@ export default function Admin_User_Edit() {
                                         <Form.Item
                                             name="state"
                                             label={t('admin.users.form.fields.state', 'State')}
+                                            rules={[{
+                                                required: true,
+                                                message: t('admin.users.form.errors.stateRequired', 'Please input first name!')
+                                            }]}
                                         >
                                             <Input />
                                         </Form.Item>
@@ -354,6 +370,10 @@ export default function Admin_User_Edit() {
                                         <Form.Item
                                             name="city"
                                             label={t('admin.users.form.fields.city', 'City')}
+                                            rules={[{
+                                                required: true,
+                                                message: t('admin.users.form.errors.cityRequired', 'Please input first name!')
+                                            }]}
                                         >
                                             <Input />
                                         </Form.Item>
@@ -362,6 +382,10 @@ export default function Admin_User_Edit() {
                                         <Form.Item
                                             name="address"
                                             label={t('admin.users.form.fields.address', 'Address')}
+                                            rules={[{
+                                                required: true,
+                                                message: t('admin.users.form.errors.addressRequired', 'Please input first name!')
+                                            }]}
                                         >
                                             <Input />
                                         </Form.Item>
@@ -370,6 +394,10 @@ export default function Admin_User_Edit() {
                                         <Form.Item
                                             name="zipCode"
                                             label={t('admin.users.form.fields.zipCode', 'Zip Code')}
+                                            rules={[{
+                                                required: true,
+                                                message: t('admin.users.form.errors.zipcodeRequired', 'Please input first name!')
+                                            }]}
                                         >
                                             <Input />
                                         </Form.Item>

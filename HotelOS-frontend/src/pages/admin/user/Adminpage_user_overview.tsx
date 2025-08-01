@@ -1,21 +1,23 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { User } from "../../../interfaces/User";
+import { User, UserType } from "../../../interfaces/User";
 import { useLoading } from "../../../contexts/LoaderContext";
 import { useTranslation } from "react-i18next";
+import { useUser } from "../../../contexts/UserContext";
 
 export default function Admin_User_overview() {
     const { id } = useParams<{ id: string }>();
-    console.log(id);
+    const { hotelId } = useParams<{ hotelId: string }>();
+    const location = useLocation();
     const navigate = useNavigate();
     const [user, setUser] = useState<User | null>(null);
     const { showLoader, hideLoader } = useLoading();
     const { t } = useTranslation();
+    const { user: currentUser } = useUser();
 
     useEffect(() => {
         const fetchUser = async () => {
             showLoader();
-            console.log(`Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`);
             if (id) {
                 try {
                     const res = await fetch(`http://localhost:8080/api/users/${id}`, {
@@ -32,7 +34,6 @@ export default function Admin_User_overview() {
 
                     const data = await res.json();
                     setUser(data);
-                    console.log(data);
                 } catch (error) {
                     console.error("Error fetching user:", error);
                 } finally {
@@ -44,6 +45,20 @@ export default function Admin_User_overview() {
         };
         fetchUser();
     }, [id]);
+
+    const getEditUrl = () => {
+        const path = location.pathname;
+
+        if (path.includes('/admin/users/')) {
+            return `/admin/users/${id}/edit`;
+        } else if (path.includes('/manager/hotel/')) {
+            return `/manager/hotel/${hotelId}/staff/${id}/edit`;
+        } else {
+            return currentUser?.userType === UserType.ADMIN
+                ? `/admin/users/${id}/edit`
+                : `/manager/hotel/${user?.hotel?.id}/staff/${id}/edit`;
+        }
+    };
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
@@ -113,7 +128,7 @@ export default function Admin_User_overview() {
                             </p>
 
                             <button
-                                onClick={() => navigate(`/admin/users/${id}/edit`)}
+                                onClick={() => navigate(getEditUrl())}
                                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                             >
                                 {t('admin.users.actions.edit', 'Edit User')}

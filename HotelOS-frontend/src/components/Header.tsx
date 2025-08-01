@@ -170,8 +170,8 @@ export default function Header({
             case UserType.STAFF:
                 return (
                     <li className="py-4 border-b border-gray-300">
-                        <button onClick={() => navigateAndCloseMenus(`/hotels/${user.hotel?.id}/rooms`)} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
-                            {t("hotel.roomOccupancy", "Room Occupancy")}
+                        <button onClick={() => navigateAndCloseMenus(`/staff/${user.hotel?.id}/reservations`)} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
+                            {t("hotel.reservations", "Reservations")}
                         </button>
                     </li>
                 );

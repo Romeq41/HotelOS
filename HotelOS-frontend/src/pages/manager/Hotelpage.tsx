@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Hotel } from "../interfaces/Hotel";
-import { useLoading } from "../contexts/LoaderContext";
+import { Hotel } from "../../interfaces/Hotel";
+import { useLoading } from "../../contexts/LoaderContext";
 import { useTranslation } from "react-i18next";
 
 interface HotelStatisticsDto {
@@ -49,8 +49,6 @@ export default function HotelPage() {
                 });
                 const data = await res.json();
 
-                console.log("Hotel statistics data:", data);
-
                 if (!data) {
                     console.error("Invalid data format:", data);
                     return;
@@ -75,7 +73,6 @@ export default function HotelPage() {
                     }
                 });
                 const data = await res.json();
-                console.log("Hotel data:", data);
                 setHotel(data);
             } catch (error) {
                 console.error("Failed to fetch hotel:", error);
@@ -155,16 +152,29 @@ export default function HotelPage() {
                                     </p>
                                     <div className="mt-3">
                                         <button
-                                            onClick={() => navigate(`/manager/hotel/${hotel.id}/edit`)}
-                                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2"
+                                            onClick={() => navigate("/manager/hotel/" + hotel.id + "/edit")}
+                                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-2"
                                         >
-                                            {t('admin.hotels.actions.edit', 'Edit Hotel')}
+                                            {t("admin.hotels.editHotel", "Edit Hotel")}
+                                        </button>
+
+                                        <button
+                                            onClick={() => navigate("/manager/hotel/" + hotel.id + "/rooms")}
+                                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-2"
+                                        >
+                                            {t("admin.hotels.seeRooms", "See Rooms")}
                                         </button>
                                         <button
-                                            onClick={() => navigate(`/manager/hotel/${hotel.id}/rooms`)}
-                                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                            onClick={() => navigate("/manager/hotel/" + hotel.id + "/reservations")}
+                                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-2"
                                         >
-                                            {t('admin.hotels.actions.seeRooms', 'See Rooms')}
+                                            {t("admin.hotels.seeReservations", "See Reservations")}
+                                        </button>
+                                        <button
+                                            onClick={() => navigate("/manager/hotel/" + hotel.id + "/staff")}
+                                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-2"
+                                        >
+                                            {t("admin.hotels.seeEmployees", "See Employees")}
                                         </button>
                                     </div>
                                 </div>

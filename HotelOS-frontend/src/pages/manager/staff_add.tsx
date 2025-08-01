@@ -1,18 +1,27 @@
 import { useState } from 'react';
 import { Form, Input, Button, Card, message, Alert } from 'antd';
-import { useLoading } from '../contexts/LoaderContext';
+import { useLoading } from '../../contexts/LoaderContext';
 import { useTranslation } from 'react-i18next';
 import { CheckCircleOutlined } from '@ant-design/icons';
+import { useNavigate, useParams } from 'react-router-dom';
 
-export default function AddUser() {
+export default function AddStaff() {
+    const { hotelId } = useParams<{ hotelId: string }>();
     const { showLoader, hideLoader } = useLoading();
     const { t } = useTranslation();
+    const navigate = useNavigate();
 
     const [form] = Form.useForm();
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
     const handleSubmit = async (values: any) => {
         showLoader();
+
+        const requestData = {
+            hotelId: hotelId,
+            ...values
+        };
+
         try {
             const response = await fetch('http://localhost:8080/api/auth/register', {
                 method: 'POST',
@@ -20,7 +29,7 @@ export default function AddUser() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
                 },
-                body: JSON.stringify(values),
+                body: JSON.stringify(requestData),
             });
 
             if (!response.ok) {
@@ -40,6 +49,7 @@ export default function AddUser() {
 
             setTimeout(() => {
                 setSubmitStatus('idle');
+                navigate(`/manager/hotel/${hotelId}/staff`);
             }, 2000);
 
         } catch (error) {

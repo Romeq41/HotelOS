@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useUser } from '../contexts/UserContext';
-import { UserType } from '../interfaces/User';
 import { RoomStatus } from '../interfaces/Room';
 import { useLoading } from '../contexts/LoaderContext';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +14,8 @@ import {
     Col,
     Card,
     message,
-    Space
+    Space,
+    Alert
 } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
@@ -35,17 +34,13 @@ export default function AddRoom() {
     const { hotelId } = useParams();
     const navigate = useNavigate();
     const [form] = Form.useForm();
-    const { isAuth, user } = useUser();
     const { showLoader, hideLoader } = useLoading();
     const { t } = useTranslation();
     const [fileList, setFileList] = useState<UploadFile[]>([]);
     const [loading, setLoading] = useState(false);
+    const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+    const [errorMessage, setErrorMessage] = useState('');
     const { Option } = Select;
-
-    if (!isAuth || (user?.userType === UserType.STAFF || user?.userType === UserType.GUEST)) {
-        console.log('Unauthorized access. Redirecting to login page...');
-        // navigate('/login');
-    }
 
     const uploadProps: UploadProps = {
         onRemove: () => {
@@ -75,6 +70,8 @@ export default function AddRoom() {
     const onFinish = async (values: any) => {
         setLoading(true);
         showLoader();
+        setSubmitStatus('idle');
+        setErrorMessage('');
 
         const roomData: RoomDTO = {
             hotel: { id: hotelId || '' },
@@ -96,12 +93,41 @@ export default function AddRoom() {
                 body: JSON.stringify(roomData),
             });
 
-            if (!response.ok) {
-                throw new Error('Failed to create room');
+            const responseText = await response.text();
+            let data;
+
+            try {
+                data = responseText ? JSON.parse(responseText) : {};
+            } catch (parseError) {
+                console.error("Failed to parse response:", parseError);
             }
 
-            const data = await response.json();
-            console.log('Room added:', data);
+            if (!response.ok) {
+                if (response.status === 400 && data) {
+                    if (typeof data === 'object' && Object.keys(data).length > 0) {
+                        const errorMessages = [];
+                        for (const [field, errMsg] of Object.entries(data)) {
+                            errorMessages.push(`${field}: ${errMsg}`);
+                        }
+                        setErrorMessage(errorMessages.join('. '));
+                        setSubmitStatus('error');
+                        throw new Error('Validation failed. Please check your inputs.');
+                    }
+
+                    if (data.message) {
+                        setErrorMessage(data.message);
+                        setSubmitStatus('error');
+                        throw new Error(data.message);
+                    }
+                }
+
+                const errorMsg = data?.message || `Failed to create room (${response.status}). Please try again.`;
+                setErrorMessage(errorMsg);
+                setSubmitStatus('error');
+                throw new Error(errorMsg);
+            }
+
+            setSubmitStatus('success');
 
             if (fileList.length > 0) {
                 const imageFormData = new FormData();
@@ -126,14 +152,16 @@ export default function AddRoom() {
             form.resetFields();
             setFileList([]);
 
-            // Navigate to rooms list after successful creation
             setTimeout(() => {
                 navigate(`/admin/hotels/${hotelId}/rooms`);
             }, 1500);
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error submitting form:', error);
-            message.error(t('admin.rooms.add.error', 'Failed to create room'));
+            if (submitStatus !== 'error') {
+                setSubmitStatus('error');
+                setErrorMessage(error.message || t('admin.rooms.add.error', 'Failed to create room'));
+            }
         } finally {
             setLoading(false);
             hideLoader();
@@ -148,6 +176,29 @@ export default function AddRoom() {
                     variant="outlined"
                     style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}
                 >
+                    {submitStatus === 'success' && (
+                        <Alert
+                            message={t('admin.rooms.successAlert', 'Success')}
+                            description={t('admin.rooms.successDescription', 'The room has been successfully added.')}
+                            type="success"
+                            showIcon
+                            className="mb-6"
+                            closable
+                            onClose={() => setSubmitStatus('idle')}
+                        />
+                    )}
+
+                    {submitStatus === 'error' && (
+                        <Alert
+                            message={t('admin.rooms.errorAlert', 'Error')}
+                            description={errorMessage || t('admin.rooms.errorDescription', 'There was a problem adding the room. Please try again.')}
+                            type="error"
+                            showIcon
+                            className="mb-6"
+                            closable
+                            onClose={() => setSubmitStatus('idle')}
+                        />
+                    )}
                     <Form
                         form={form}
                         layout="vertical"
@@ -206,11 +257,11 @@ export default function AddRoom() {
                                     }]}
                                 >
                                     <InputNumber
+                                        prefix="$"
                                         style={{ width: '100%' }}
-                                        min={0}
-                                        step={0.01}
-                                        precision={2}
-                                        formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                        min={1}
+                                        step={1}
+                                        precision={0}
                                     />
                                 </Form.Item>
                             </Col>

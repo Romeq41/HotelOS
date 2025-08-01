@@ -3,12 +3,14 @@ import { UserProvider } from "./contexts/UserContext";
 import { LoadingProvider } from "./contexts/LoaderContext";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import ProtectedRoute from "./ProtectedRouteProps";
+import { UserType } from "./interfaces/User";
 
 // Page imports
 import Homepage from "./pages/Homepage";
 import Userpage from "./pages/Userpage";
 import Login from "./pages/Login";
-import HotelPage from "./pages/Hotelpage";
+import HotelPage from "./pages/manager/Hotelpage";
 
 // Admin pages
 import Hotels from "./pages/admin/hotel/hotels";
@@ -28,6 +30,9 @@ import Admin_Hotel_Room_Reservation_Details from "./pages/admin/hotel/room_reser
 import Adminpage_hotel_room_reservation_details_edit from "./pages/admin/hotel/room_reservation_details_edit";
 import AddRoom from "./pages/AddRoom";
 import AddReservation from "./pages/AddReservation";
+import ManagerStaff from "./pages/manager/staff";
+import AddStaff from "./pages/manager/staff_add";
+import ResetPassword from "./pages/ResetPassword";
 
 const App = () => {
     return (
@@ -40,50 +45,86 @@ const App = () => {
                             {/* Public routes */}
                             <Route path="/" element={<Homepage />} />
                             <Route path="/login" element={<Login />} />
+                            <Route path="/reset-password" element={<ResetPassword />} />
                             <Route path="/hotels/:id/overview" element={<HotelPage />} />
-                            <Route path="/user" element={<Userpage />} />
 
-                            {/* Admin hotel routes */}
-                            <Route path="/admin/hotels" element={<Hotels />} />
-                            <Route path="/admin/hotels/add" element={<AddHotel />} />
-                            <Route path="/admin/hotels/:id" element={<Admin_Hotel_overview />} />
-                            <Route path="/admin/hotels/:id/edit" element={<Admin_Hotel_Edit />} />
+                            {/* User authenticated routes */}
+                            <Route
+                                element={<ProtectedRoute allowedRoles={[UserType.GUEST, UserType.STAFF, UserType.MANAGER, UserType.ADMIN]} />}
+                            >
+                                <Route path="/user" element={<Userpage />} />
+                            </Route>
 
-                            {/* Admin hotel rooms routes */}
-                            <Route path="/admin/hotels/:hotelId/rooms" element={<Admin_Hotel_Rooms />} />
-                            <Route path="/admin/hotels/:hotelId/rooms/add" element={<AddRoom />} />
-                            <Route path="/admin/hotels/:hotelId/rooms/:roomId" element={<Admin_Hotel_Room_details />} />
-                            <Route path="/admin/hotels/:hotelId/rooms/:roomId/edit" element={<Admin_Hotel_Room_Details_Edit />} />
+                            {/* Admin routes */}
+                            <Route
+                                element={<ProtectedRoute allowedRoles={[UserType.ADMIN]} />}
+                            >
+                                {/* Admin hotel routes */}
+                                <Route path="/admin/hotels" element={<Hotels />} />
+                                <Route path="/admin/hotels/add" element={<AddHotel />} />
+                                <Route path="/admin/hotels/:id" element={<Admin_Hotel_overview />} />
+                                <Route path="/admin/hotels/:id/edit" element={<Admin_Hotel_Edit />} />
 
-                            {/* Admin hotel users routes */}
-                            <Route path="/admin/hotels/:hotelId/users" element={<Admin_Hotel_Users />} />
+                                {/* Admin hotel rooms routes */}
+                                <Route path="/admin/hotels/:hotelId/rooms" element={<Admin_Hotel_Rooms />} />
+                                <Route path="/admin/hotels/:hotelId/rooms/add" element={<AddRoom />} />
+                                <Route path="/admin/hotels/:hotelId/rooms/:roomId" element={<Admin_Hotel_Room_details />} />
+                                <Route path="/admin/hotels/:hotelId/rooms/:roomId/edit" element={<Admin_Hotel_Room_Details_Edit />} />
 
-                            {/* Admin hotel reservations routes */}
-                            <Route path="/admin/hotels/:hotelId/reservations" element={<Admin_Hotel_Room_Reservations />} />
-                            <Route path="/admin/hotels/:hotelId/reservations/add" element={<AddReservation />} />
-                            <Route path="/admin/hotels/:hotelId/reservations/:reservationId" element={<Admin_Hotel_Room_Reservation_Details />} />
-                            <Route path="/admin/hotels/:hotelId/reservations/:reservationId/edit" element={<Adminpage_hotel_room_reservation_details_edit />} />
+                                {/* Admin hotel users routes */}
+                                <Route path="/admin/hotels/:hotelId/users" element={<Admin_Hotel_Users />} />
 
-                            {/* Admin user routes */}
-                            <Route path="/admin/users" element={<Users />} />
-                            <Route path="/admin/users/add" element={<AddUser />} />
-                            <Route path="/admin/users/:id" element={<Admin_user_overview />} />
-                            <Route path="/admin/users/:id/edit" element={<Admin_User_Edit />} />
+                                {/* Admin hotel reservations routes */}
+                                <Route path="/admin/hotels/:hotelId/reservations" element={<Admin_Hotel_Room_Reservations />} />
+                                <Route path="/admin/hotels/:hotelId/reservations/add" element={<AddReservation />} />
+                                <Route path="/admin/hotels/:hotelId/reservations/:reservationId" element={<Admin_Hotel_Room_Reservation_Details />} />
+                                <Route path="/admin/hotels/:hotelId/reservations/:reservationId/edit" element={<Adminpage_hotel_room_reservation_details_edit />} />
 
-                            {/* Manager */}
-                            {/* <Route path="/manager/hotel/:id/overview" element={<HotelPage />} />
-                            <Route path="/manager/hotel/:hotelId/rooms" element={<Admin_Hotel_Rooms />} />
-                            <Route path="/manager/hotel/:hotelId/rooms/:roomId" element={<Admin_Hotel_Room_details />} />
-                            <Route path="/manager/hotel/:hotelId/rooms/:roomId/edit" element={<Admin_Hotel_Room_Details_Edit />} />
-                            <Route path="/manager/hotel/:id/edit" element={<Admin_Hotel_Edit />} /> */}
+                                {/* Admin user routes */}
+                                <Route path="/admin/users" element={<Users />} />
+                                <Route path="/admin/users/add" element={<AddUser />} />
+                                <Route path="/admin/users/:id" element={<Admin_user_overview />} />
+                                <Route path="/admin/users/:id/edit" element={<Admin_User_Edit />} />
+                            </Route>
+
+                            {/* Manager routes */}
+                            <Route
+                                element={<ProtectedRoute allowedRoles={[UserType.MANAGER, UserType.ADMIN]} />}
+                            >
+                                <Route path="/manager/hotel/:id/overview" element={<HotelPage />} />
+                                <Route path="/manager/hotel/:hotelId/staff" element={<ManagerStaff />} />
+                                <Route path="/manager/hotel/:hotelId/staff/add" element={<AddStaff />} />
+                                <Route path="/manager/hotel/:hotelId/staff/:id" element={<Admin_user_overview />} />
+                                <Route path="/manager/hotel/:hotelId/staff/:id/edit" element={<Admin_User_Edit />} />
+                                <Route path="/manager/hotel/:hotelId/rooms" element={<Admin_Hotel_Rooms />} />
+                                <Route path="/manager/hotel/:hotelId/rooms/:roomId" element={<Admin_Hotel_Room_details />} />
+                                <Route path="/manager/hotel/:hotelId/rooms/:roomId/edit" element={<Admin_Hotel_Room_Details_Edit />} />
+                                <Route path="/manager/hotel/:hotelId/rooms/add" element={<AddRoom />} />
+                                <Route path="/manager/hotel/:hotelId/reservations" element={<Admin_Hotel_Room_Reservations />} />
+                                <Route path="/manager/hotel/:hotelId/reservations/add" element={<AddReservation />} />
+                                <Route path="/manager/hotel/:hotelId/reservations/:reservationId" element={<Admin_Hotel_Room_Reservation_Details />} />
+                                <Route path="/manager/hotel/:hotelId/reservations/:reservationId/edit" element={<Adminpage_hotel_room_reservation_details_edit />} />
+
+                                <Route path="/manager/hotel/:id/edit" element={<Admin_Hotel_Edit />} />
+                            </Route>
+
+                            {/* Staff routes  */}
+                            <Route
+                                element={<ProtectedRoute allowedRoles={[UserType.STAFF, UserType.MANAGER, UserType.ADMIN]} />}
+                            >
+                                <Route path="/staff/:hotelId/reservations" element={<Admin_Hotel_Room_Reservations />} />
+                                <Route path="/staff/:hotelId/reservations/:reservationId" element={<Admin_Hotel_Room_Reservation_Details />} />
+                                <Route path="/staff/:hotelId/reservations/:reservationId/edit" element={<Adminpage_hotel_room_reservation_details_edit />} />
+                                <Route path="/staff/:hotelId/reservations/add" element={<AddReservation />} />
+                            </Route>
+
+
 
                             {/* 404 route */}
                             <Route path="*" element={<h1>Not Found</h1>} />
-
                         </Routes>
                     </div>
                     <Footer />
-
                 </Router>
             </UserProvider>
         </LoadingProvider>

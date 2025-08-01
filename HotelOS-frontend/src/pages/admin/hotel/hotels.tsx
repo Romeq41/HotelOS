@@ -50,7 +50,6 @@ export default function Hotels() {
                 }
 
                 const data = await response.json();
-                console.log('Hotels data:', data);
 
                 if (data.content) {
                     const hotelsWithKeys = data.content.map((hotel: Hotel) => ({
@@ -198,7 +197,10 @@ export default function Hotels() {
                             </Button>
                         </div>
 
-                        <Button type="primary" href="/admin/hotels/add">
+                        <Button
+                            type="primary"
+                            onClick={() => navigate('/admin/hotels/add')}
+                        >
                             {t('admin.hotels.addHotel', 'Add Hotel')}
                         </Button>
                     </div>

@@ -13,7 +13,6 @@ export default function Admin_Hotel_overview() {
 
     useEffect(() => {
         const fetchHotel = async () => {
-            console.log(`Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`)
             showLoader();
             if (id) {
                 try {
@@ -30,7 +29,6 @@ export default function Admin_Hotel_overview() {
                     }
 
                     const data = await res.json();
-                    console.log(data);
                     setHotel(data);
                 } catch (error) {
                     console.error("Error fetching hotel:", error);

@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Table, Button, Input, Popconfirm } from 'antd';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Reservation } from '../../../interfaces/Reservation';
 import { Hotel } from '../../../interfaces/Hotel';
 import { useLoading } from '../../../contexts/LoaderContext';
 import { useTranslation } from 'react-i18next';
+import { UserType } from '../../../interfaces/User';
 
 export default function Admin_Hotel_Room_Reservations() {
     const { hotelId } = useParams<{ hotelId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
     const { t } = useTranslation();
 
     const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -20,6 +22,28 @@ export default function Admin_Hotel_Room_Reservations() {
 
     const { showLoader, hideLoader } = useLoading();
     const PAGE_SIZE = 10;
+
+    const getPermissionContext = () => {
+        if (location.pathname.includes('/admin/')) {
+            return UserType.ADMIN;
+        } else if (location.pathname.includes('/manager/')) {
+            return UserType.MANAGER;
+        } else if (location.pathname.includes('/staff/')) {
+            return UserType.STAFF;
+        }
+    };
+
+    const getBaseUrl = () => {
+        const permissionContext = getPermissionContext();
+        if (permissionContext === UserType.ADMIN) {
+            return `/admin/hotels/${hotelId}`;
+        } else if (permissionContext === UserType.MANAGER) {
+            return `/manager/hotel/${hotelId}`;
+        } else if (permissionContext === UserType.STAFF) {
+            return `/staff/${hotelId}`;
+        }
+        return '';
+    };
 
     useEffect(() => {
         const fetchHotelData = async () => {
@@ -53,7 +77,6 @@ export default function Admin_Hotel_Room_Reservations() {
         fetchHotelData();
     }, [hotelId]);
 
-    // Fetch reservations
     useEffect(() => {
         const fetchReservationsData = async () => {
             showLoader();
@@ -83,8 +106,6 @@ export default function Admin_Hotel_Room_Reservations() {
                 }
 
                 const data = await response.json();
-                console.log('Reservations data:', data);
-                // Handle either paginated or non-paginated API responses
                 if (data.content) {
                     const reservationsWithKeys = data.content.map((reservation: Reservation) => ({
                         ...reservation,
@@ -186,6 +207,16 @@ export default function Admin_Hotel_Room_Reservations() {
             title: t('admin.reservations.columns.status_text', 'Status'),
             dataIndex: 'status',
             key: 'status',
+            render: (status: string) => {
+                const statusMap: { [key: string]: string } = {
+                    CONFIRMED: t('admin.reservations.columns.status.confirmed', 'Confirmed'),
+                    PENDING: t('admin.reservations.columns.status.pending', 'Pending'),
+                    CHECKED_IN: t('admin.reservations.columns.status.checked_in', 'Checked In'),
+                    CHECKED_OUT: t('admin.reservations.columns.status.checked_out', 'Checked Out'),
+                    CANCELLED: t('admin.reservations.columns.status.cancelled', 'Cancelled'),
+                };
+                return statusMap[status] || status;
+            },
         },
         {
             title: t('admin.reservations.columns.total', 'Total'),
@@ -242,7 +273,7 @@ export default function Admin_Hotel_Room_Reservations() {
                         </div>
                         <Button
                             type="primary"
-                            onClick={() => navigate(`/admin/hotels/${hotelId}/reservations/add`)}
+                            onClick={() => navigate(`${getBaseUrl()}/reservations/add`)}
                         >
                             {t('admin.reservations.addReservation', 'Add Reservation')}
                         </Button>
@@ -258,7 +289,7 @@ export default function Admin_Hotel_Room_Reservations() {
                             onChange: (page) => setPage(page - 1),
                         }}
                         onRow={(record) => ({
-                            onClick: () => navigate(`/admin/hotels/${hotelId}/reservations/${record.reservationId}`),
+                            onClick: () => navigate(`${getBaseUrl()}/reservations/${record.reservationId}`),
                         })}
                         rowClassName="cursor-pointer hover:bg-gray-100 hover:shadow-md transition-all"
                     />
