@@ -1,18 +1,18 @@
 package com.hotelos.hotelosbackend.controllers;
 
-import com.hotelos.hotelosbackend.dto.HotelDto;
 import com.hotelos.hotelosbackend.dto.ReservationDto;
 import com.hotelos.hotelosbackend.mapper.ReservationMapper;
 import com.hotelos.hotelosbackend.models.Reservation;
 import com.hotelos.hotelosbackend.services.ReservationServices;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/reservations")
@@ -25,58 +25,47 @@ public class ReservationController {
     private ReservationMapper reservationMapper;
 
     @PostMapping
-    public ResponseEntity<Reservation> addReservation(@RequestBody Reservation reservation) {
-
-        System.out.println(reservation);
+    public ResponseEntity<ReservationDto> addReservation(@Valid @RequestBody ReservationDto reservationDto) {
+        Reservation reservation = reservationMapper.toEntity(reservationDto);
         Reservation savedReservation = reservationServices.saveReservation(reservation);
-        return ResponseEntity.ok(savedReservation);
+        return ResponseEntity.ok(reservationMapper.toDto(savedReservation));
     }
 
-//    @GetMapping
-//    public ResponseEntity<Page<ReservationDto>> getAllReservations(
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size,
-//
-//            @RequestParam(required = false) String reservationName,
-//            @RequestParam(required = false) Long roomNumber
-//    ) {
-//        Pageable pageable = PageRequest.of(page, size);
-//        Page<ReservationDto> reservations = reservationServices.getReservationsWithFilters(reservationName, roomNumber, pageable).map(reservationMapper::toDto);
-//        return ResponseEntity.ok(reservations);
-//    }
-
     @GetMapping("/{id}")
-    public ResponseEntity<Reservation> getReservationById(@PathVariable Long id) {
+    public ResponseEntity<ReservationDto> getReservationById(@PathVariable @Positive(message = "ID must be a positive number") Long id) {
         return reservationServices.getReservationById(id)
-                .map(ResponseEntity::ok)
+                .map(reservation -> ResponseEntity.ok(reservationMapper.toDto(reservation)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Reservation> updateReservation(@PathVariable Long id, @RequestBody Reservation reservation) {
+    public ResponseEntity<ReservationDto> updateReservation(
+            @PathVariable @Positive(message = "ID must be a positive number") Long id,
+            @Valid @RequestBody ReservationDto reservationDto) {
         return reservationServices.getReservationById(id)
                 .map(existingReservation -> {
+                    Reservation reservation = reservationMapper.toEntity(reservationDto);
                     reservation.setReservationId(id);
                     Reservation updatedReservation = reservationServices.saveReservation(reservation);
-                    return ResponseEntity.ok(updatedReservation);
+                    return ResponseEntity.ok(reservationMapper.toDto(updatedReservation));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/hotel/{hotelId}")
     public ResponseEntity<Page<ReservationDto>> getAllReservationsByHotelId(
-        @PathVariable Long hotelId,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size,
-        @RequestParam(required = false) String reservationName
-    ) {
+            @PathVariable @Positive Long hotelId,
+            @RequestParam(defaultValue = "0") @PositiveOrZero int page,
+            @RequestParam(defaultValue = "10") @Positive int size,
+            @RequestParam(required = false) String reservationName) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ReservationDto> reservations = reservationServices.getReservationsWithFilters(hotelId, reservationName, pageable).map(reservationMapper::toDto);
+        Page<ReservationDto> reservations = reservationServices.getReservationsWithFilters(hotelId, reservationName, pageable)
+                .map(reservationMapper::toDto);
         return ResponseEntity.ok(reservations);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReservation(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteReservation(@PathVariable @Positive(message = "ID must be a positive number") Long id) {
         reservationServices.deleteReservation(id);
         return ResponseEntity.noContent().build();
     }

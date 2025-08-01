@@ -18,5 +18,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     List<Room> findByHotelId(Long hotelId);
     Page<Room> findByHotelId(Long hotelId, Pageable pageable);
 
+    boolean existsByRoomNumberAndHotel_Id(Long roomNumber, Long hotelId);
     Long countByHotelAndStatusEquals(Hotel hotel, RoomStatus status);
 }

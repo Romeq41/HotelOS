@@ -30,6 +30,10 @@ public class IRoomServices implements RoomServices {
 
     @Override
     public Room saveRoom(Room room) {
+        boolean exists = roomRepository.existsByRoomNumberAndHotel_Id(room.getRoomNumber(), room.getHotel().getId());
+        if (exists) {
+            throw new IllegalArgumentException("Room number must be unique within the same hotel.");
+        }
         return roomRepository.save(room);
     }
 

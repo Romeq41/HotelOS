@@ -12,6 +12,8 @@ import com.hotelos.hotelosbackend.services.HotelServices;
 import com.hotelos.hotelosbackend.services.RoomServices;
 import com.hotelos.hotelosbackend.services.UserServices;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,9 +50,9 @@ public class HotelController {
     private RoomMapper roomMapper;
 
     @PostMapping
-    public ResponseEntity<Hotel> addHotel(@RequestBody Hotel hotel) {
-        Hotel savedHotel = hotelServices.saveHotel(hotel);
-        return ResponseEntity.ok(savedHotel);
+    public ResponseEntity<HotelDto> addHotel(@Valid @RequestBody HotelDto hotelDto) {
+        Hotel savedHotel = hotelServices.saveHotel(hotelMapper.toEntity(hotelDto));
+        return ResponseEntity.ok(hotelMapper.toDto(savedHotel));
     }
 
     @PostMapping("/{id}/image_upload")
@@ -99,7 +101,7 @@ public class HotelController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<HotelDto>> getAllHotels(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) String name) {
+    public ResponseEntity<Page<HotelDto>> getAllHotels(@RequestParam(defaultValue = "0") @PositiveOrZero int page, @RequestParam(defaultValue = "10") @PositiveOrZero int size, @RequestParam(required = false) String name) {
         Pageable pageable = PageRequest.of(page, size);
         Page<HotelDto> hotels = hotelServices.getHotelsWithFilters(name, pageable).map(hotelMapper::toDto);
         return ResponseEntity.ok(hotels);
@@ -138,17 +140,17 @@ public class HotelController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Hotel> updateHotelById(@RequestBody Hotel hotelDetails) {
-        return hotelServices.getHotelById(hotelDetails.getId()).map(hotel -> {
-            hotel.setName(hotelDetails.getName());
-            hotel.setAddress(hotelDetails.getAddress());
-            hotel.setCity(hotelDetails.getCity());
-            hotel.setState(hotelDetails.getState());
-            hotel.setCountry(hotelDetails.getCountry());
-            hotel.setZipCode(hotelDetails.getZipCode());
+    public ResponseEntity<HotelDto> updateHotelById(@PathVariable Long id, @Valid @RequestBody HotelDto hotelDto) {
+        return hotelServices.getHotelById(id).map(hotel -> {
+            hotel.setName(hotelDto.getName());
+            hotel.setAddress(hotelDto.getAddress());
+            hotel.setCity(hotelDto.getCity());
+            hotel.setState(hotelDto.getState());
+            hotel.setCountry(hotelDto.getCountry());
+            hotel.setZipCode(hotelDto.getZipCode());
 
             Hotel updatedHotel = hotelServices.saveHotel(hotel);
-            return ResponseEntity.ok(updatedHotel);
+            return ResponseEntity.ok(hotelMapper.toDto(updatedHotel));
         }).orElse(ResponseEntity.notFound().build());
     }
 
@@ -160,9 +162,7 @@ public class HotelController {
                 userServices.updateUser(user);
             });
 
-            roomServices.getRoomsByHotel(id).forEach(room -> {
-                roomServices.deleteRoom(room.getRoomId());
-            });
+            roomServices.getRoomsByHotel(id).forEach(room -> roomServices.deleteRoom(room.getRoomId()));
             hotelServices.deleteHotel(id);
         });
         return ResponseEntity.noContent().build();
