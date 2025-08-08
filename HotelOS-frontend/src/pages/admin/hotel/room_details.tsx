@@ -84,10 +84,10 @@ export default function Admin_Hotel_Room_details() {
                                 <strong>{t('admin.hotels.rooms.details.description', 'Description')}:</strong> {room.description || t('admin.hotels.unknown', 'Unknown')}
                             </p>
                             <p className="text-gray-700 mb-2">
-                                <strong>{t('admin.hotels.rooms.details.type', 'Type')}:</strong> {room.type || t('admin.hotels.unknown', 'Unknown')}
+                                <strong>{t('admin.hotels.rooms.details.type', 'Type')}:</strong> {room.roomType || t('admin.hotels.unknown', 'Unknown')}
                             </p>
                             <p className="text-gray-700 mb-2">
-                                <strong>{t('admin.hotels.rooms.details.price', 'Price')}:</strong> ${room.rate || t('admin.hotels.unknown', 'Unknown')}
+                                <strong>{t('admin.hotels.rooms.details.price', 'Price')}:</strong> ${room.price || t('admin.hotels.unknown', 'Unknown')}
                             </p>
                             <p className="text-gray-700 mb-2">
                                 <strong>{t('admin.hotels.rooms.details.capacity', 'Capacity')}:</strong> {room.capacity || t('admin.hotels.unknown', 'Unknown')}

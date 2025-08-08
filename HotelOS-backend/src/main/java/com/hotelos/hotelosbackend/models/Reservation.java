@@ -8,7 +8,10 @@ import lombok.With;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Data
 @With
@@ -50,6 +53,46 @@ public class Reservation {
     @Basic
     @Column(name = "total_amount")
     private BigDecimal totalAmount;
+
+    @Column(name = "num_adults")
+    private Integer numberOfAdults;
+
+    @Column(name = "num_children")
+    private Integer numberOfChildren;
+
+    @Column(name = "special_requests", length = 500)
+    private String specialRequests;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    // In your Reservation class
+    @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Guest> guests = new HashSet<>();
+
+    // Keep primary guest information for quick access
+    @Column(name = "primary_guest_name")
+    private String primaryGuestName;
+
+    @Column(name = "primary_guest_email")
+    private String primaryGuestEmail;
+
+    @Column(name = "primary_guest_phone")
+    private String primaryGuestPhone;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
     @Override
     public boolean equals(Object o) {

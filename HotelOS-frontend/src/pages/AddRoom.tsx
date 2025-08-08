@@ -25,7 +25,7 @@ interface RoomDTO {
     roomNumber: number;
     type: string;
     capacity: number;
-    rate: number;
+    price: number;
     status: RoomStatus;
     description?: string;
 }
@@ -78,7 +78,7 @@ export default function AddRoom() {
             roomNumber: values.roomNumber,
             type: values.type,
             capacity: values.capacity,
-            rate: values.rate,
+            price: values.price,
             status: values.status,
             description: values.description
         };
@@ -249,11 +249,11 @@ export default function AddRoom() {
 
                             <Col span={12}>
                                 <Form.Item
-                                    name="rate"
-                                    label={t('admin.hotels.rooms.fields.rate', 'Rate')}
+                                    name="price"
+                                    label={t('admin.hotels.rooms.fields.price', 'Price')}
                                     rules={[{
                                         required: true,
-                                        message: t('admin.hotels.rooms.validation.rateRequired', 'Please input rate!')
+                                        message: t('admin.hotels.rooms.validation.rateRequired', 'Please input price!')
                                     }]}
                                 >
                                     <InputNumber

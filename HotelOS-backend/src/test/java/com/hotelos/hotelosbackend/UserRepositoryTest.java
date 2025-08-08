@@ -1,5 +1,6 @@
 package com.hotelos.hotelosbackend;
 
+import com.hotelos.hotelosbackend.models.ContactInformation;
 import com.hotelos.hotelosbackend.models.User;
 import com.hotelos.hotelosbackend.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,12 @@ class UserRepositoryTest {
         guest.setFirstName("John");
         guest.setLastName("Doe");
         guest.setEmail("john.doe@example.com");
-        guest.setPhone("1234567890");
+
+        ContactInformation contactInformation = new ContactInformation();
+
+        contactInformation.setPhoneNumber("123-456-7890");
+
+        guest.setContactInformation(contactInformation);
 
         User savedGuest = userRepository.save(guest);
         Optional<User> foundGuest = userRepository.findById(savedGuest.getUserId());

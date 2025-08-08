@@ -3,6 +3,7 @@ package com.hotelos.hotelosbackend.implementation;
 import com.hotelos.hotelosbackend.dto.RoomDto;
 import com.hotelos.hotelosbackend.mapper.RoomMapper;
 import com.hotelos.hotelosbackend.models.Room;
+import com.hotelos.hotelosbackend.models.RoomType;
 import com.hotelos.hotelosbackend.repository.RoomRepository;
 import com.hotelos.hotelosbackend.services.FileStorageService;
 import com.hotelos.hotelosbackend.services.RoomServices;
@@ -13,8 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.util.*;
 
 @Service
 public class IRoomServices implements RoomServices {
@@ -82,5 +83,17 @@ public class IRoomServices implements RoomServices {
     @Override
     public void deleteRoom(Long id) {
         roomRepository.deleteById(id);
+    }
+
+    @Override
+    public RoomDto getCheapestRoomByHotelId(Long id) {
+        List<Room> rooms = roomRepository.findByHotelId(id);
+        List<RoomDto> roomDtos = rooms.stream()
+                .map(room -> roomMapper.toDto(room, null, null))
+                .toList();
+
+        return roomDtos.stream()
+                .min(Comparator.comparing(RoomDto::getPrice))
+                .orElse(null);
     }
 }

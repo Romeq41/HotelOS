@@ -175,10 +175,10 @@ export default function Admin_Hotel_Rooms() {
             key: 'type',
         },
         {
-            title: t('admin.hotels.rooms.columns.rate', 'Rate'),
-            dataIndex: 'rate',
-            key: 'rate',
-            render: (rate: number) => `$${rate.toFixed(2)}`,
+            title: t('admin.hotels.rooms.columns.price', 'Price'),
+            dataIndex: 'price',
+            key: 'price',
+            render: (price: number) => `$${price.toFixed(2)}`,
         },
         {
             title: t('admin.hotels.rooms.columns.status', 'Status'),

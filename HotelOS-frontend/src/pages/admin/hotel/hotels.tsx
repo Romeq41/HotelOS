@@ -90,7 +90,7 @@ export default function Hotels() {
         }
     };
 
-    const handleDelete = async (hotelID: string) => {
+    const handleDelete = async (hotelID: number) => {
         showLoader();
         try {
             const response = await fetch(`http://localhost:8080/api/hotels/${hotelID}`, {

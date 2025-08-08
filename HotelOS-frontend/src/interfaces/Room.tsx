@@ -7,13 +7,23 @@ export enum RoomStatus {
     MAINTENANCE = "MAINTENANCE",
 }
 
+export enum RoomType {
+    STANDARD = "STANDARD",
+    FAMILY = "FAMILY",
+    SUITE = "SUITE",
+    PRESIDENTIAL_SUITE = "PRESIDENTIAL_SUITE",
+    FAMILY_ROOM = "FAMILY_ROOM"
+};
+
+
+
 export interface Room {
     roomId: string;
     hotel: Hotel | null;
     roomNumber: string;
-    type: string;
+    roomType: RoomType;
     capacity: number | null;
-    rate: number;
+    price: number;
     status: string;
     description: string;
     imagePath: string | null;

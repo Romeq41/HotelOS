@@ -42,11 +42,13 @@ public class ReservationController {
     public ResponseEntity<ReservationDto> updateReservation(
             @PathVariable @Positive(message = "ID must be a positive number") Long id,
             @Valid @RequestBody ReservationDto reservationDto) {
+
+        System.out.println("Updating reservation with ID: " + id);
         return reservationServices.getReservationById(id)
                 .map(existingReservation -> {
                     Reservation reservation = reservationMapper.toEntity(reservationDto);
                     reservation.setReservationId(id);
-                    Reservation updatedReservation = reservationServices.saveReservation(reservation);
+                    Reservation updatedReservation = reservationServices.updateReservation(reservation);
                     return ResponseEntity.ok(reservationMapper.toDto(updatedReservation));
                 })
                 .orElse(ResponseEntity.notFound().build());

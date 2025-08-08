@@ -26,6 +26,67 @@
         "delete": "Usuń",
         "cancel": "Anuluj"
     },
+    
+    "roomTypes": {
+        "single_room": "Pokój jednoosobowy",
+        "double_room": "Pokój dwuosobowy",
+        "twin_room": "Pokój z dwoma łóżkami",
+        "deluxe_room": "Pokój deluxe",
+        "suite": "Apartament",
+        "executive_suite": "Apartament biznesowy",
+        "presidential_suite": "Apartament prezydencki",
+        "family_room": "Pokój rodzinny",
+        "connecting_room": "Pokój połączony",
+        "accessible_room": "Pokój dostosowany dla niepełnosprawnych",
+        "standard_room": "Pokój standardowy",
+        "superior_room": "Pokój superior",
+        "studio": "Studio"
+    },
+    
+    "roomStatus": {
+        "available": "Dostępny",
+        "occupied": "Zajęty",
+        "reserved": "Zarezerwowany",
+        "maintenance": "W trakcie konserwacji",
+        "cleaning": "Sprzątanie",
+        "out_of_service": "Wyłączony z użytku",
+        "checking_out": "Wymeldowanie"
+    },
+    
+    "amenities": {
+        "wifi": "Darmowe Wi-Fi",
+        "parking": "Parking",
+        "breakfast": "Śniadanie w cenie",
+        "pool": "Basen",
+        "fitness_center": "Centrum fitness",
+        "spa": "Spa",
+        "restaurant": "Restauracja",
+        "bar": "Bar",
+        "room_service": "Obsługa pokoju",
+        "air_conditioning": "Klimatyzacja",
+        "concierge": "Concierge",
+        "pets_allowed": "Zwierzęta dozwolone",
+        "conference_room": "Sala konferencyjna",
+        "laundry": "Usługi pralnicze",
+        "shuttle": "Transfer lotniskowy",
+        "business_center": "Centrum biznesowe",
+        "childcare": "Opieka nad dziećmi",
+        "hot_tub": "Jacuzzi",
+        "sauna": "Sauna",
+        "free_toiletries": "Darmowe przybory toaletowe",
+        "coffee_maker": "Ekspres do kawy",
+        "minibar": "Minibar",
+        "flat_screen_tv": "Telewizor z płaskim ekranem",
+        "bathtub": "Wanna",
+        "balcony": "Balkon",
+        "non_smoking": "Pokoje dla niepalących",
+        "beach_access": "Dostęp do plaży",
+        "accessible": "Dostosowany dla osób niepełnosprawnych",
+        "safe": "Sejf w pokoju",
+        "free_parking": "Darmowy parking",
+        "valet_parking": "Obsługa parkingowa",
+        "electric_vehicle_charging": "Ładowanie pojazdów elektrycznych"
+    },
   
     "header" : {
         "language": "Język",
@@ -34,6 +95,94 @@
         "users": "Użytkownicy",
         "profile": "Mój Profil",
         "logout": "Wyloguj"
+    },
+    "explore": {
+        "title": "Eksploruj Nasze Hotele",
+        "subtitle": "Odkryj naszą starannie wybraną kolekcję luksusowych hoteli i kurortów na całym świecie.",
+        "search": {
+            "hotels": "Szukaj hoteli",
+            "country": "Kraj",
+            "city": "Miasto",
+            "button": "Szukaj"
+        },
+        "sort": {
+            "label": "Sortuj według",
+            "rating": "Najwyżej oceniane",
+            "priceLow": "Cena: Od najniższej",
+            "priceHigh": "Cena: Od najwyższej"
+        },
+        "results": {
+            "found": "{{count}} Hotele Znalezione",
+            "noHotels": "Brak hoteli spełniających Twoje kryteria."
+        },
+        "price": {
+            "from": "Cena od ${{price}} / noc",
+            "contact": "Skontaktuj się w sprawie cen"
+        },
+        "amenities": {
+            "more": "+{{count}} więcej"
+        },
+        "card": {
+            "viewDetails": "Zobacz Szczegóły"
+        }
+    },
+    "hotelDetails": {
+        "title": "Szczegóły Hotelu",
+        "tabs": {
+            "overview": "Przegląd",
+            "amenities": "Udogodnienia",
+            "rooms": "Pokoje"
+        },
+        "overview": "Przegląd",
+        "amenities": "Udogodnienia",
+        "rooms": "Dostępne Pokoje",
+        "reservation": "Dokonaj Rezerwacji",
+        "location": "Lokalizacja",
+        "address": "Adres",
+        "selectDates": "Wybierz Daty",
+        "checkIn": "Data Zameldowania",
+        "checkOut": "Data Wymeldowania",
+        "guests": "Liczba Gości",
+        "guest": "gość",
+        "guestsPlural": "gości",
+        "selectRoom": "Wybierz Pokój",
+        "roomType": "Typ Pokoju",
+        "capacity": "Pojemność",
+        "perNight": "za noc",
+        "bookNow": "Zarezerwuj Teraz",
+        "noRoomsAvailable": "Brak dostępnych pokoi w wybranych datach",
+        "selectValidDates": "Proszę wybrać prawidłowe daty zameldowania i wymeldowania",
+        "backToExplore": "Powrót do Eksploracji",
+        "contact": "Skontaktuj się z Hotelem",
+        "aboutHotel": "O {{hotelName}}",
+        "welcomeMessage": "Witamy w {{hotelName}}, doskonałym obiekcie położonym w samym centrum {{city}}. Nasz hotel oferuje luksusowe pokoje, wyjątkową obsługę i dogodną lokalizację.",
+        "roomAvailability": "Dostępność Pokoi",
+        "available": "dostępny",
+        "bestValueRoom": "Najlepsza Oferta",
+        "lowestPrice": "NAJNIŻSZA CENA",
+        "bestValue": "NAJLEPSZA WARTOŚĆ",
+        "availableRoomTypes": "Dostępne Typy Pokoi",
+        "featuredAmenities": "Główne Udogodnienia",
+        "roomTypeAvailability": "Dostępność Typów Pokoi",
+        "viewDetails": "Zobacz Szczegóły",
+        "selectRoomType": "Wybierz {{roomType}}",
+        "roomDetails": "Szczegóły Pokoju",
+        "roomNumber": "Numer Pokoju",
+        "roomLabel": "Pokój",
+        "pricePerNight": "Cena za Noc",
+        "status": "Status",
+        "hotel": "Hotel",
+        "availabilityForRoomType": "Dostępność dla tego typu pokoju",
+        "multipleRoomsAvailable": "{{count}} pokoi typu \"{{roomType}}\" jest obecnie dostępnych.",
+        "oneRoomLeft": "Pozostał tylko {{count}} pokój typu \"{{roomType}}\"! Zarezerwuj teraz.",
+        "selectedRoom": "Wybrany Pokój",
+        "selectBestValueRoom": "Wybierz Pokój z Najlepszą Ofertą",
+        "hideContactInfo": "Ukryj Informacje Kontaktowe",
+        "showContactInfo": "Potrzebujesz Pomocy? Pokaż Informacje Kontaktowe",
+        "contactHelpText": "Potrzebujesz pomocy? Skontaktuj się bezpośrednio z hotelem, aby uzyskać pomoc przy rezerwacji lub specjalnych życzeniach.",
+        "phone": "Telefon",
+        "email": "Email",
+        "contactHotel": "Skontaktuj się z Hotelem"
     },
     "admin": {
         "reservations": {

@@ -1,5 +1,7 @@
 package com.hotelos.hotelosbackend;
 
+import com.hotelos.hotelosbackend.models.AddressInformation;
+import com.hotelos.hotelosbackend.models.ContactInformation;
 import com.hotelos.hotelosbackend.models.Hotel;
 import com.hotelos.hotelosbackend.repository.HotelRepository;
 import org.junit.jupiter.api.Test;
@@ -7,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,11 +25,25 @@ class HotelRepositoryTest {
     void testCreateAndFindHotel() {
         Hotel hotel = new Hotel();
         hotel.setName("Hotel Test");
-        hotel.setAddress("123 Test St");
-        hotel.setCity("Test City");
-        hotel.setState("Test State");
-        hotel.setZipCode("12345");
-        hotel.setCountry("Test Country");
+
+        hotel.setDescription("A test hotel for unit testing");
+        hotel.setImagePath("test_image.jpg");
+        hotel.setBasePrice(new BigDecimal("100.00"));
+
+        AddressInformation address = new AddressInformation();
+        address.setAddress("123 Test St");
+        address.setCity("Test City");
+        address.setState("Test State");
+        address.setZipCode("12345");
+        address.setCountry("Test Country");
+
+        hotel.setAddressInformation(address);
+
+        ContactInformation contactInformation = new ContactInformation();
+        contactInformation.setEmail("someemail@gmail.com");
+        contactInformation.setPhoneNumber("123-456-7890");
+
+        hotel.setContactInformation(contactInformation);
 
         Hotel savedHotel = hotelRepository.save(hotel);
         Optional<Hotel> foundHotel = hotelRepository.findById(savedHotel.getId());

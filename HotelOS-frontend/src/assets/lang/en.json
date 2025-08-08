@@ -12,6 +12,94 @@
         "back": "Back",
         "next": "Next"
     },
+    "explore": {
+        "title": "Explore Our Hotels",
+        "subtitle": "Discover our handpicked collection of luxury hotels and resorts around the world.",
+        "search": {
+            "hotels": "Search hotels",
+            "country": "Country",
+            "city": "City",
+            "button": "Search"
+        },
+        "sort": {
+            "label": "Sort By",
+            "rating": "Top Rated",
+            "priceLow": "Price: Low to High",
+            "priceHigh": "Price: High to Low"
+        },
+        "results": {
+            "found": "{{count}} Hotels Found",
+            "noHotels": "No hotels found matching your criteria."
+        },
+        "price": {
+            "from": "Begins at ${{price}} / night",
+            "contact": "Contact for pricing"
+        },
+        "amenities": {
+            "more": "+{{count}} more"
+        },
+        "card": {
+            "viewDetails": "View Details"
+        }
+    },
+    "hotelDetails": {
+        "title": "Hotel Details",
+        "tabs": {
+            "overview": "Overview",
+            "amenities": "Amenities",
+            "rooms": "Rooms"
+        },
+        "overview": "Overview",
+        "amenities": "Amenities",
+        "rooms": "Available Rooms",
+        "reservation": "Make a Reservation",
+        "location": "Location",
+        "address": "Address",
+        "selectDates": "Select Your Dates",
+        "checkIn": "Check-in Date",
+        "checkOut": "Check-out Date",
+        "guests": "Number of Guests",
+        "guest": "guest",
+        "guestsPlural": "guests",
+        "selectRoom": "Select Room",
+        "roomType": "Room Type",
+        "capacity": "Capacity",
+        "perNight": "per night",
+        "bookNow": "Book Now",
+        "noRoomsAvailable": "No rooms available for selected dates",
+        "selectValidDates": "Please select valid check-in and check-out dates",
+        "backToExplore": "Back to Explore",
+        "contact": "Contact Hotel",
+        "aboutHotel": "About {{hotelName}}",
+        "welcomeMessage": "Welcome to {{hotelName}}, a premier accommodation located in the heart of {{city}}. Our hotel offers luxurious rooms, exceptional service, and a convenient location.",
+        "roomAvailability": "Room Availability",
+        "available": "available",
+        "bestValueRoom": "Best Value Room",
+        "lowestPrice": "LOWEST PRICE",
+        "bestValue": "BEST VALUE",
+        "availableRoomTypes": "Available Room Types",
+        "featuredAmenities": "Featured Amenities",
+        "roomTypeAvailability": "Room Type Availability",
+        "viewDetails": "View Details",
+        "selectRoomType": "Select {{roomType}}",
+        "roomDetails": "Room Details",
+        "roomNumber": "Room Number",
+        "roomLabel": "Room",
+        "pricePerNight": "Price per Night",
+        "status": "Status",
+        "hotel": "Hotel",
+        "availabilityForRoomType": "Availability for this room type",
+        "multipleRoomsAvailable": "{{count}} rooms of type \"{{roomType}}\" currently available.",
+        "oneRoomLeft": "Only {{count}} room of type \"{{roomType}}\" left! Book now.",
+        "selectedRoom": "Selected Room",
+        "selectBestValueRoom": "Select Best Value Room",
+        "hideContactInfo": "Hide Contact Information",
+        "showContactInfo": "Need Help? Show Contact Information",
+        "contactHelpText": "Need help? Contact the hotel directly for assistance with your booking or special requests.",
+        "phone": "Phone",
+        "email": "Email",
+        "contactHotel": "Contact Hotel"
+    },
     "common": {
         "yes": "Yes",
         "no": "No",
@@ -25,6 +113,67 @@
         "deselect": "Deselect",
         "delete": "Delete"
     },
+    
+    "roomTypes": {
+        "single_room": "Single Room",
+        "double_room": "Double Room",
+        "twin_room": "Twin Room",
+        "deluxe_room": "Deluxe Room",
+        "suite": "Suite",
+        "executive_suite": "Executive Suite",
+        "presidential_suite": "Presidential Suite",
+        "family_room": "Family Room",
+        "connecting_room": "Connecting Room",
+        "accessible_room": "Accessible Room",
+        "standard_room": "Standard Room",
+        "superior_room": "Superior Room",
+        "studio": "Studio"
+    },
+    
+    "roomStatus": {
+        "available": "Available",
+        "occupied": "Occupied",
+        "reserved": "Reserved",
+        "maintenance": "Under Maintenance",
+        "cleaning": "Cleaning",
+        "out_of_service": "Out of Service",
+        "checking_out": "Checking Out"
+    },
+    
+    "amenities": {
+        "wifi": "Free Wi-Fi",
+        "parking": "Parking",
+        "breakfast": "Breakfast Included",
+        "pool": "Swimming Pool",
+        "fitness_center": "Fitness Center",
+        "spa": "Spa",
+        "restaurant": "Restaurant",
+        "bar": "Bar",
+        "room_service": "Room Service",
+        "air_conditioning": "Air Conditioning",
+        "concierge": "Concierge",
+        "pets_allowed": "Pets Allowed",
+        "conference_room": "Conference Room",
+        "laundry": "Laundry Service",
+        "shuttle": "Airport Shuttle",
+        "business_center": "Business Center",
+        "childcare": "Childcare Services",
+        "hot_tub": "Hot Tub",
+        "sauna": "Sauna",
+        "free_toiletries": "Free Toiletries",
+        "coffee_maker": "Coffee Maker",
+        "minibar": "Minibar",
+        "flat_screen_tv": "Flat-screen TV",
+        "bathtub": "Bathtub",
+        "balcony": "Balcony",
+        "non_smoking": "Non-smoking Rooms",
+        "beach_access": "Beach Access",
+        "accessible": "Wheelchair Accessible",
+        "safe": "In-room Safe",
+        "free_parking": "Free Parking",
+        "valet_parking": "Valet Parking",
+        "electric_vehicle_charging": "EV Charging"
+    },
   
     "header" : {
         "language": "Language",
@@ -32,7 +181,10 @@
         "adminDashboard": "Admin Dashboard",
         "users": "Users",
         "profile": "My Profile",
-        "logout": "Logout"
+        "logout": "Logout",
+        "hotelOperationsHeaderSectionTitle": "Hotel Operations",
+        "clientOperationsHeaderSectionTitle": "Client Operations",
+        "otherHotels": "Explore Other Hotels"
     },
     "admin": {
         "reservations": {
@@ -70,7 +222,7 @@
                         "totalCalculationError": "Unable to calculate total"
                     },
                     "selectRoom": "Select a room",
-                    "rate": "Rate (USD)",
+                    "price": "Price (USD)",
                     "success": "Reservation Added!"
                 },
                 "status": {
@@ -217,7 +369,7 @@
                 "columns": {
                     "roomNumber": "Room Number",
                     "type": "Type",
-                    "rate": "Rate (USD)", 
+                    "price": "Price (USD)", 
                     "status": "Status"
                 },
                 "details": {
@@ -246,7 +398,7 @@
                     "roomNumber": "Room Number",
                     "type": "Room Type",
                     "capacity": "Capacity",
-                    "rate": "Rate (USD)",
+                    "price": "Price (USD)",
                     "status": "Status",
                     "hotel": "Hotel",
                     "hotelId": "Hotel ID",
@@ -257,7 +409,7 @@
                     "roomNumberRequired": "Please input room number!",
                     "typeRequired": "Please input room type!",
                     "capacityRequired": "Please input capacity!",
-                    "rateRequired": "Please input rate!",
+                    "priceRequired": "Please input price!",
                     "statusRequired": "Please select status!",
                     "hotelRequired": "Please select a hotel!"
                 },

@@ -3,6 +3,7 @@ package com.hotelos.hotelosbackend.repository;
 import com.hotelos.hotelosbackend.models.Hotel;
 import com.hotelos.hotelosbackend.models.Room;
 import com.hotelos.hotelosbackend.models.RoomStatus;
+import com.hotelos.hotelosbackend.models.RoomType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +21,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     boolean existsByRoomNumberAndHotel_Id(Long roomNumber, Long hotelId);
     Long countByHotelAndStatusEquals(Hotel hotel, RoomStatus status);
+    Long countRoomsByHotelIdAndRoomType(Long hotelId, RoomType roomType);
+
 }

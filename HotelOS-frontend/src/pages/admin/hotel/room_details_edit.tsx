@@ -174,7 +174,7 @@ export default function Admin_Hotel_Room_Details_Edit() {
                 type: values.type,
                 description: values.description,
                 capacity: Number(values.capacity),
-                rate: Number(values.rate),
+                price: Number(values.price),
                 status: values.status,
                 hotel: values.hotel ? { id: values.hotel } : null
             };
@@ -286,9 +286,9 @@ export default function Admin_Hotel_Room_Details_Edit() {
                                     </Col>
                                     <Col span={12}>
                                         <Form.Item
-                                            name="rate"
-                                            label={t('admin.hotels.rooms.fields.rate', 'Rate')}
-                                            rules={[{ required: true, message: t('admin.hotels.rooms.validation.rateRequired', 'Please input rate!') }]}
+                                            name="price"
+                                            label={t('admin.hotels.rooms.fields.price', 'Price')}
+                                            rules={[{ required: true, message: t('admin.hotels.rooms.validation.priceRequired', 'Please input price!') }]}
                                         >
                                             <InputNumber
                                                 prefix="$"

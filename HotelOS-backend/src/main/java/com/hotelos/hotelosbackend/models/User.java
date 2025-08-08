@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -34,36 +35,20 @@ public class User implements UserDetails {
     private String lastName;
 
     @Basic
-    @Column(name = "email")
-    private String email;
-
-    @Basic
     @Column(name = "password")
     private String password;
 
     @Basic
-    @Column(name = "phone")
-    private String phone;
+    @Column(name = "email")
+    private String email;
 
-    @Basic
-    @Column(name = "address")
-    private String address;
+    @OneToOne
+    @JoinColumn(name = "address_id")
+    private AddressInformation addressInformation;
 
-    @Basic
-    @Column(name = "city")
-    private String city;
-
-    @Basic
-    @Column(name = "state")
-    private String state;
-
-    @Basic
-    @Column(name = "zip_code")
-    private String zipCode;
-
-    @Basic
-    @Column(name = "country")
-    private String country;
+    @OneToOne
+    @JoinColumn(name = "contact_id")
+    private ContactInformation contactInformation;
 
     @Basic
     @Enumerated(EnumType.STRING)
@@ -82,17 +67,44 @@ public class User implements UserDetails {
     @Column(name = "image_path")
     private String imagePath;
 
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return userId == user.userId && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(email, user.email) && Objects.equals(phone, user.phone) && Objects.equals(address, user.address) && Objects.equals(city, user.city) && Objects.equals(state, user.state) && Objects.equals(zipCode, user.zipCode) && Objects.equals(country, user.country) && Objects.equals(userType, user.userType) && Objects.equals(position, user.position) && Objects.equals(hotel, user.hotel);
+        return userId == user.userId &&
+                Objects.equals(firstName, user.firstName) &&
+                Objects.equals(lastName, user.lastName) &&
+                Objects.equals(password, user.password) &&
+                Objects.equals(email, user.email) &&
+                Objects.equals(addressInformation, user.addressInformation) &&
+                Objects.equals(contactInformation, user.contactInformation) &&
+                userType == user.userType &&
+                Objects.equals(position, user.position) &&
+                Objects.equals(hotel, user.hotel) &&
+                Objects.equals(imagePath, user.imagePath);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, firstName, lastName, email, phone, address, city, state, zipCode, country, userType, position, hotel);
+        return Objects.hash(userId, firstName, lastName, password, email, addressInformation, contactInformation, userType, position, hotel, imagePath);
     }
 
 
@@ -125,4 +137,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }

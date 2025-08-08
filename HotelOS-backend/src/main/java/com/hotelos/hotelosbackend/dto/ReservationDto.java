@@ -1,5 +1,6 @@
 package com.hotelos.hotelosbackend.dto;
 
+import com.hotelos.hotelosbackend.models.ReservationStatus;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,8 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
@@ -17,7 +20,6 @@ import java.time.LocalDate;
 public class ReservationDto {
     private Long reservationId;
 
-    @NotBlank(message = "Reservation name is required")
     @Size(max = 100, message = "Reservation name must not exceed 100 characters")
     private String reservationName;
 
@@ -33,13 +35,28 @@ public class ReservationDto {
     @DecimalMin(value = "0.0", inclusive = false, message = "Total amount must be greater than 0")
     private BigDecimal totalAmount;
 
-    @NotBlank(message = "Status is required")
-    @Size(max = 50, message = "Status must not exceed 50 characters")
-    private String status;
+    @NotNull(message = "Status is required")
+    private ReservationStatus status;
+
+    @Min(value = 1, message = "At least one adult is required")
+    private Integer numberOfAdults;
+
+    @PositiveOrZero(message = "Number of children cannot be negative")
+    private Integer numberOfChildren;
+
+    private String specialRequests;
 
     @Nullable
     private UserDto user;
 
     @NotNull(message = "Room information is required")
     private RoomDto room;
+    
+    private Set<GuestDto> guests = new HashSet<>();
+    
+    private String primaryGuestName;
+    
+    private String primaryGuestEmail;
+    
+    private String primaryGuestPhone;
 }

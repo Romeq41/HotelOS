@@ -33,6 +33,8 @@ import AddReservation from "./pages/AddReservation";
 import ManagerStaff from "./pages/manager/staff";
 import AddStaff from "./pages/manager/staff_add";
 import ResetPassword from "./pages/ResetPassword";
+import Explore from "./pages/user/Explore";
+import HotelDetails from "./pages/user/Hotel_Offer_details";
 
 const App = () => {
     return (
@@ -47,6 +49,10 @@ const App = () => {
                             <Route path="/login" element={<Login />} />
                             <Route path="/reset-password" element={<ResetPassword />} />
                             <Route path="/hotels/:id/overview" element={<HotelPage />} />
+                            <Route path="/explore" element={<Explore />} />
+                            <Route path="/hotels/:hotelId/:hotelName" element={<HotelDetails />} />
+                            <Route path="/explore/hotel" element={<AddUser />} />
+
 
                             {/* User authenticated routes */}
                             <Route
@@ -117,6 +123,8 @@ const App = () => {
                                 <Route path="/staff/:hotelId/reservations/:reservationId/edit" element={<Adminpage_hotel_room_reservation_details_edit />} />
                                 <Route path="/staff/:hotelId/reservations/add" element={<AddReservation />} />
                             </Route>
+
+                            {/* User explore hotels */}
 
 
 

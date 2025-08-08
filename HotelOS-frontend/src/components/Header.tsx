@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faBars, faTimes, faHotel, faGlobe } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faBars, faTimes, faHotel, faGlobe, faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import { useUser } from "../contexts/UserContext.tsx";
 import { UserType } from "../interfaces/User.tsx";
 import { useTranslation } from "react-i18next";
+import { Input } from "antd";
 
 interface HeaderProps {
     bg_color?: string;
@@ -89,7 +90,7 @@ export default function Header({
             window.removeEventListener("resize", handleResize);
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [isMenuOpen, isUserMenuOpen, isLanguageMenuOpen]); ``
+    }, [isMenuOpen, isUserMenuOpen, isLanguageMenuOpen]);
 
     const handleUserClick = () => {
         if (isAuth) {
@@ -231,6 +232,11 @@ export default function Header({
                                     {isAuth ? t("header.profile") : t("auth.login")}
                                 </button>
                             </li>
+                            <li className="py-4 border-b border-gray-300">
+                                <button onClick={() => navigateAndCloseMenus("/explore")} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
+                                    {t("header.otherHotels", "Explore Other Hotels")}
+                                </button>
+                            </li>
                             {isAuth && renderMenuItems()}
 
                             {/* Language selector in mobile menu */}
@@ -262,6 +268,12 @@ export default function Header({
             ) : (
                 // Desktop layout
                 <section className="flex space-x-4 p-4">
+                    <button
+                        onClick={() => navigateAndCloseMenus("/explore")}
+                        className={`flex gap-2 items-center border text-${textColor} border-${textColor} hover:bg-${onHover} px-4 py-2 rounded-lg ease-in-out duration-200 cursor-pointer`}
+                    >
+                        {t("header.otherHotels", "Explore Other Hotels")}
+                    </button>
                     {/* Language selector */}
                     <div className="relative">
                         <button
@@ -289,7 +301,11 @@ export default function Header({
                                 ))}
                             </div>
                         </div>
+
+
+
                     </div>
+
 
                     {/* User menu */}
                     <div className="relative">
@@ -317,6 +333,13 @@ export default function Header({
                                     <li className="py-4 border-b border-gray-300">
                                         <button onClick={handleLogout} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
                                             {t("auth.logout")}
+                                        </button>
+                                    </li>
+                                    {/* todo hotel operations section */}
+                                    <h1 className="m-3 text-lg text-center font-bold">{t("header.clientOperationsHeaderSectionTitle", "Client Operations")}</h1>
+                                    <li className="py-4 border-b border-gray-300">
+                                        <button onClick={() => navigateAndCloseMenus("/explore")} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">
+                                            {t("header.otherHotels", "Explore Other Hotels")}
                                         </button>
                                     </li>
                                 </ul>

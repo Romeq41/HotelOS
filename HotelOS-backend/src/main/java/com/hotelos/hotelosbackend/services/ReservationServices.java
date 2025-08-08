@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface ReservationServices {
     Reservation saveReservation(Reservation person);
 
+    Reservation updateReservation(Reservation reservation);
+
     List<Reservation> getAllReservations();
 
     Optional<Reservation> getReservationById(Long id);

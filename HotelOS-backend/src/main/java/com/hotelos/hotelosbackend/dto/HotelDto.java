@@ -1,11 +1,14 @@
 package com.hotelos.hotelosbackend.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 @Data
 @Builder
@@ -18,23 +21,16 @@ public class HotelDto {
     @Size(max = 100, message = "Name must not exceed 100 characters")
     private String name;
 
-    @NotBlank(message = "Address is required")
-    @Size(max = 255, message = "Address must not exceed 255 characters")
-    private String address;
+    @NotNull(message = "Address information is required")
+    private AddressInformationDto addressInformation;
 
-    @NotBlank(message = "City is required")
-    @Size(max = 50, message = "City must not exceed 50 characters")
-    private String city;
+    @NotNull(message = "Contact information is required")
+    private ContactInformationDto contactInformation;
 
-    @NotBlank(message = "State is required")
-    @Size(max = 50, message = "State must not exceed 50 characters")
-    private String state;
+    @NotNull(message = "Base price is required")
+    private BigDecimal basePrice;
 
-    @NotBlank(message = "Zip code is required")
-    @Size(max = 20, message = "Zip code must not exceed 20 characters")
-    private String zipCode;
-
-    @NotBlank(message = "Country is required")
-    @Size(max = 50, message = "Country must not exceed 50 characters")
-    private String country;
+    private String description;
+    
+    private String imagePath;
 }

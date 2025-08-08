@@ -19,6 +19,14 @@ public class IReservationServices implements ReservationServices {
     }
 
     @Override
+    public Reservation updateReservation(Reservation reservation) {
+        if (!reservationRepository.existsById(reservation.getReservationId())) {
+            throw new IllegalArgumentException("Reservation with ID " + reservation.getReservationId() + " does not exist.");
+        }
+        return reservationRepository.save(reservation);
+    }
+
+    @Override
     public Reservation saveReservation(Reservation reservation) {
         List<Reservation> overlappingReservations = reservationRepository.findOverlappingReservations(reservation.getRoom().getRoomId(), reservation.getCheckInDate(), reservation.getCheckOutDate());
 

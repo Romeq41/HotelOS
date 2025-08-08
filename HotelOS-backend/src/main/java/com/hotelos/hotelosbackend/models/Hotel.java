@@ -1,11 +1,10 @@
 package com.hotelos.hotelosbackend.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.With;
+import lombok.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Data
@@ -19,38 +18,58 @@ public class Hotel {
     @Id
     @Column(name = "hotel_id")
     private long id;
+
+    @OneToOne
+    @JoinColumn(name = "address_id")
+    private AddressInformation addressInformation;
+
+    @OneToOne
+    @JoinColumn(name = "contact_id")
+    private ContactInformation contactInformation;
+
     @Basic
     @Column(name = "name")
     private String name;
+
     @Basic
-    @Column(name = "address")
-    private String address;
-    @Basic
-    @Column(name = "city")
-    private String city;
-    @Basic
-    @Column(name = "state")
-    private String state;
-    @Basic
-    @Column(name = "zipCode")
-    private String zipCode;
-    @Basic
-    @Column(name = "country")
-    private String country;
+    @Column(name = "description")
+    private String description;
+
     @Basic
     @Column(name = "image_path")
     private String imagePath;
+
+    @Basic
+    @Column(name = "base_price")
+    private BigDecimal basePrice;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Hotel hotel = (Hotel) o;
-        return id == hotel.id && Objects.equals(name, hotel.name) && Objects.equals(address, hotel.address) && Objects.equals(city, hotel.city) && Objects.equals(state, hotel.state) && Objects.equals(zipCode, hotel.zipCode) && Objects.equals(country, hotel.country);
+        return id == hotel.id && Objects.equals(addressInformation, hotel.addressInformation) && Objects.equals(contactInformation, hotel.contactInformation) && Objects.equals(name, hotel.name) && Objects.equals(description, hotel.description) && Objects.equals(imagePath, hotel.imagePath) && Objects.equals(basePrice, hotel.basePrice);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, address, city, state, zipCode, country);
+        return Objects.hash(id, addressInformation, contactInformation, name, description, imagePath, basePrice);
     }
 }

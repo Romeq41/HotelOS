@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Data
@@ -24,13 +25,13 @@ public class Room {
     private long roomNumber;
     @Basic
     @Column(name = "type")
-    private String type;
+    private RoomType roomType;
     @Basic
     @Column(name = "capacity")
     private Integer capacity;
     @Basic
-    @Column(name = "rate")
-    private BigDecimal rate;
+    @Column(name = "price_modifier")
+    private BigDecimal priceModifier;
 
     @Basic
     @Enumerated(EnumType.STRING)
@@ -48,6 +49,23 @@ public class Room {
     @JoinColumn(name = "hotel_id")
     private Hotel hotel;
 
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -56,13 +74,13 @@ public class Room {
             return false;
         Room room = (Room) o;
         return roomId == room.roomId && Objects.equals(hotel, room.hotel)
-                && Objects.equals(roomNumber, room.roomNumber) && Objects.equals(type, room.type)
-                && Objects.equals(capacity, room.capacity) && Objects.equals(rate, room.rate)
+                && Objects.equals(roomNumber, room.roomNumber) && Objects.equals(roomType, room.roomType)
+                && Objects.equals(capacity, room.capacity) && Objects.equals(priceModifier, room.priceModifier)
                 && Objects.equals(status, room.status);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(roomId, hotel, roomNumber, type, capacity, rate, status);
+        return Objects.hash(roomId, hotel, roomNumber, roomType, capacity, priceModifier, status);
     }
 }

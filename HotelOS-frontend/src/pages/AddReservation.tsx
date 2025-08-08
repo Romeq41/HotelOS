@@ -84,7 +84,7 @@ export default function AddReservation() {
             const diff = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24));
             const selectedRoom = rooms.find((r) => r.roomId.toString() === values.roomId);
             if (diff > 0 && selectedRoom) {
-                return diff * (selectedRoom.rate ?? 0);
+                return diff * (selectedRoom.price ?? 0);
             }
         }
         return 0;
@@ -186,7 +186,7 @@ export default function AddReservation() {
                                     <Select placeholder={t('admin.reservations.form.selectRoom', 'Select a room')}>
                                         {rooms.map(room => (
                                             <Option key={room.roomId} value={room.roomId.toString()}>
-                                                {`${room.roomNumber} - ${room.type} (${t('admin.reservations.form.rate', 'Rate')}: $${room.rate})`}
+                                                {`${room.roomNumber} - ${room.roomType} (${t('admin.reservations.form.price', 'Price')}: $${room.price})`}
                                             </Option>
                                         ))}
                                     </Select>
