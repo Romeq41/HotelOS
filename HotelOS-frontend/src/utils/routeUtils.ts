@@ -11,11 +11,11 @@ import { UserType } from '../interfaces/User';
  */
 export const getPermissionContext = (pathname: string): UserType | undefined => {
     if (pathname.includes('/admin/')) {
-        return UserType.ADMIN;
+        return UserType.Admin;
     } else if (pathname.includes('/manager/')) {
-        return UserType.MANAGER;
+        return UserType.Manager;
     } else if (pathname.includes('/staff/')) {
-        return UserType.STAFF;
+        return UserType.Staff;
     }
     return undefined;
 };
@@ -27,11 +27,11 @@ export const getPermissionContext = (pathname: string): UserType | undefined => 
  * @returns The base URL path string
  */
 export const getBaseUrl = (permissionContext: UserType | undefined, hotelId: string | number): string => {
-    if (permissionContext === UserType.ADMIN) {
+    if (permissionContext === UserType.Admin) {
         return `/admin/hotels/${hotelId}`;
-    } else if (permissionContext === UserType.MANAGER) {
+    } else if (permissionContext === UserType.Manager) {
         return `/manager/hotel/${hotelId}`;
-    } else if (permissionContext === UserType.STAFF) {
+    } else if (permissionContext === UserType.Staff) {
         return `/staff/${hotelId}`;
     }
     return '';

@@ -10,6 +10,7 @@ import { UserType } from "./interfaces/User";
 import Homepage from "./pages/Homepage";
 import Userpage from "./pages/Userpage";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import HotelPage from "./pages/manager/Hotelpage";
 
 // Admin pages
@@ -48,6 +49,7 @@ const App = () => {
                             {/* Public routes */}
                             <Route path="/" element={<Homepage />} />
                             <Route path="/login" element={<Login />} />
+                            <Route path="/register" element={<Register />} />
                             <Route path="/reset-password" element={<ResetPassword />} />
                             <Route path="/hotels/:id/overview" element={<HotelPage />} />
                             <Route path="/explore" element={<Explore />} />
@@ -57,14 +59,14 @@ const App = () => {
 
                             {/* User authenticated routes */}
                             <Route
-                                element={<ProtectedRoute allowedRoles={[UserType.GUEST, UserType.STAFF, UserType.MANAGER, UserType.ADMIN]} />}
+                                element={<ProtectedRoute allowedRoles={[UserType.Guest, UserType.Staff, UserType.Manager, UserType.Admin]} />}
                             >
                                 <Route path="/user" element={<Userpage />} />
                             </Route>
 
                             {/* Admin routes */}
                             <Route
-                                element={<ProtectedRoute allowedRoles={[UserType.ADMIN]} />}
+                                element={<ProtectedRoute allowedRoles={[UserType.Admin]} />}
                             >
                                 {/* Admin hotel routes */}
                                 <Route path="/admin/hotels" element={<Hotels />} />
@@ -97,7 +99,7 @@ const App = () => {
 
                             {/* Manager routes */}
                             <Route
-                                element={<ProtectedRoute allowedRoles={[UserType.MANAGER, UserType.ADMIN]} />}
+                                element={<ProtectedRoute allowedRoles={[UserType.Manager, UserType.Admin]} />}
                             >
                                 <Route path="/manager/hotel/:id/overview" element={<HotelPage />} />
                                 <Route path="/manager/hotel/:hotelId/staff" element={<ManagerStaff />} />
@@ -118,7 +120,7 @@ const App = () => {
 
                             {/* Staff routes  */}
                             <Route
-                                element={<ProtectedRoute allowedRoles={[UserType.STAFF, UserType.MANAGER, UserType.ADMIN]} />}
+                                element={<ProtectedRoute allowedRoles={[UserType.Staff, UserType.Manager, UserType.Admin]} />}
                             >
                                 <Route path="/staff/:hotelId/reservations" element={<Admin_Hotel_Room_Reservations />} />
                                 <Route path="/staff/:hotelId/reservations/:reservationId" element={<Admin_Hotel_Room_Reservation_Details />} />

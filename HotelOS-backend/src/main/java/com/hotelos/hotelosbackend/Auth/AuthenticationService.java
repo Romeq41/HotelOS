@@ -1,6 +1,7 @@
 package com.hotelos.hotelosbackend.Auth;
 
 import com.hotelos.hotelosbackend.implementation.IJWTServices;
+import com.hotelos.hotelosbackend.mail.EmailService;
 import com.hotelos.hotelosbackend.models.Hotel;
 import com.hotelos.hotelosbackend.models.User;
 import com.hotelos.hotelosbackend.models.UserType;
@@ -20,6 +21,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final IJWTServices jwtServices;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = new User();
@@ -30,16 +32,20 @@ public class AuthenticationService {
         user.setUserType(UserType.GUEST);
 
         if (request.getHotelId() != null) {
-            Hotel hotel = hotelRepository.findById(request.getHotelId()).orElseThrow(() -> new RuntimeException("Hotel not found"));
+            Hotel hotel = hotelRepository.findById(request.getHotelId())
+                    .orElseThrow(() -> new RuntimeException("Hotel not found"));
             user.setHotel(hotel);
         }
 
         userRepository.save(user);
         var jwtToken = jwtServices.generateToken(user);
+        if (user.getEmail() != null) {
+            emailService.sendWelcomeEmail(user.getEmail(), user.getFirstName());
+        }
         return AuthenticationResponse.builder().token(jwtToken).user(user).build();
     }
 
-    public void resetPassword(PasswordResetRequest request) {
+    public void changePassword(PasswordChangeRequest request) {
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
 
         if (user.getUserType() == UserType.ADMIN) {
@@ -48,6 +54,32 @@ public class AuthenticationService {
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+    }
+
+    public void resetPassword(PasswordResetRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getUserType() == UserType.ADMIN) {
+            throw new RuntimeException("User not found");
+        }
+        String tempPassword = generateTemporaryPassword();
+        user.setPassword(passwordEncoder.encode(tempPassword));
+        userRepository.save(user);
+
+        if (user.getEmail() != null) {
+            emailService.sendTemporaryPassword(user.getEmail(), tempPassword);
+        }
+    }
+
+    private String generateTemporaryPassword() {
+        String chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789@$%!#?&";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 12; i++) {
+            int idx = (int) (Math.random() * chars.length());
+            sb.append(chars.charAt(idx));
+        }
+        return sb.toString();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -61,11 +93,11 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse login(LoginRequest request) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
         var jwtToken = jwtServices.generateToken(user);
         return AuthenticationResponse.builder().token(jwtToken).user(user).build();
     }
-
 
 }

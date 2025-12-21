@@ -1,23 +1,7 @@
-export enum UserType {
-    GUEST = "GUEST",
-    STAFF = "STAFF",
-    MANAGER = "MANAGER",
-    ADMIN = "ADMIN",
-}
+import { User as ApiUser, UserDto as ApiUserDto, UserUserTypeEnum } from "../api/generated/api";
 
-export interface User {
-    userId: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    userType: UserType;
-    address: string;
-    position: string
-    hotel: any;
-    state: string;
-    city: string;
-    zipCode: string;
-    country: string;
-}
+// Re-export generated API models so the rest of the app uses the server contract directly.
+export type User = ApiUser;
+export type UserDto = ApiUserDto;
+export type UserType = typeof UserUserTypeEnum[keyof typeof UserUserTypeEnum];
+export const UserType = UserUserTypeEnum;

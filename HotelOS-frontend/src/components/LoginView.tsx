@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useUser } from "../contexts/UserContext.tsx";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 export default function LoginView() {
@@ -78,6 +78,9 @@ export default function LoginView() {
                     </button>
                     <p className="text-center text-sm mt-2">
                         {t("auth.forgotPassword", "Forgot your password?")} <a href="/reset-password" className="text-blue-500 hover:underline">{t("auth.resetPassword", "Reset Password")}</a>
+                    </p>
+                    <p className="text-center text-sm mt-2">
+                        {t("auth.noAccount", "Don't have an account?")} <Link to="/register" className="text-blue-500 hover:underline">{t("auth.register", "Register")}</Link>
                     </p>
                     {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
                 </form>

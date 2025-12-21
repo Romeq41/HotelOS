@@ -18,12 +18,12 @@ Name | Type | Description | Notes
 **imagePath** | **string** |  | [optional] [default to undefined]
 **createdAt** | **string** |  | [optional] [default to undefined]
 **updatedAt** | **string** |  | [optional] [default to undefined]
-**username** | **string** |  | [optional] [default to undefined]
 **enabled** | **boolean** |  | [optional] [default to undefined]
-**accountNonLocked** | **boolean** |  | [optional] [default to undefined]
+**username** | **string** |  | [optional] [default to undefined]
 **authorities** | [**Array&lt;GrantedAuthority&gt;**](GrantedAuthority.md) |  | [optional] [default to undefined]
-**accountNonExpired** | **boolean** |  | [optional] [default to undefined]
+**accountNonLocked** | **boolean** |  | [optional] [default to undefined]
 **credentialsNonExpired** | **boolean** |  | [optional] [default to undefined]
+**accountNonExpired** | **boolean** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -44,12 +44,12 @@ const instance: User = {
     imagePath,
     createdAt,
     updatedAt,
-    username,
     enabled,
-    accountNonLocked,
+    username,
     authorities,
-    accountNonExpired,
+    accountNonLocked,
     credentialsNonExpired,
+    accountNonExpired,
 };
 ```
 

@@ -35,6 +35,17 @@ public class AuthenticationController {
         }
     }
 
+    @PutMapping("/change-password")
+    public ResponseEntity<String> changePassword(@Valid @RequestBody PasswordChangeRequest request) {
+        try {
+            authenticationService.changePassword(request);
+            return ResponseEntity.ok("Password changed successfully");
+        } catch (Exception e) {
+            logger.error("Error while changing password", e);
+            return ResponseEntity.badRequest().body("Failed to change password");
+        }
+    }
+
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authenticationService.login(request));

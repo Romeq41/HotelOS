@@ -1,4 +1,4 @@
-# PasswordResetRequest
+# PasswordChangeRequest
 
 
 ## Properties
@@ -6,14 +6,16 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **email** | **string** |  | [default to undefined]
+**newPassword** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { PasswordResetRequest } from './api';
+import { PasswordChangeRequest } from './api';
 
-const instance: PasswordResetRequest = {
+const instance: PasswordChangeRequest = {
     email,
+    newPassword,
 };
 ```
 

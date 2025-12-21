@@ -48,8 +48,9 @@ export default function Admin_User_overview() {
 
     const permissionContext = getPermissionContext(location.pathname);
     const computeEditUrl = () => {
+        console.log(permissionContext, hotelId, user, currentUser);
         // Users live under different entity bases: admin has /admin/users, manager/staff under hotel context.
-        if (permissionContext === UserType.ADMIN) {
+        if (permissionContext === UserType.Admin) {
             return `/admin/users/${id}/edit`;
         }
         // For manager/staff, treat entity type as 'staff' and use hotel context

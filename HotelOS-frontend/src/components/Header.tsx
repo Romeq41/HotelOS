@@ -128,7 +128,7 @@ export default function Header({
     const renderMenuItems = () => {
         if (!user) return null;
         switch (user.userType) {
-            case UserType.ADMIN:
+            case UserType.Admin:
                 return (
                     <>
                         <li className="py-4 border-b border-gray-300">
@@ -148,7 +148,7 @@ export default function Header({
                         </li>
                     </>
                 );
-            case UserType.MANAGER:
+            case UserType.Manager:
                 return (
                     <>
                         <li className="py-4 border-b border-gray-300">
@@ -168,7 +168,7 @@ export default function Header({
                         </li>
                     </>
                 );
-            case UserType.STAFF:
+            case UserType.Staff:
                 return (
                     <li className="py-4 border-b border-gray-300">
                         <button onClick={() => navigateAndCloseMenus(`/staff/${user.hotel?.id}/reservations`)} className="block w-full text-left text-lg hover:bg-gray-100 cursor-pointer">

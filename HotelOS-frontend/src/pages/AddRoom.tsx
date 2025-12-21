@@ -122,7 +122,7 @@ export default function AddRoom() {
         const path = location.pathname;
         if (path.includes('/admin/')) return '/admin/hotels';
         if (path.includes('/manager/')) return '/manager/hotel';
-        return currentUser?.userType === UserType.ADMIN ? '/admin/hotels' : '/manager/hotel';
+        return currentUser?.userType === UserType.Admin ? '/admin/hotels' : '/manager/hotel';
     };
 
     const fetchRoomTypes = async () => {

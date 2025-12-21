@@ -51,7 +51,7 @@ export default function Admin_Hotel_Users() {
                 const data = await response.json();
 
                 if (data.content) {
-                    const nonAdminUsers = data.content.filter((user: User) => user.userType !== UserType.ADMIN);
+                    const nonAdminUsers = data.content.filter((user: User) => user.userType !== UserType.Admin);
 
                     const usersWithKeys = nonAdminUsers.map((user: User) => ({
                         ...user,
@@ -62,7 +62,7 @@ export default function Admin_Hotel_Users() {
                     setTotalPages(data.totalPages);
                     setPage(data.number);
                 } else {
-                    const nonAdminUsers = data.filter((user: User) => user.userType !== UserType.ADMIN);
+                    const nonAdminUsers = data.filter((user: User) => user.userType !== UserType.Admin);
 
                     const usersWithKeys = nonAdminUsers.map((user: User) => ({
                         ...user,
@@ -93,7 +93,7 @@ export default function Admin_Hotel_Users() {
         }
     };
 
-    const handleDelete = async (userId: string) => {
+    const handleDelete = async (userId?: number) => {
         showLoader();
         try {
             const response = await fetch(`http://localhost:8080/api/users/${userId}`, {

@@ -648,31 +648,13 @@ export interface PageAmenityDto {
      * @type {number}
      * @memberof PageAmenityDto
      */
-    'totalPages'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageAmenityDto
-     */
     'totalElements'?: number;
     /**
      * 
-     * @type {boolean}
-     * @memberof PageAmenityDto
-     */
-    'first'?: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof PageAmenityDto
-     */
-    'last'?: boolean;
-    /**
-     * 
      * @type {number}
      * @memberof PageAmenityDto
      */
-    'numberOfElements'?: number;
+    'totalPages'?: number;
     /**
      * 
      * @type {number}
@@ -699,6 +681,24 @@ export interface PageAmenityDto {
     'sort'?: SortObject;
     /**
      * 
+     * @type {number}
+     * @memberof PageAmenityDto
+     */
+    'numberOfElements'?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PageAmenityDto
+     */
+    'first'?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PageAmenityDto
+     */
+    'last'?: boolean;
+    /**
+     * 
      * @type {PageableObject}
      * @memberof PageAmenityDto
      */
@@ -721,31 +721,13 @@ export interface PageHotelDto {
      * @type {number}
      * @memberof PageHotelDto
      */
-    'totalPages'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageHotelDto
-     */
     'totalElements'?: number;
     /**
      * 
-     * @type {boolean}
-     * @memberof PageHotelDto
-     */
-    'first'?: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof PageHotelDto
-     */
-    'last'?: boolean;
-    /**
-     * 
      * @type {number}
      * @memberof PageHotelDto
      */
-    'numberOfElements'?: number;
+    'totalPages'?: number;
     /**
      * 
      * @type {number}
@@ -772,6 +754,24 @@ export interface PageHotelDto {
     'sort'?: SortObject;
     /**
      * 
+     * @type {number}
+     * @memberof PageHotelDto
+     */
+    'numberOfElements'?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PageHotelDto
+     */
+    'first'?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PageHotelDto
+     */
+    'last'?: boolean;
+    /**
+     * 
      * @type {PageableObject}
      * @memberof PageHotelDto
      */
@@ -794,31 +794,13 @@ export interface PageHotelOfferDto {
      * @type {number}
      * @memberof PageHotelOfferDto
      */
-    'totalPages'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageHotelOfferDto
-     */
     'totalElements'?: number;
     /**
      * 
-     * @type {boolean}
-     * @memberof PageHotelOfferDto
-     */
-    'first'?: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof PageHotelOfferDto
-     */
-    'last'?: boolean;
-    /**
-     * 
      * @type {number}
      * @memberof PageHotelOfferDto
      */
-    'numberOfElements'?: number;
+    'totalPages'?: number;
     /**
      * 
      * @type {number}
@@ -845,6 +827,24 @@ export interface PageHotelOfferDto {
     'sort'?: SortObject;
     /**
      * 
+     * @type {number}
+     * @memberof PageHotelOfferDto
+     */
+    'numberOfElements'?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PageHotelOfferDto
+     */
+    'first'?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PageHotelOfferDto
+     */
+    'last'?: boolean;
+    /**
+     * 
      * @type {PageableObject}
      * @memberof PageHotelOfferDto
      */
@@ -867,31 +867,13 @@ export interface PageReservationDto {
      * @type {number}
      * @memberof PageReservationDto
      */
-    'totalPages'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageReservationDto
-     */
     'totalElements'?: number;
     /**
      * 
-     * @type {boolean}
-     * @memberof PageReservationDto
-     */
-    'first'?: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof PageReservationDto
-     */
-    'last'?: boolean;
-    /**
-     * 
      * @type {number}
      * @memberof PageReservationDto
      */
-    'numberOfElements'?: number;
+    'totalPages'?: number;
     /**
      * 
      * @type {number}
@@ -918,6 +900,24 @@ export interface PageReservationDto {
     'sort'?: SortObject;
     /**
      * 
+     * @type {number}
+     * @memberof PageReservationDto
+     */
+    'numberOfElements'?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PageReservationDto
+     */
+    'first'?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PageReservationDto
+     */
+    'last'?: boolean;
+    /**
+     * 
      * @type {PageableObject}
      * @memberof PageReservationDto
      */
@@ -940,31 +940,13 @@ export interface PageRoomDto {
      * @type {number}
      * @memberof PageRoomDto
      */
-    'totalPages'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageRoomDto
-     */
     'totalElements'?: number;
     /**
      * 
-     * @type {boolean}
-     * @memberof PageRoomDto
-     */
-    'first'?: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof PageRoomDto
-     */
-    'last'?: boolean;
-    /**
-     * 
      * @type {number}
      * @memberof PageRoomDto
      */
-    'numberOfElements'?: number;
+    'totalPages'?: number;
     /**
      * 
      * @type {number}
@@ -991,6 +973,24 @@ export interface PageRoomDto {
     'sort'?: SortObject;
     /**
      * 
+     * @type {number}
+     * @memberof PageRoomDto
+     */
+    'numberOfElements'?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PageRoomDto
+     */
+    'first'?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PageRoomDto
+     */
+    'last'?: boolean;
+    /**
+     * 
      * @type {PageableObject}
      * @memberof PageRoomDto
      */
@@ -1013,31 +1013,13 @@ export interface PageUserDto {
      * @type {number}
      * @memberof PageUserDto
      */
-    'totalPages'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageUserDto
-     */
     'totalElements'?: number;
     /**
      * 
-     * @type {boolean}
-     * @memberof PageUserDto
-     */
-    'first'?: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof PageUserDto
-     */
-    'last'?: boolean;
-    /**
-     * 
      * @type {number}
      * @memberof PageUserDto
      */
-    'numberOfElements'?: number;
+    'totalPages'?: number;
     /**
      * 
      * @type {number}
@@ -1062,6 +1044,24 @@ export interface PageUserDto {
      * @memberof PageUserDto
      */
     'sort'?: SortObject;
+    /**
+     * 
+     * @type {number}
+     * @memberof PageUserDto
+     */
+    'numberOfElements'?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PageUserDto
+     */
+    'first'?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PageUserDto
+     */
+    'last'?: boolean;
     /**
      * 
      * @type {PageableObject}
@@ -1120,12 +1120,6 @@ export interface PageableObject {
     'sort'?: SortObject;
     /**
      * 
-     * @type {boolean}
-     * @memberof PageableObject
-     */
-    'paged'?: boolean;
-    /**
-     * 
      * @type {number}
      * @memberof PageableObject
      */
@@ -1141,7 +1135,32 @@ export interface PageableObject {
      * @type {boolean}
      * @memberof PageableObject
      */
+    'paged'?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PageableObject
+     */
     'unpaged'?: boolean;
+}
+/**
+ * 
+ * @export
+ * @interface PasswordChangeRequest
+ */
+export interface PasswordChangeRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof PasswordChangeRequest
+     */
+    'email': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PasswordChangeRequest
+     */
+    'newPassword': string;
 }
 /**
  * 
@@ -1155,12 +1174,6 @@ export interface PasswordResetRequest {
      * @memberof PasswordResetRequest
      */
     'email': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PasswordResetRequest
-     */
-    'newPassword': string;
 }
 /**
  * 
@@ -1608,22 +1621,16 @@ export interface User {
     'updatedAt'?: string;
     /**
      * 
-     * @type {string}
-     * @memberof User
-     */
-    'username'?: string;
-    /**
-     * 
      * @type {boolean}
      * @memberof User
      */
     'enabled'?: boolean;
     /**
      * 
-     * @type {boolean}
+     * @type {string}
      * @memberof User
      */
-    'accountNonLocked'?: boolean;
+    'username'?: string;
     /**
      * 
      * @type {Array<GrantedAuthority>}
@@ -1635,13 +1642,19 @@ export interface User {
      * @type {boolean}
      * @memberof User
      */
-    'accountNonExpired'?: boolean;
+    'accountNonLocked'?: boolean;
     /**
      * 
      * @type {boolean}
      * @memberof User
      */
     'credentialsNonExpired'?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof User
+     */
+    'accountNonExpired'?: boolean;
 }
 
 export const UserUserTypeEnum = {
@@ -2253,6 +2266,41 @@ export const AuthenticationControllerApiAxiosParamCreator = function (configurat
         },
         /**
          * 
+         * @param {PasswordChangeRequest} passwordChangeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changePassword: async (passwordChangeRequest: PasswordChangeRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'passwordChangeRequest' is not null or undefined
+            assertParamExists('changePassword', 'passwordChangeRequest', passwordChangeRequest)
+            const localVarPath = `/api/auth/change-password`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(passwordChangeRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {LoginRequest} loginRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2380,6 +2428,18 @@ export const AuthenticationControllerApiFp = function(configuration?: Configurat
         },
         /**
          * 
+         * @param {PasswordChangeRequest} passwordChangeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async changePassword(passwordChangeRequest: PasswordChangeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.changePassword(passwordChangeRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthenticationControllerApi.changePassword']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {LoginRequest} loginRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2435,6 +2495,15 @@ export const AuthenticationControllerApiFactory = function (configuration?: Conf
         },
         /**
          * 
+         * @param {PasswordChangeRequest} passwordChangeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changePassword(passwordChangeRequest: PasswordChangeRequest, options?: RawAxiosRequestConfig): AxiosPromise<string> {
+            return localVarFp.changePassword(passwordChangeRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {LoginRequest} loginRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2479,6 +2548,17 @@ export class AuthenticationControllerApi extends BaseAPI {
      */
     public authenticate(authenticationRequest: AuthenticationRequest, options?: RawAxiosRequestConfig) {
         return AuthenticationControllerApiFp(this.configuration).authenticate(authenticationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {PasswordChangeRequest} passwordChangeRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthenticationControllerApi
+     */
+    public changePassword(passwordChangeRequest: PasswordChangeRequest, options?: RawAxiosRequestConfig) {
+        return AuthenticationControllerApiFp(this.configuration).changePassword(passwordChangeRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

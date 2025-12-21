@@ -30,6 +30,7 @@ docs/PageRoomDto.md
 docs/PageUserDto.md
 docs/Pageable.md
 docs/PageableObject.md
+docs/PasswordChangeRequest.md
 docs/PasswordResetRequest.md
 docs/RegisterRequest.md
 docs/ReservationControllerApi.md

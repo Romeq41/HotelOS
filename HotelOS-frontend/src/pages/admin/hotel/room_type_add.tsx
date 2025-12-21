@@ -41,7 +41,7 @@ export default function Admin_Hotel_Room_Type_Add() {
             return '/manager/hotel';
         }
         // Default fallback based on user role
-        return currentUser?.userType === UserType.ADMIN
+        return currentUser?.userType === UserType.Admin
             ? '/admin/hotels'
             : '/manager/hotel';
     };

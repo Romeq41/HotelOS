@@ -5,6 +5,7 @@ All URIs are relative to *http://localhost:8080*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**authenticate**](#authenticate) | **POST** /api/auth/authenticate | |
+|[**changePassword**](#changepassword) | **PUT** /api/auth/change-password | |
 |[**login**](#login) | **POST** /api/auth/login | |
 |[**register**](#register) | **POST** /api/auth/register | |
 |[**resetPassword**](#resetpassword) | **PUT** /api/auth/reset-password | |
@@ -42,6 +43,57 @@ const { status, data } = await apiInstance.authenticate(
 ### Return type
 
 **AuthenticationResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/hal+json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **changePassword**
+> string changePassword(passwordChangeRequest)
+
+
+### Example
+
+```typescript
+import {
+    AuthenticationControllerApi,
+    Configuration,
+    PasswordChangeRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AuthenticationControllerApi(configuration);
+
+let passwordChangeRequest: PasswordChangeRequest; //
+
+const { status, data } = await apiInstance.changePassword(
+    passwordChangeRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **passwordChangeRequest** | **PasswordChangeRequest**|  | |
+
+
+### Return type
+
+**string**
 
 ### Authorization
 
