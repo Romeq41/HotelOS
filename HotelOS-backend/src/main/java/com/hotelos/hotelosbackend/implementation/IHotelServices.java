@@ -1,22 +1,17 @@
 package com.hotelos.hotelosbackend.implementation;
 
-import com.hotelos.hotelosbackend.dto.AmenityDto;
-import com.hotelos.hotelosbackend.dto.HotelOfferDto;
-import com.hotelos.hotelosbackend.dto.HotelStatisticsDto;
-import com.hotelos.hotelosbackend.dto.RoomDto;
+import com.hotelos.hotelosbackend.dto.*;
 import com.hotelos.hotelosbackend.mapper.AmenityMapper;
 import com.hotelos.hotelosbackend.mapper.HotelMapper;
 import com.hotelos.hotelosbackend.mapper.RoomMapper;
 import com.hotelos.hotelosbackend.models.*;
 import com.hotelos.hotelosbackend.repository.*;
-import com.hotelos.hotelosbackend.services.FileStorageService;
-import com.hotelos.hotelosbackend.services.HotelServices;
-import com.hotelos.hotelosbackend.services.PriceCalculationService;
-import com.hotelos.hotelosbackend.services.RoomServices;
+import com.hotelos.hotelosbackend.services.*;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +19,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,7 +46,13 @@ public class IHotelServices implements HotelServices {
 
     private final AmenityMapper amenityMapper;
 
-    public IHotelServices(HotelRepository hotelRepository, FileStorageService fileStorageService, UserRepository userRepository, RoomRepository roomRepository, RoomServices roomServices, ReservationRepository reservationRepository, AmenityRepository amenityRepository, HotelMapper hotelMapper, RoomMapper roomMapper, PriceCalculationService priceCalculationService, AmenityMapper amenityMapper) {
+    private final RoomTypeServices roomTypeServices;
+
+    public IHotelServices(HotelRepository hotelRepository, FileStorageService fileStorageService,
+            UserRepository userRepository, RoomRepository roomRepository, RoomServices roomServices,
+            ReservationRepository reservationRepository, AmenityRepository amenityRepository, HotelMapper hotelMapper,
+            RoomMapper roomMapper, PriceCalculationService priceCalculationService, AmenityMapper amenityMapper,
+            RoomTypeServices roomTypeServices) {
         this.hotelRepository = hotelRepository;
         this.fileStorageService = fileStorageService;
         this.userRepository = userRepository;
@@ -62,6 +64,7 @@ public class IHotelServices implements HotelServices {
         this.roomMapper = roomMapper;
         this.priceCalculationService = priceCalculationService;
         this.amenityMapper = amenityMapper;
+        this.roomTypeServices = roomTypeServices;
     }
 
     @Override
@@ -88,8 +91,10 @@ public class IHotelServices implements HotelServices {
         hotelStatisticsDto.setTotalUserCount(userRepository.count());
         hotelStatisticsDto.setReservationsCount(reservationRepository.count());
         hotelStatisticsDto.setTotalRoomCount(roomRepository.count());
-        hotelStatisticsDto.setCurrentlyAvailableCount(roomRepository.countByHotelAndStatusEquals(hotel, RoomStatus.AVAILABLE));
-        hotelStatisticsDto.setCurrentlyOccupiedCount(roomRepository.countByHotelAndStatusEquals(hotel, RoomStatus.OCCUPIED));
+        hotelStatisticsDto
+                .setCurrentlyAvailableCount(roomRepository.countByHotelAndStatusEquals(hotel, RoomStatus.AVAILABLE));
+        hotelStatisticsDto
+                .setCurrentlyOccupiedCount(roomRepository.countByHotelAndStatusEquals(hotel, RoomStatus.OCCUPIED));
         return hotelStatisticsDto;
     }
 
@@ -98,26 +103,26 @@ public class IHotelServices implements HotelServices {
         return fileStorageService.getFile(filePath);
     }
 
-
-    //    @Override
-//    public Page<User> getAllUsers(Pageable pageable) {
-//        return userRepository.findAll(pageable);
-//    }
-//
-//    @Override
-//    public Page<User> getUsersByEmail(Pageable pageable, String email) {
-//        return userRepository.findByEmailContainingIgnoreCase(email, pageable);
-//    }
-//    @Override
-//    public Page<User> getUsersWithFilters(String email, Pageable pageable) {
-//        Optional<String> emailOpt = Optional.ofNullable(email).filter(e -> !e.isBlank());
-//
-//       if (emailOpt.isPresent()) {
-//            return getUsersByEmail(pageable, emailOpt.get());
-//        } else {
-//            return getAllUsers(pageable);
-//        }
-//    }
+    // @Override
+    // public Page<User> getAllUsers(Pageable pageable) {
+    // return userRepository.findAll(pageable);
+    // }
+    //
+    // @Override
+    // public Page<User> getUsersByEmail(Pageable pageable, String email) {
+    // return userRepository.findByEmailContainingIgnoreCase(email, pageable);
+    // }
+    // @Override
+    // public Page<User> getUsersWithFilters(String email, Pageable pageable) {
+    // Optional<String> emailOpt = Optional.ofNullable(email).filter(e ->
+    // !e.isBlank());
+    //
+    // if (emailOpt.isPresent()) {
+    // return getUsersByEmail(pageable, emailOpt.get());
+    // } else {
+    // return getAllUsers(pageable);
+    // }
+    // }
     @Override
     public Page<Hotel> getAllHotels(Pageable pageable) {
         return hotelRepository.findAll(pageable);
@@ -127,8 +132,6 @@ public class IHotelServices implements HotelServices {
     public Page<Hotel> getHotelsByName(Pageable pageable, String hotel_name) {
         return hotelRepository.findByNameContainingIgnoreCase(hotel_name, pageable);
     }
-
-
 
     @Override
     public List<Hotel> getHotelsWithFilters(String hotelName, String country, String city) {
@@ -151,22 +154,22 @@ public class IHotelServices implements HotelServices {
                     }
 
                     if (country != null && !country.isBlank()) {
+                        // Join to addressInformation first, then access country
                         predicates.add(criteriaBuilder.like(
-                                criteriaBuilder.lower(root.get("country")),
+                                criteriaBuilder.lower(root.get("addressInformation").get("country")),
                                 "%" + country.toLowerCase() + "%"));
                     }
 
                     if (city != null && !city.isBlank()) {
+                        // Join to addressInformation first, then access city
                         predicates.add(criteriaBuilder.like(
-                                criteriaBuilder.lower(root.get("city")),
+                                criteriaBuilder.lower(root.get("addressInformation").get("city")),
                                 "%" + city.toLowerCase() + "%"));
                     }
 
                     return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-                }
-        );
+                });
     }
-
 
     @Override
     public Page<Hotel> getHotelsWithFiltersPaginated(String hotelName, String country, String city, Pageable pageable) {
@@ -178,7 +181,7 @@ public class IHotelServices implements HotelServices {
         }
 
         // Create Specification for dynamic querying
-        Page<Hotel> smth =  hotelRepository.findAll(
+        Page<Hotel> smth = hotelRepository.findAll(
                 (root, query, criteriaBuilder) -> {
                     List<Predicate> predicates = new ArrayList<>();
 
@@ -189,34 +192,37 @@ public class IHotelServices implements HotelServices {
                     }
 
                     if (country != null && !country.isBlank()) {
+                        // Join to addressInformation first, then access country
                         predicates.add(criteriaBuilder.like(
-                                criteriaBuilder.lower(root.get("country")),
+                                criteriaBuilder.lower(root.get("addressInformation").get("country")),
                                 "%" + country.toLowerCase() + "%"));
                     }
 
                     if (city != null && !city.isBlank()) {
+                        // Join to addressInformation first, then access city
                         predicates.add(criteriaBuilder.like(
-                                criteriaBuilder.lower(root.get("city")),
+                                criteriaBuilder.lower(root.get("addressInformation").get("city")),
                                 "%" + city.toLowerCase() + "%"));
                     }
 
                     return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
                 },
-                pageable
-        );
+                pageable);
         System.out.println("Hotels with filters: " + smth.getContent());
         return smth;
     }
-    //todo FIX ALL THE OTHER UPDATING AND FORMS XDD....
+
+    // todo FIX ALL THE OTHER UPDATING AND FORMS XDD....
     @Override
-    public Page<HotelOfferDto> getHotelsOffersWithFilters(String hotel_name, String country, String city, String sortBy, Pageable pageable) {
+    public Page<HotelOfferDto> getHotelsOffersWithFilters(String hotel_name, String country, String city, String sortBy,
+            Pageable pageable) {
         List<HotelOfferDto> hotels = getHotelsWithFilters(hotel_name, country, city).stream()
                 .map(hotelMapper::toOfferDto)
                 .collect(Collectors.toList());
 
         // Assign cheapest rooms for hotels
         hotels.forEach(hotelOfferDto -> {
-            List<RoomDto> roomDtos = roomRepository.findByHotelId(hotelOfferDto.getId()).stream()
+            List<RoomDto> roomDtos = roomRepository.findAllByHotelId(hotelOfferDto.getId()).stream()
                     .map(room -> roomMapper.toDto(room, null, null))
                     .toList();
 
@@ -230,7 +236,8 @@ public class IHotelServices implements HotelServices {
 
         // Assign amenities
         hotels.forEach(hotelOfferDto -> {
-            List<AmenityDto> amenities = amenityRepository.findByHotel_Id(hotelOfferDto.getId()).stream().map(amenityMapper::toDto).toList();
+            List<AmenityDto> amenities = amenityRepository.findAllByHotel_Id(hotelOfferDto.getId()).stream()
+                    .map(amenityMapper::toDto).toList();
             hotelOfferDto.setAmenities(amenities);
         });
 
@@ -251,7 +258,7 @@ public class IHotelServices implements HotelServices {
                 isAscending = true;
             }
 
-            //todo check if works well :)
+            // todo check if works well :)
             // Create comparator based on sort field
             Comparator<HotelOfferDto> comparator;
             if (field.equalsIgnoreCase("price")) {
@@ -261,12 +268,10 @@ public class IHotelServices implements HotelServices {
                                 return isAscending ? BigDecimal.valueOf(Double.MAX_VALUE) : BigDecimal.ZERO;
                             }
                             return hotel.getCheapestRoom().getPrice();
-                        }
-                );
+                        });
             } else {
                 comparator = Comparator.comparing(
-                        hotel -> hotel.getName() != null ? hotel.getName().toLowerCase() : ""
-                );
+                        hotel -> hotel.getName() != null ? hotel.getName().toLowerCase() : "");
             }
 
             // Apply direction
@@ -304,8 +309,7 @@ public class IHotelServices implements HotelServices {
                 .map(hotelMapper::toOfferDto)
                 .orElseThrow(() -> new NoSuchElementException("Hotel with id " + id + " not found"));
 
-
-        List<RoomDto> roomDtos = roomRepository.findByHotelId(id).stream()
+        List<RoomDto> roomDtos = roomRepository.findAllByHotelId(id).stream()
                 .map(room -> roomMapper.toDto(room, checkIn, checkOut))
                 .toList();
 
@@ -316,25 +320,51 @@ public class IHotelServices implements HotelServices {
                 .orElse(null);
         hotelOffer.setCheapestRoom(cheapestRoom);
 
-        // Get cheapest price per room type
-        Map<RoomType, RoomDto> cheapestRoomByType = new EnumMap<>(RoomType.class);
-        for (RoomType type : RoomType.values()) {
-            roomDtos.stream()
-                    .filter(room -> room.getRoomType() == type && room.getStatus() == RoomStatus.AVAILABLE)
-                    .min(Comparator.comparing(RoomDto::getPrice))
-                    .ifPresent(room -> cheapestRoomByType.put(type, room));
-        }
-        hotelOffer.setCheapestRoomByTypeMap(cheapestRoomByType);
+        // Build list of cheapest rooms by room type
+        Map<Long, RoomDto> cheapestByType = roomDtos.stream()
+                .filter(room -> room.getStatus() == RoomStatus.AVAILABLE
+                        && room.getRoomType() != null
+                        && room.getRoomType().getId() != null
+                        && room.getPrice() != null)
+                .collect(Collectors.toMap(
+                        room -> room.getRoomType().getId(),
+                        Function.identity(),
+                        (room1, room2) -> room1.getPrice().compareTo(room2.getPrice()) <= 0 ? room1 : room2));
 
-        List<AmenityDto> amenities = amenityRepository.findByHotel_Id(id).stream().map(amenityMapper::toDto).toList();
+        List<CheapestRoomByTypeDto> cheapestRoomByTypeList = cheapestByType.values().stream()
+                .map(room -> CheapestRoomByTypeDto.builder()
+                        .roomType(room.getRoomType())
+                        .room(room)
+                        .build())
+                .toList();
+
+        hotelOffer.setCheapestRoomByTypeList(cheapestRoomByTypeList);
+
+        List<AmenityDto> amenities = amenityRepository.findAllByHotel_Id(id).stream().map(amenityMapper::toDto)
+                .toList();
         hotelOffer.setAmenities(amenities);
 
+        // Build room type availability list
+        Map<Long, Long> countsByTypeId = roomDtos.stream()
+                .filter(room -> room.getStatus() == RoomStatus.AVAILABLE
+                        && room.getRoomType() != null
+                        && room.getRoomType().getId() != null)
+                .collect(Collectors.groupingBy(room -> room.getRoomType().getId(), Collectors.counting()));
 
+        Map<Long, RoomTypeDto> typeById = roomDtos.stream()
+                .map(RoomDto::getRoomType)
+                .filter(Objects::nonNull)
+                .filter(rt -> rt.getId() != null)
+                .collect(Collectors.toMap(RoomTypeDto::getId, Function.identity(), (a, b) -> a));
 
-        hotelOffer.setRoomTypeCountAvailableMap(
-                roomDtos.stream().filter(room -> room.getStatus() == RoomStatus.AVAILABLE)
-                        .collect(Collectors.groupingBy(RoomDto::getRoomType, Collectors.counting()))
-        );
+        List<RoomTypeCountDto> roomTypeCountList = countsByTypeId.entrySet().stream()
+                .map(e -> RoomTypeCountDto.builder()
+                        .roomType(typeById.get(e.getKey()))
+                        .count(e.getValue())
+                        .build())
+                .toList();
+
+        hotelOffer.setRoomTypeCountAvailableList(roomTypeCountList);
 
         return hotelOffer;
     }
@@ -348,6 +378,5 @@ public class IHotelServices implements HotelServices {
     public void deleteHotel(Long id) {
         hotelRepository.deleteById(id);
     }
-
 
 }

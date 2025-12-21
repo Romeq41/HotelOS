@@ -27,7 +27,6 @@ class HotelRepositoryTest {
         hotel.setName("Hotel Test");
 
         hotel.setDescription("A test hotel for unit testing");
-        hotel.setImagePath("test_image.jpg");
         hotel.setBasePrice(new BigDecimal("100.00"));
 
         AddressInformation address = new AddressInformation();

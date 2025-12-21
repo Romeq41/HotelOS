@@ -1,18 +1,49 @@
 package com.hotelos.hotelosbackend.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
+import jakarta.persistence.*;
+import lombok.*;
 
-@Getter
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "room_types")
+@Data
+@NoArgsConstructor
 @AllArgsConstructor
+@Builder
+public class RoomType {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-public enum RoomType {
-    STANDARD(1.0),
-    FAMILY(1.5),
-    SUITE(2.0),
-    PRESIDENTIAL_SUITE(3.0),
-    FAMILY_ROOM(1.8);
+    @Column(nullable = false)
+    private String name;
 
-    private final double priceFactor;
+    @Column(nullable = false)
+    private double priceFactor;
+
+    @Column
+    private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "hotel_id")
+    private Hotel hotel;
+
+    private boolean isActive = true;
+
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

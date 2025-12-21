@@ -2,6 +2,7 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useUser } from "./contexts/UserContext";
 import { UserType } from "./interfaces/User";
+import { getBaseUrl } from "./utils/routeUtils";
 
 interface ProtectedRouteProps {
     allowedRoles: UserType[];
@@ -15,13 +16,9 @@ const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
     }
 
     if (user && !allowedRoles.includes(user.userType)) {
-        if (user.userType === UserType.MANAGER) {
-            return <Navigate to={`/manager/hotel/${user.hotel?.id}/overview`} replace />;
-        } else if (user.userType === UserType.STAFF) {
-            return <Navigate to={`/staff/${user.hotel?.id}/reservations`} replace />;
-        } else {
-            return <Navigate to="/notfound" replace />;
-        }
+        const base = getBaseUrl(user.userType, user.hotel?.id ?? '');
+        const fallback = user.userType === UserType.MANAGER ? `${base}/overview` : `${base}/reservations`;
+        return <Navigate to={fallback} replace />;
     }
 
     return <Outlet />;

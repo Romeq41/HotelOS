@@ -5,7 +5,7 @@ import { Reservation } from '../../../interfaces/Reservation';
 import { Hotel } from '../../../interfaces/Hotel';
 import { useLoading } from '../../../contexts/LoaderContext';
 import { useTranslation } from 'react-i18next';
-import { UserType } from '../../../interfaces/User';
+import { getBaseUrl, getPermissionContext } from '../../../utils/routeUtils';
 
 export default function Admin_Hotel_Room_Reservations() {
     const { hotelId } = useParams<{ hotelId: string }>();
@@ -23,27 +23,7 @@ export default function Admin_Hotel_Room_Reservations() {
     const { showLoader, hideLoader } = useLoading();
     const PAGE_SIZE = 10;
 
-    const getPermissionContext = () => {
-        if (location.pathname.includes('/admin/')) {
-            return UserType.ADMIN;
-        } else if (location.pathname.includes('/manager/')) {
-            return UserType.MANAGER;
-        } else if (location.pathname.includes('/staff/')) {
-            return UserType.STAFF;
-        }
-    };
-
-    const getBaseUrl = () => {
-        const permissionContext = getPermissionContext();
-        if (permissionContext === UserType.ADMIN) {
-            return `/admin/hotels/${hotelId}`;
-        } else if (permissionContext === UserType.MANAGER) {
-            return `/manager/hotel/${hotelId}`;
-        } else if (permissionContext === UserType.STAFF) {
-            return `/staff/${hotelId}`;
-        }
-        return '';
-    };
+    const permissionContext = getPermissionContext(location.pathname);
 
     useEffect(() => {
         const fetchHotelData = async () => {
@@ -249,10 +229,11 @@ export default function Admin_Hotel_Room_Reservations() {
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            <div className="mt-20 rounded-lg pt-10 pb-5 w-full flex justify-center gap-10 items-center">
+            <div className="mt-20 rounded-lg pt-10 pb-5 w-full flex justify-between gap-10 items-center px-5">
                 <h1 className="text-2xl font-bold">
                     {hotel?.name} : {t('admin.reservations.title', 'Reservations')}
                 </h1>
+                <div className="text-sm text-gray-500">{t('common.total', 'Total')}: {totalPages * PAGE_SIZE}</div>
             </div>
 
             <main className="flex-grow p-5">
@@ -273,7 +254,7 @@ export default function Admin_Hotel_Room_Reservations() {
                         </div>
                         <Button
                             type="primary"
-                            onClick={() => navigate(`${getBaseUrl()}/reservations/add`)}
+                            onClick={() => navigate(`${getBaseUrl(permissionContext, hotelId || '')}/reservations/add`)}
                         >
                             {t('admin.reservations.addReservation', 'Add Reservation')}
                         </Button>
@@ -288,8 +269,10 @@ export default function Admin_Hotel_Room_Reservations() {
                             total: totalPages * PAGE_SIZE,
                             onChange: (page) => setPage(page - 1),
                         }}
+                        bordered
+                        size="middle"
                         onRow={(record) => ({
-                            onClick: () => navigate(`${getBaseUrl()}/reservations/${record.reservationId}`),
+                            onClick: () => navigate(`${getBaseUrl(permissionContext, hotelId || '')}/reservations/${record.reservationId}`),
                         })}
                         rowClassName="cursor-pointer hover:bg-gray-100 hover:shadow-md transition-all"
                     />

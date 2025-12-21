@@ -1,18 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Input } from 'antd';
+import { Table, Button, Input, Popconfirm, message, Tag } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { User, UserType } from '../../../interfaces/User';
-import { Popconfirm } from 'antd';
+// import { User, UserType } from '../../../interfaces/User';
 import { useLoading } from '../../../contexts/LoaderContext';
 import { useTranslation } from 'react-i18next';
+import { useApi } from '../../../api/useApi';
+import { PageUserDto } from '../../../api/generated/api';
 
 export default function Users() {
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const { user: userApi } = useApi();
 
-    const [users, setUsers] = useState<User[]>([]);
+    const [users, setUsers] = useState<any[]>([]);
     const [page, setPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
     const [inputValue, setInputValue] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -22,55 +24,62 @@ export default function Users() {
     useEffect(() => {
         const fetchUsersData = async (searchValue: string, pageNumber: number) => {
             showLoader();
-            const params = new URLSearchParams({
-                page: pageNumber.toString(),
-                size: PAGE_SIZE.toString(),
-                ...(searchValue ? { email: searchValue } : {})
-            });
-
             try {
-                const response = await fetch(`http://localhost:8080/api/users?${params}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                    },
-                });
+                const response = await userApi.getAllUsers(
+                    pageNumber,
+                    PAGE_SIZE,
+                    searchValue || undefined
+                );
+                const data = response.data as PageUserDto;
 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                if (data?.content) {
+                    const mapped = data.content
+                        .filter((u: any) => (u.userType || u.userDto?.userType) !== 'ADMIN')
+                        .map((u: any) => {
+                            const id = (u.id ?? u.userId) as number | string;
+                            const addressInfo = u.addressInformation || u.address || {};
+                            const address = [
+                                addressInfo.address,
+                                addressInfo.city,
+                                addressInfo.state,
+                                addressInfo.zipCode,
+                                addressInfo.country
+                            ].filter(Boolean).join(', ');
+                            return {
+                                ...u,
+                                key: id,
+                                id,
+                                userId: u.userId ?? id,
+                                hotelName: u.hotel?.name,
+                                position: u.position,
+                                address,
+                            };
+                        });
+
+                    setUsers(mapped as any[]);
+                    setTotalElements(data.totalElements || (mapped?.length ?? 0));
+                    setPage(data.number || 0);
+                } else {
+                    setUsers([]);
+                    setTotalElements(0);
+                    setPage(0);
                 }
-
-                if (response.status === 401) {
-                    console.log('Unauthorized access. Redirecting to login page...');
-                    window.location.href = '/login';
-                }
-                if (response.status === 403) {
-                    console.log('Forbidden access. Redirecting to login page...');
-                    window.location.href = '/login';
-                }
-
-                const data = await response.json();
-
-                const nonAdminUsers = data.content.filter((user: User) => user.userType !== UserType.ADMIN);
-
-                const usersWithKeys = nonAdminUsers.map((user: User) => ({
-                    ...user,
-                    key: user.userId,
-                }));
-
-                setUsers(usersWithKeys);
-                setTotalPages(data.totalPages);
-                setPage(data.number);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error fetching users data:', error);
+                if (error.response?.status === 401 || error.response?.status === 403) {
+                    message.error(t('common.unauthorized', 'Unauthorized access'));
+                    navigate('/login');
+                    return;
+                }
+                message.error(t('admin.users.fetchError', 'Failed to load users data'));
+            } finally {
+                hideLoader();
             }
-            hideLoader();
         };
 
 
         fetchUsersData(searchQuery, page);
-    }, [searchQuery, page]);
+    }, [searchQuery, page, userApi, navigate, t]);
 
     const handleSearch = () => {
         setPage(0);
@@ -83,26 +92,20 @@ export default function Users() {
         }
     };
 
-    const handleDelete = async (userId: string) => {
+    const handleDelete = async (userId: string | number) => {
         showLoader();
         try {
-            const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to delete user');
-            }
-
-            console.log(`User with ID ${userId} deleted successfully`);
-
-            setUsers((prevUsers) => prevUsers.filter((user) => user.userId !== userId));
-        } catch (error) {
+            await userApi.deleteUser(Number(userId));
+            message.success(t('admin.users.deleteSuccess', `User with ID ${userId} deleted successfully`));
+            setUsers((prevUsers) => prevUsers.filter((user: any) => (user.id ?? user.userId) !== userId));
+        } catch (error: any) {
             console.error('Error deleting user:', error);
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                message.error(t('common.unauthorized', 'Unauthorized access'));
+                navigate('/login');
+                return;
+            }
+            message.error(t('admin.users.deleteError', 'Failed to delete user'));
         }
         hideLoader();
     };
@@ -127,7 +130,7 @@ export default function Users() {
         {
             title: t('admin.users.columns.hotelName', 'Hotel Name'),
             key: 'name',
-            render: (_: any, record: User) => record.hotel?.name || t('admin.users.noHotelAssigned', 'No Hotel Assigned'),
+            render: (_: any, record: any) => record.hotelName || record.hotel?.name || t('admin.users.noHotelAssigned', 'No Hotel Assigned'),
         },
         {
             title: t('admin.users.columns.position', 'Position'),
@@ -136,17 +139,27 @@ export default function Users() {
         },
         {
             title: t('admin.users.columns.address', 'Address'),
-            dataIndex: 'address',
             key: 'address',
+            render: (_: any, record: any) => record.address || record.addressInformation?.address || '-',
+        },
+        {
+            title: t('admin.users.columns.role', 'Role'),
+            dataIndex: 'userType',
+            key: 'userType',
+            render: (val: string) => {
+                const role = (val || '').toUpperCase();
+                const color = role === 'MANAGER' ? 'gold' : role === 'STAFF' ? 'blue' : role === 'GUEST' ? 'green' : 'default';
+                return <Tag color={color}>{role || 'N/A'}</Tag>;
+            }
         },
         {
             title: t('admin.users.columns.actions', 'Actions'),
             key: 'actions',
-            render: (_: any, record: User) => (
+            render: (_: any, record: any) => (
                 <div onClick={(e) => e.stopPropagation()}>
                     <Popconfirm
                         title={t('admin.users.deleteConfirmation', 'Are you sure you want to delete this user?')}
-                        onConfirm={() => handleDelete(record.userId)}
+                        onConfirm={() => handleDelete(record.id ?? record.userId)}
                         okText={t('common.yes', 'Yes')}
                         cancelText={t('common.no', 'No')}
                     >
@@ -165,8 +178,9 @@ export default function Users() {
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
             {/* Title & Add User */}
-            <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-center gap-10 items-center">
+            <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-between gap-10 items-center px-5">
                 <h1 className="text-2xl font-bold">{t('admin.hotels.title_users', 'Hotel Users')}</h1>
+                <div className="text-sm text-gray-500">{t('common.total', 'Total')}: {totalElements}</div>
             </div>
 
             {/* Content */}
@@ -200,11 +214,13 @@ export default function Users() {
                         pagination={{
                             current: page + 1,
                             pageSize: PAGE_SIZE,
-                            total: totalPages * PAGE_SIZE,
-                            onChange: (page) => setPage(page - 1),
+                            total: totalElements,
+                            onChange: (p) => setPage(p - 1),
                         }}
-                        onRow={(record) => ({
-                            onClick: () => navigate(`/admin/users/${record.userId}`),
+                        bordered
+                        size="middle"
+                        onRow={(record: any) => ({
+                            onClick: () => navigate(`/admin/users/${record.id ?? record.userId}`),
                         })}
                         rowClassName="cursor-pointer hover:bg-gray-100 hover:shadow-md transition-all"
                     />

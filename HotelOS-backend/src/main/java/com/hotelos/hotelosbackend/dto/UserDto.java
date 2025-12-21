@@ -1,6 +1,7 @@
 package com.hotelos.hotelosbackend.dto;
 
 import com.hotelos.hotelosbackend.models.UserType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "User Data Transfer Object")
 public class UserDto {
 
     private Long userId;

@@ -78,6 +78,7 @@
         "lowestPrice": "LOWEST PRICE",
         "bestValue": "BEST VALUE",
         "availableRoomTypes": "Available Room Types",
+        "noOtherRoomTypesAvailable": "No other room types available.",
         "featuredAmenities": "Featured Amenities",
         "roomTypeAvailability": "Room Type Availability",
         "viewDetails": "View Details",
@@ -111,7 +112,9 @@
         "apply": "Apply",
         "select": "Select",
         "deselect": "Deselect",
-        "delete": "Delete"
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "unauthorized": "Unauthorized access"
     },
     
     "roomTypes": {
@@ -299,7 +302,24 @@
                 "imageUploadPartialError": "Hotel updated but failed to upload image",
                 "imageTypeError": "You can only upload image files!",
                 "imageSizeError": "Image must be smaller than 5MB!",
-                "imageHint": "Upload a hotel image (max 5MB)"
+                "imageHint": "Upload a hotel image (max 5MB)",
+                "primaryImageName": "primary-image.jpg",
+                "additionalImageName": "hotel-image-{{index}}.jpg",
+                "noImagesFound": "No existing images found for this hotel",
+                "fetchErrorLog": "Error fetching hotel:",
+                "primaryImageDeleteError": "Error deleting primary image:",
+                "imageDeleteErrorLog": "Error deleting image:",
+                "formValuesLog": "Form values:",
+                "primaryImageUploadErrorLog": "Error uploading primary image:",
+                "additionalImagesUploadErrorLog": "Error uploading additional images:",
+                "updateErrorLog": "Error updating hotel:",
+                "primaryImageUploadSuccess": "Primary image uploaded successfully",
+                "primaryImageUploadError": "Hotel updated but failed to upload primary image",
+                "imageDeleteSuccess": "Image deleted successfully",
+                "primaryImageHint": "Upload the main hotel image that will be displayed as primary (max 5MB). This image represents your hotel in search results.",
+                "additionalImagesHint": "Upload additional hotel images for gallery (max 5MB each, max 9 images). Currently: {{count}} additional image(s).",
+                "selectPrimaryImage": "Primary Image",
+                "selectAdditionalImages": "Add More"
             },
             "fields": {
                 "name": "Hotel Name",
@@ -308,7 +328,25 @@
                 "state": "State/Province",
                 "zipCode": "Postal/ZIP Code",
                 "country": "Country",
-                "image": "Hotel Image"
+                "image": "Hotel Image",
+                "email": "Email",
+                "phoneNumber": "Phone Number",
+                "basePrice": "Base Price",
+                "description": "Description",
+                "primaryImage": "Primary Image",
+                "additionalImages": "Additional Images"
+            },
+            "placeholders": {
+                "name": "Enter hotel name",
+                "address": "Enter street address",
+                "city": "Enter city name",
+                "state": "Enter state or province",
+                "country": "Enter country name",
+                "zipCode": "Enter postal/ZIP code",
+                "email": "Enter email address",
+                "phoneNumber": "Enter phone number",
+                "basePrice": "Enter base price",
+                "description": "Enter hotel description (optional)"
             },
             "validation": {
                 "nameRequired": "Please input hotel name!",
@@ -322,7 +360,11 @@
                 "zipCodeUSInvalid": "US ZIP code must be in format: 12345 or 12345-6789",
                 "zipCodeCAInvalid": "Canadian postal code must be in format: A1A 1A1",
                 "zipCodePLInvalid": "Polish postal code must be in format: 12-345",
-                "zipCodeUKInvalid": "UK postal code is invalid"
+                "zipCodeUKInvalid": "UK postal code is invalid",
+                "emailRequired": "Please input email!",
+                "emailInvalid": "Please enter a valid email!",
+                "phoneRequired": "Please input phone number!",
+                "basePriceRequired": "Please input base price!"
             },
             "title": "Hotels",
             "searchPlaceholder": "Search hotels",
@@ -348,6 +390,9 @@
             "seeEmployees": "See Employees",
             "loading": "Loading hotel information...",
             "title_users": "Hotel Staff",
+            "fetchError": "Failed to load hotels data",
+            "deleteSuccess": "Hotel deleted successfully",
+            "deleteError": "Failed to delete hotel",
             "rooms": {
                 "add": {
                     "title": "Add New Room",

@@ -35,6 +35,7 @@ import AddStaff from "./pages/manager/staff_add";
 import ResetPassword from "./pages/ResetPassword";
 import Explore from "./pages/user/Explore";
 import HotelDetails from "./pages/user/Hotel_Offer_details";
+import Admin_Hotel_Room_Type_Add from "./pages/admin/hotel/room_type_add";
 
 const App = () => {
     return (
@@ -76,6 +77,7 @@ const App = () => {
                                 <Route path="/admin/hotels/:hotelId/rooms/add" element={<AddRoom />} />
                                 <Route path="/admin/hotels/:hotelId/rooms/:roomId" element={<Admin_Hotel_Room_details />} />
                                 <Route path="/admin/hotels/:hotelId/rooms/:roomId/edit" element={<Admin_Hotel_Room_Details_Edit />} />
+                                <Route path="/admin/hotels/:hotelId/room-types/add" element={<Admin_Hotel_Room_Type_Add />} />
 
                                 {/* Admin hotel users routes */}
                                 <Route path="/admin/hotels/:hotelId/users" element={<Admin_Hotel_Users />} />

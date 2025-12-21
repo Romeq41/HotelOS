@@ -11,5 +11,5 @@ import java.util.List;
 @Repository
 public interface AmenityRepository extends JpaRepository<Amenity, Long> {
     Page<Amenity> findByHotel_Id(Long hotelId, Pageable pageable);
-    List<Amenity> findByHotel_Id(Long hotelId);
+    List<Amenity> findAllByHotel_Id(Long hotelId);
 }

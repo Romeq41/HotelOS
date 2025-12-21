@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import { Reservation } from "../../../interfaces/Reservation";
 import { useLoading } from "../../../contexts/LoaderContext";
 import { useTranslation } from "react-i18next";
-import { UserType } from "../../../interfaces/User";
+import { getBaseUrl, getPermissionContext } from "../../../utils/routeUtils";
+import { useApi } from "../../../api/useApi";
+import { message } from "antd";
 
 export default function Admin_Hotel_Room_Reservation_Details() {
     const { hotelId, reservationId } = useParams<{ hotelId: string; reservationId: string }>();
@@ -12,57 +14,30 @@ export default function Admin_Hotel_Room_Reservation_Details() {
     const [reservation, setReservation] = useState<Reservation | null>(null);
     const { showLoader, hideLoader } = useLoading();
     const { t } = useTranslation();
-
-    const getPermissionContext = () => {
-        if (location.pathname.includes('/admin/')) {
-            return UserType.ADMIN;
-        } else if (location.pathname.includes('/manager/')) {
-            return UserType.MANAGER;
-        } else if (location.pathname.includes('/staff/')) {
-            return UserType.STAFF;
-        }
-    };
-
-    const getBaseUrl = () => {
-        const permissionContext = getPermissionContext();
-        if (permissionContext === UserType.ADMIN) {
-            return `/admin/hotels/${hotelId}`;
-        } else if (permissionContext === UserType.MANAGER) {
-            return `/manager/hotel/${hotelId}`;
-        } else if (permissionContext === UserType.STAFF) {
-            return `/staff/${hotelId}`;
-        }
-        return '';
-    };
+    const permissionContext = getPermissionContext(location.pathname);
+    const { reservation: reservationApi } = useApi();
 
     useEffect(() => {
         const fetchReservation = async () => {
-            if (reservationId) {
-                showLoader();
-                try {
-                    const res = await fetch(`http://localhost:8080/api/reservations/${reservationId}`, {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                        },
-                    });
-
-                    if (!res.ok) {
-                        throw new Error('Failed to fetch reservation data');
-                    }
-
-                    const data = await res.json();
-                    setReservation(data);
-                } catch (error) {
-                    console.error("Error fetching reservation:", error);
-                } finally {
-                    hideLoader();
+            if (!reservationId) return;
+            showLoader();
+            try {
+                const response = await reservationApi.getReservationById(Number(reservationId));
+                setReservation(response.data as any);
+            } catch (error: any) {
+                console.error("Error fetching reservation:", error);
+                if (error.response?.status === 401 || error.response?.status === 403) {
+                    message.error(t('common.unauthorized', 'Unauthorized access'));
+                    navigate('/login');
+                    return;
                 }
+                message.error(t('admin.reservations.fetchError', 'Failed to load reservation'));
+            } finally {
+                hideLoader();
             }
         };
         fetchReservation();
-    }, [hotelId, reservationId]);
+    }, [hotelId, reservationId, reservationApi, navigate, t]);
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
@@ -98,13 +73,19 @@ export default function Admin_Hotel_Room_Reservation_Details() {
 
                             <hr className="block my-3" />
                             <button
-                                onClick={() => navigate(`${getBaseUrl()}/reservations/${reservationId}/edit`)}
+                                onClick={() => {
+                                    const base = getBaseUrl(permissionContext, hotelId || '');
+                                    navigate(`${base}/reservations/${reservationId}/edit`);
+                                }}
                                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-2"
                             >
                                 {t('admin.reservations.editReservation', 'Edit Reservation')}
                             </button>
                             <button
-                                onClick={() => navigate(`${getBaseUrl()}/reservations`)}
+                                onClick={() => {
+                                    const base = getBaseUrl(permissionContext, hotelId || '');
+                                    navigate(`${base}/reservations`);
+                                }}
                                 className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 m-2"
                             >
                                 {t('general.back', 'Back')}

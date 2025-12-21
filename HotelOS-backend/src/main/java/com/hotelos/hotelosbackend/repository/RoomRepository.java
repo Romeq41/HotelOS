@@ -1,5 +1,6 @@
 package com.hotelos.hotelosbackend.repository;
 
+import com.hotelos.hotelosbackend.dto.CheapestRoomByTypeDto;
 import com.hotelos.hotelosbackend.models.Hotel;
 import com.hotelos.hotelosbackend.models.Room;
 import com.hotelos.hotelosbackend.models.RoomStatus;
@@ -16,9 +17,10 @@ import java.util.List;
 public interface RoomRepository extends JpaRepository<Room, Long> {
 
     Page<Room> findByRoomNumberAndHotelId(Long roomNumber, Long hotelId, Pageable pageable);
-    List<Room> findByHotelId(Long hotelId);
+    List<Room> findAllByHotelId(Long hotelId);
     Page<Room> findByHotelId(Long hotelId, Pageable pageable);
-
+    List<Room> findByRoomNumberAndHotel_Id(Long roomNumber, Long hotelId);
+    
     boolean existsByRoomNumberAndHotel_Id(Long roomNumber, Long hotelId);
     Long countByHotelAndStatusEquals(Hotel hotel, RoomStatus status);
     Long countRoomsByHotelIdAndRoomType(Long hotelId, RoomType roomType);

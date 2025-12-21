@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Input } from 'antd';
+import { Table, Button, Input, message } from 'antd';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Room } from '../../../interfaces/Room';
 import { Popconfirm } from 'antd';
-import { Hotel } from '../../../interfaces/Hotel';
 import { useLoading } from '../../../contexts/LoaderContext';
 import { useTranslation } from 'react-i18next';
 import { useUser } from '../../../contexts/UserContext';
 import { UserType } from '../../../interfaces/User';
+import { useApi } from '../../../api/useApi';
+import { HotelDto, RoomDto, PageRoomDto } from '../../../api/generated/api';
 
 export default function Admin_Hotel_Rooms() {
     const { hotelId } = useParams();
@@ -16,14 +16,15 @@ export default function Admin_Hotel_Rooms() {
     const { t } = useTranslation();
     const { user: currentUser } = useUser();
 
-    const [rooms, setRooms] = useState<Room[]>([]);
-    const [hotel, setHotel] = useState<Hotel>();
+    const [rooms, setRooms] = useState<RoomDto[]>([]);
+    const [hotel, setHotel] = useState<HotelDto>();
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [inputValue, setInputValue] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
 
     const { showLoader, hideLoader } = useLoading();
+    const { hotel: hotelApi, room: roomApi } = useApi();
     const PAGE_SIZE = 10;
 
     // Helper function to determine the correct base path for navigation
@@ -44,28 +45,21 @@ export default function Admin_Hotel_Rooms() {
         const fetchHotelData = async () => {
             showLoader();
             try {
-                const response = await fetch(`http://localhost:8080/api/hotels/${hotelId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                if (hotelId) {
+                    const response = await hotelApi.getHotelById(Number(hotelId));
+                    const hotelData = response.data as HotelDto;
+                    setHotel(hotelData);
                 }
-
-                if (response.status === 401 || response.status === 403) {
-                    console.log('Unauthorized or forbidden access. Redirecting to login page...');
-                    window.location.href = '/login';
-                }
-
-                const data = await response.json();
-                setHotel(data);
-
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error fetching hotel data:', error);
+
+                if (error.response?.status === 401 || error.response?.status === 403) {
+                    message.error(t('common.unauthorized', 'Unauthorized access'));
+                    navigate('/login');
+                    return;
+                }
+
+                message.error(t('admin.hotels.fetchError', 'Failed to load hotel data'));
             }
             hideLoader();
         };
@@ -75,54 +69,38 @@ export default function Admin_Hotel_Rooms() {
     useEffect(() => {
         const fetchRoomsData = async (searchValue: string, pageNumber: number) => {
             showLoader();
-            const params = new URLSearchParams({
-                page: pageNumber.toString(),
-                size: PAGE_SIZE.toString(),
-                ...(searchValue ? { roomNumber: searchValue } : {})
-            });
 
             try {
-                const response = await fetch(`http://localhost:8080/api/hotels/${hotelId}/rooms?${params}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                    },
-                });
+                if (hotelId) {
+                    const response = await hotelApi.getRoomsByHotelId(
+                        Number(hotelId),
+                        pageNumber,
+                        PAGE_SIZE,
+                        searchValue ? Number(searchValue) : undefined
+                    );
 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    const data = response.data as PageRoomDto;
+
+                    if (data.content) {
+                        setRooms(data.content);
+                        setTotalPages(data.totalPages || 0);
+                        setPage(data.number || 0);
+                    } else {
+                        setRooms([]);
+                        setTotalPages(0);
+                        setPage(0);
+                    }
                 }
+            } catch (error: any) {
+                console.error('Error fetching rooms data:', error);
 
-                if (response.status === 401 || response.status === 403) {
-                    console.log('Unauthorized or forbidden access. Redirecting to login page...');
-                    window.location.href = '/login';
+                if (error.response?.status === 401 || error.response?.status === 403) {
+                    message.error(t('common.unauthorized', 'Unauthorized access'));
+                    navigate('/login');
                     return;
                 }
 
-                const data = await response.json();
-
-                if (data.content) {
-                    const roomsWithKeys = data.content.map((room: Room) => ({
-                        ...room,
-                        key: room.roomId,
-                    }));
-
-                    setRooms(roomsWithKeys);
-                    setTotalPages(data.totalPages);
-                    setPage(data.number);
-                } else {
-                    const roomsWithKeys = data.map((room: Room) => ({
-                        ...room,
-                        key: room.roomId,
-                    }));
-
-                    setRooms(roomsWithKeys);
-                    setTotalPages(Math.ceil(roomsWithKeys.length / PAGE_SIZE));
-                    setPage(0);
-                }
-            } catch (error) {
-                console.error('Error fetching rooms data:', error);
+                message.error(t('admin.hotels.rooms.fetchError', 'Failed to load rooms data'));
             }
             hideLoader();
         };
@@ -141,24 +119,22 @@ export default function Admin_Hotel_Rooms() {
         }
     };
 
-    const handleDelete = async (roomId: string) => {
+    const handleDelete = async (roomId: number) => {
         showLoader();
         try {
-            const response = await fetch(`http://localhost:8080/api/rooms/${roomId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                },
-            });
+            await roomApi.deleteRoom(roomId);
+            setRooms((prevRooms) => prevRooms.filter((room) => room.roomId !== roomId));
+            message.success(t('admin.hotels.rooms.deleteSuccess', 'Room deleted successfully'));
+        } catch (error: any) {
+            console.error('Error deleting room:', error);
 
-            if (!response.ok) {
-                throw new Error('Failed to delete room');
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                message.error(t('common.unauthorized', 'Unauthorized access'));
+                navigate('/login');
+                return;
             }
 
-            setRooms((prevRooms) => prevRooms.filter((room) => room.roomId !== roomId));
-        } catch (error) {
-            console.error('Error deleting room:', error);
+            message.error(t('admin.hotels.rooms.deleteError', 'Failed to delete room'));
         }
         hideLoader();
     };
@@ -171,14 +147,16 @@ export default function Admin_Hotel_Rooms() {
         },
         {
             title: t('admin.hotels.rooms.columns.type', 'Type'),
-            dataIndex: 'type',
-            key: 'type',
+            dataIndex: 'roomType',
+            key: 'roomType',
+            render: (roomType: any) => roomType?.name || t('common.notAvailable', 'N/A'),
         },
         {
             title: t('admin.hotels.rooms.columns.price', 'Price'),
             dataIndex: 'price',
             key: 'price',
-            render: (price: number) => `$${price.toFixed(2)}`,
+            render: (price: number | null | undefined) =>
+                price !== null && price !== undefined ? `$${price.toFixed(2)}` : t('common.notAvailable', 'N/A'),
         },
         {
             title: t('admin.hotels.rooms.columns.status', 'Status'),
@@ -188,11 +166,11 @@ export default function Admin_Hotel_Rooms() {
         {
             title: t('admin.hotels.columns.actions', 'Actions'),
             key: 'actions',
-            render: (_: any, record: Room) => (
+            render: (_: any, record: RoomDto) => (
                 <div onClick={(e) => e.stopPropagation()}>
                     <Popconfirm
                         title={t('admin.hotels.rooms.deleteConfirmation', 'Are you sure you want to delete this room?')}
-                        onConfirm={() => handleDelete(record.roomId)}
+                        onConfirm={() => handleDelete(record.roomId!)}
                         okText={t('common.yes', 'Yes')}
                         cancelText={t('common.no', 'No')}
                     >
@@ -210,10 +188,11 @@ export default function Admin_Hotel_Rooms() {
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-center gap-10 items-center">
+            <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-between gap-10 items-center px-5">
                 <h1 className="text-2xl font-bold">
                     {hotel?.name} : {t('hotel.rooms', 'Rooms')}
                 </h1>
+                <div className="text-sm text-gray-500">{t('common.total', 'Total')}: {totalPages * PAGE_SIZE}</div>
             </div>
 
             {/* Content */}
@@ -244,12 +223,15 @@ export default function Admin_Hotel_Rooms() {
                     <Table
                         columns={columns}
                         dataSource={rooms}
+                        rowKey="roomId"
                         pagination={{
                             current: page + 1,
                             pageSize: PAGE_SIZE,
                             total: totalPages * PAGE_SIZE,
                             onChange: (page) => setPage(page - 1),
                         }}
+                        bordered
+                        size="middle"
                         onRow={(record) => ({
                             onClick: () => navigate(`${getBasePath()}/rooms/${record.roomId}`),
                         })}

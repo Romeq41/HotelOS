@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { User } from "../../../interfaces/User";
-import { Hotel } from "../../../interfaces/Hotel";
 import { useLoading } from "../../../contexts/LoaderContext";
 import { useTranslation } from "react-i18next";
 import {
@@ -19,13 +17,16 @@ import {
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadFile, UploadProps } from "antd/es/upload/interface";
+import { useApi } from "../../../api/useApi";
+import { PageHotelDto, UserDto } from "../../../api/generated/api";
+import { useUser } from "../../../contexts/UserContext";
 
 export default function Admin_User_Edit() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [form] = Form.useForm();
-    const [user, setUser] = useState<User | null>(null);
-    const [hotels, setHotels] = useState<Hotel[]>([]);
+    const [user, setUser] = useState<UserDto | null>(null);
+    const [hotels, setHotels] = useState<any[]>([]);
     const [hotelPage, setHotelPage] = useState(0);
     const [totalHotelPages, setTotalHotelPages] = useState(0);
     const [hotelSearchQuery, setHotelSearchQuery] = useState("");
@@ -33,83 +34,76 @@ export default function Admin_User_Edit() {
     const [fileList, setFileList] = useState<UploadFile[]>([]);
     const { showLoader, hideLoader } = useLoading();
     const { t } = useTranslation();
+    const { user: userApi, hotel: hotelApi } = useApi();
+    const { user: currentUser } = useUser();
     const PAGE_SIZE = 10;
     const { Option } = Select;
+    const isAdmin = (currentUser?.userType || '').toString().toUpperCase() === 'ADMIN';
 
     useEffect(() => {
         const fetchUser = async () => {
             if (!id) return;
             showLoader();
             try {
-                const response = await fetch(`http://localhost:8080/api/users/${id}`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${document.cookie.replace(
-                            /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
-                            "$1"
-                        )}`
-                    }
-                });
-                if (!response.ok) {
-                    throw new Error("Failed to fetch user.");
-                }
-                const userData: User = await response.json();
+                const response = await userApi.getUserById(Number(id));
+                const userData = response.data as UserDto;
                 setUser(userData);
                 form.setFieldsValue({
-                    ...userData,
-                    hotel: userData.hotel?.id
+                    firstName: userData.firstName,
+                    lastName: userData.lastName,
+                    userType: (userData as any)?.userType,
+                    position: (userData as any)?.position,
+                    hotel: (userData as any)?.hotel?.id,
+                    authEmail: (userData as any)?.email,
+                    contactEmail: (userData as any)?.contactInformation?.email,
+                    phone: (userData as any)?.contactInformation?.phoneNumber,
+                    country: (userData as any)?.addressInformation?.country,
+                    state: (userData as any)?.addressInformation?.state,
+                    city: (userData as any)?.addressInformation?.city,
+                    address: (userData as any)?.addressInformation?.address,
+                    zipCode: (userData as any)?.addressInformation?.zipCode,
                 });
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Error fetching user:", error);
+                if (error.response?.status === 401 || error.response?.status === 403) {
+                    message.error(t('common.unauthorized', 'Unauthorized access'));
+                    navigate('/login');
+                    return;
+                }
                 message.error(t('admin.users.messages.loadFailed', 'Failed to load user data'));
+            } finally {
+                hideLoader();
             }
-            hideLoader();
         };
 
         fetchUser();
         fetchHotels(0, "");
-    }, [id, form, t]);
+    }, [id, form, t, navigate, userApi]);
 
     const fetchHotels = async (page: number, nameQuery: string) => {
         setHotelLoading(true);
         try {
-            const params = new URLSearchParams({
-                page: page.toString(),
-                size: PAGE_SIZE.toString(),
-                ...(nameQuery ? { name: nameQuery } : {})
-            });
-
-            const response = await fetch(`http://localhost:8080/api/hotels?${params}`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${document.cookie.replace(
-                        /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
-                        "$1"
-                    )}`
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to fetch hotels.");
-            }
-
-            const data = await response.json();
-
+            const response = await hotelApi.getAllHotels(page, PAGE_SIZE, nameQuery || undefined);
+            const data = response.data as PageHotelDto;
+            const content = (data as any)?.content || [];
             if (page === 0) {
-                setHotels(data.content);
+                setHotels(content);
             } else {
-                setHotels(prev => [...prev, ...data.content]);
+                setHotels(prev => [...prev, ...content]);
             }
-
-            setHotelPage(data.number);
-            setTotalHotelPages(data.totalPages);
-        } catch (error) {
+            setHotelPage((data as any)?.number || 0);
+            setTotalHotelPages((data as any)?.totalPages || 0);
+        } catch (error: any) {
             console.error("Error fetching hotels:", error);
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                message.error(t('common.unauthorized', 'Unauthorized access'));
+                navigate('/login');
+                return;
+            }
             message.error(t('admin.users.messages.hotelsLoadFailed', 'Failed to load hotels'));
+        } finally {
+            setHotelLoading(false);
         }
-        setHotelLoading(false);
     };
 
     const handlePopupScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -139,42 +133,28 @@ export default function Admin_User_Edit() {
     const onFinish = async (values: any) => {
         if (!id) return;
         showLoader();
-
-        const userDto: User = {
-            userId: id,
+        const body: any = {
             firstName: values.firstName,
             lastName: values.lastName,
-            email: values.email,
-            phone: values.phone,
             userType: values.userType,
-            hotel: {
-                id: values.hotel || null
-            },
             position: values.position,
-            country: values.country,
-            state: values.state,
-            city: values.city,
-            address: values.address,
-            zipCode: values.zipCode,
-            password: values.password
-        };
+            hotel: values.hotel ? { id: values.hotel } : undefined,
+            email: values.authEmail ?? user?.email,
+            addressInformation: {
+                address: values.address,
+                city: values.city,
+                state: values.state,
+                zipCode: values.zipCode,
+                country: values.country,
+            },
+            contactInformation: {
+                email: values.contactEmail ?? user?.contactInformation?.email,
+                phoneNumber: values.phone ?? user?.contactInformation?.phoneNumber,
+            },
+        } as UserDto;
 
         try {
-            const response = await fetch(`http://localhost:8080/api/users/${id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${document.cookie.replace(
-                        /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
-                        "$1"
-                    )}`
-                },
-                body: JSON.stringify(userDto)
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to update user.");
-            }
+            await userApi.updateUserById(Number(id), body);
 
             if (fileList.length > 0) {
                 const imageFormData = new FormData();
@@ -206,16 +186,33 @@ export default function Admin_User_Edit() {
 
             message.success(t('admin.users.messages.updateSuccess', 'User updated successfully'));
             navigate("/admin/users");
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error updating user:", error);
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                message.error(t('common.unauthorized', 'Unauthorized access'));
+                navigate('/login');
+                return;
+            }
             message.error(t('admin.users.messages.updateFailed', 'Failed to update user'));
+        } finally {
+            hideLoader();
         }
-        hideLoader();
     };
 
     const formInitialValues = user ? {
-        ...user,
-        hotel: user.hotel?.id
+        firstName: user.firstName,
+        lastName: user.lastName,
+        userType: user.userType,
+        position: user.position,
+        hotel: user.hotel?.id,
+        authEmail: (user as any)?.email,
+        contactEmail: user.contactInformation?.email,
+        phone: user.contactInformation?.phoneNumber,
+        country: user.addressInformation?.country,
+        state: user.addressInformation?.state,
+        city: user.addressInformation?.city,
+        address: user.addressInformation?.address,
+        zipCode: user.addressInformation?.zipCode,
     } : {};
 
     return (
@@ -294,7 +291,7 @@ export default function Admin_User_Edit() {
                                             >
                                                 {hotels.map((hotel) => (
                                                     <Option key={hotel.id} value={hotel.id}>
-                                                        {hotel.id}: {hotel.name}, {hotel.city}, {hotel.state}
+                                                        {hotel.id}: {hotel.name}, {hotel.addressInformation?.city || hotel.city}, {hotel.addressInformation?.state || hotel.state}
                                                     </Option>
                                                 ))}
                                             </Select>
@@ -302,17 +299,43 @@ export default function Admin_User_Edit() {
                                     </Col>
                                     <Col span={12}>
                                         <Form.Item
-                                            name="email"
-                                            label={t('admin.users.form.fields.email', 'Email')}
+                                            name="authEmail"
+                                            label={t('admin.users.form.fields.authEmail', 'Account Email (login)')}
+                                            tooltip={t('admin.users.form.tooltips.authEmail', 'Used for sign-in and authorization')}
                                             rules={[
-                                                {
-                                                    required: true,
-                                                    message: t('admin.users.form.errors.emailRequired', 'Please input email!')
-                                                },
-                                                {
-                                                    type: 'email',
-                                                    message: t('admin.users.form.errors.emailInvalid', 'Please enter a valid email!')
-                                                }
+                                                { required: true, message: t('admin.users.form.errors.emailRequired', 'Please input email!') },
+                                                { type: 'email', message: t('admin.users.form.errors.emailInvalid', 'Please enter a valid email!') }
+                                            ]}
+                                        >
+                                            <Input disabled={!isAdmin} />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Form.Item
+                                            name="position"
+                                            label={t('admin.users.form.fields.position', 'Position')}
+                                            rules={[{
+                                                required: true,
+                                                message: t('admin.users.form.errors.positionRequired', 'Please input position!')
+                                            }]}
+                                        >
+                                            <Input />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+
+                                {/* Contact Information Section */}
+                                <div className="mt-4 mb-2 font-semibold">
+                                    {t('admin.users.form.sections.contact', 'Contact Information')}
+                                </div>
+                                <Row gutter={24}>
+                                    <Col span={12}>
+                                        <Form.Item
+                                            name="contactEmail"
+                                            label={t('admin.users.form.fields.contactEmail', 'Contact Email (communication)')}
+                                            rules={[
+                                                { required: true, message: t('admin.users.form.errors.emailRequired', 'Please input email!') },
+                                                { type: 'email', message: t('admin.users.form.errors.emailInvalid', 'Please enter a valid email!') }
                                             ]}
                                         >
                                             <Input />
@@ -330,25 +353,20 @@ export default function Admin_User_Edit() {
                                             <Input />
                                         </Form.Item>
                                     </Col>
-                                    <Col span={12}>
-                                        <Form.Item
-                                            name="position"
-                                            label={t('admin.users.form.fields.position', 'Position')}
-                                            rules={[{
-                                                required: true,
-                                                message: t('admin.users.form.errors.positionRequired', 'Please input first name!')
-                                            }]}
-                                        >
-                                            <Input />
-                                        </Form.Item>
-                                    </Col>
+                                </Row>
+
+                                {/* Address Information Section */}
+                                <div className="mt-6 mb-2 font-semibold">
+                                    {t('admin.users.form.sections.address', 'Address Information')}
+                                </div>
+                                <Row gutter={24}>
                                     <Col span={12}>
                                         <Form.Item
                                             name="country"
                                             label={t('admin.users.form.fields.country', 'Country')}
                                             rules={[{
                                                 required: true,
-                                                message: t('admin.users.form.errors.countryRequired', 'Please input first name!')
+                                                message: t('admin.users.form.errors.countryRequired', 'Please input country!')
                                             }]}
                                         >
                                             <Input />
@@ -360,7 +378,7 @@ export default function Admin_User_Edit() {
                                             label={t('admin.users.form.fields.state', 'State')}
                                             rules={[{
                                                 required: true,
-                                                message: t('admin.users.form.errors.stateRequired', 'Please input first name!')
+                                                message: t('admin.users.form.errors.stateRequired', 'Please input state!')
                                             }]}
                                         >
                                             <Input />
@@ -372,7 +390,7 @@ export default function Admin_User_Edit() {
                                             label={t('admin.users.form.fields.city', 'City')}
                                             rules={[{
                                                 required: true,
-                                                message: t('admin.users.form.errors.cityRequired', 'Please input first name!')
+                                                message: t('admin.users.form.errors.cityRequired', 'Please input city!')
                                             }]}
                                         >
                                             <Input />
@@ -384,7 +402,7 @@ export default function Admin_User_Edit() {
                                             label={t('admin.users.form.fields.address', 'Address')}
                                             rules={[{
                                                 required: true,
-                                                message: t('admin.users.form.errors.addressRequired', 'Please input first name!')
+                                                message: t('admin.users.form.errors.addressRequired', 'Please input address!')
                                             }]}
                                         >
                                             <Input />
@@ -396,7 +414,7 @@ export default function Admin_User_Edit() {
                                             label={t('admin.users.form.fields.zipCode', 'Zip Code')}
                                             rules={[{
                                                 required: true,
-                                                message: t('admin.users.form.errors.zipcodeRequired', 'Please input first name!')
+                                                message: t('admin.users.form.errors.zipcodeRequired', 'Please input zip code!')
                                             }]}
                                         >
                                             <Input />

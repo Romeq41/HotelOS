@@ -1,8 +1,11 @@
 package com.hotelos.hotelosbackend.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.hotelos.hotelosbackend.models.AddressInformation;
 import com.hotelos.hotelosbackend.models.ContactInformation;
 import com.hotelos.hotelosbackend.models.RoomType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -15,10 +18,13 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Hotel Offer Data Transfer Object")
+
 public class HotelOfferDto {
     private Long id;
 
@@ -40,9 +46,8 @@ public class HotelOfferDto {
 
     private RoomDto cheapestRoom;
 
-    private Map<RoomType, Long> roomTypeCountAvailableMap;
-
-    private Map<RoomType, RoomDto> cheapestRoomByTypeMap;
+    private List<RoomTypeCountDto> roomTypeCountAvailableList;
+    private List<CheapestRoomByTypeDto> cheapestRoomByTypeList;
 
     private List<AmenityDto> amenities;
 }

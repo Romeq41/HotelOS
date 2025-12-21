@@ -102,7 +102,8 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserDto> updateUserById(
             @PathVariable @PositiveOrZero(message = "ID must be a positive number") Long id,
-            @Valid @RequestBody UserDto userDto) {
+            @RequestBody UserDto userDto) {
+        System.out.println(userDto);
         return userServices.getUserById(id).map(existingUser -> {
             User updatedUser = userMapper.toEntity(userDto);
             updatedUser.setUserId(id);

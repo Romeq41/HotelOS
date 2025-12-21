@@ -12,8 +12,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
-
 public interface HotelServices {
     Hotel saveHotel(Hotel person);
 

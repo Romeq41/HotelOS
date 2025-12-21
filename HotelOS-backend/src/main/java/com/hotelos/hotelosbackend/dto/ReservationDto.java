@@ -1,6 +1,7 @@
 package com.hotelos.hotelosbackend.dto;
 
 import com.hotelos.hotelosbackend.models.ReservationStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,8 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Reservation Data Transfer Object")
+
 public class ReservationDto {
     private Long reservationId;
 

@@ -171,8 +171,9 @@ export default function Admin_Hotel_Users() {
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-center gap-10 items-center">
+            <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-between gap-10 items-center px-5">
                 <h1 className="text-2xl font-bold">{t('admin.hotels.title_users', 'Hotel Users')}</h1>
+                <div className="text-sm text-gray-500">{t('common.total', 'Total')}: {totalPages * PAGE_SIZE}</div>
             </div>
 
             <main className="flex-grow p-5">
@@ -207,6 +208,8 @@ export default function Admin_Hotel_Users() {
                             total: totalPages * PAGE_SIZE,
                             onChange: (page) => setPage(page - 1),
                         }}
+                        bordered
+                        size="middle"
                         onRow={(record) => ({
                             onClick: () => navigate(`/manager/hotel/${hotelId}/staff/${record.userId}`),
                         })}

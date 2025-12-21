@@ -5,6 +5,7 @@ import com.hotelos.hotelosbackend.models.Room;
 import com.hotelos.hotelosbackend.models.RoomType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -18,9 +19,20 @@ import java.util.Optional;
 public interface RoomServices {
     Room saveRoom(Room person);
 
-    String storeFile(MultipartFile file) throws IOException;
+    String storeImage(MultipartFile file, Long roomId) throws IOException;
 
-    byte[] getFile(String filePath) throws IOException;
+    @Transactional
+    List<String> storeMultipleImages(List<MultipartFile> files, Long roomId) throws IOException;
+
+    List<Map<String, Object>> getRoomImages(Long roomId);
+
+    String getPrimaryRoomImage(Long roomId);
+
+    @Transactional
+    void deleteRoomImage(Long roomId, Long imageId);
+
+    @Transactional
+    void setPrimaryRoomImage(Long roomId, Long imageId);
 
     Page<RoomDto> getAllRooms(Pageable pageable);
 

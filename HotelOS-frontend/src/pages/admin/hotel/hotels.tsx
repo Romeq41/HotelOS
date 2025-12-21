@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Popconfirm, Input } from 'antd';
+import { Table, Button, Popconfirm, Input, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { Hotel } from '../../../interfaces/Hotel';
 import { useLoading } from '../../../contexts/LoaderContext';
 import { useTranslation } from 'react-i18next';
+import { useApi } from '../../../api/useApi';
+import { HotelDto, PageHotelDto } from '../../../api/generated/api';
 
 export default function Hotels() {
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const { hotel: hotelApi } = useApi();
 
-    const [hotels, setHotels] = useState<Hotel[]>([]);
+    const [hotels, setHotels] = useState<any[]>([]);
     const [page, setPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
     const [inputValue, setInputValue] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -21,63 +23,58 @@ export default function Hotels() {
     useEffect(() => {
         const fetchHotelsData = async (searchValue: string, pageNumber: number) => {
             showLoader();
-            const params = new URLSearchParams({
-                page: pageNumber.toString(),
-                size: PAGE_SIZE.toString(),
-                ...(searchValue ? { name: searchValue } : {})
-            });
 
             try {
-                const response = await fetch(`http://localhost:8080/api/hotels?${params}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                    },
-                });
+                // Use the generated API to fetch hotels
+                const response = await hotelApi.getAllHotels(
+                    pageNumber,
+                    PAGE_SIZE,
+                    searchValue || undefined // Only pass hotelName if searchValue exists
+                );
 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                if (response.status === 401) {
-                    console.log('Unauthorized access. Redirecting to login page...');
-                    window.location.href = '/login';
-                }
-                if (response.status === 403) {
-                    console.log('Forbidden access. Redirecting to login page...');
-                    window.location.href = '/login';
-                }
-
-                const data = await response.json();
+                const data = response.data as PageHotelDto;
 
                 if (data.content) {
-                    const hotelsWithKeys = data.content.map((hotel: Hotel) => ({
+                    // Transform HotelDto to display format and add keys for table
+                    const hotelsWithKeys = data.content.map((hotel: HotelDto) => ({
                         ...hotel,
                         key: hotel.id,
+                        // Flatten address and contact information for table display
+                        city: hotel.addressInformation?.city,
+                        state: hotel.addressInformation?.state,
+                        address: hotel.addressInformation?.address,
+                        country: hotel.addressInformation?.country,
+                        zipCode: hotel.addressInformation?.zipCode,
+                        email: hotel.contactInformation?.email,
+                        phoneNumber: hotel.contactInformation?.phoneNumber,
                     }));
 
                     setHotels(hotelsWithKeys);
-                    setTotalPages(data.totalPages);
-                    setPage(data.number);
+                    setTotalElements(data.totalElements || 0);
+                    setPage(data.number || 0);
                 } else {
-                    const hotelsWithKeys = data.map((hotel: Hotel) => ({
-                        ...hotel,
-                        key: hotel.id,
-                    }));
-
-                    setHotels(hotelsWithKeys);
-                    setTotalPages(Math.ceil(data.length / PAGE_SIZE));
+                    setHotels([]);
+                    setTotalElements(0);
                     setPage(0);
                 }
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error fetching hotels data:', error);
+
+                // Handle authentication errors
+                if (error.response?.status === 401 || error.response?.status === 403) {
+                    message.error(t("common.unauthorized", "Unauthorized access"));
+                    navigate("/login");
+                    return;
+                }
+
+                message.error(t("admin.hotels.fetchError", "Failed to load hotels data"));
+            } finally {
+                hideLoader();
             }
-            hideLoader();
         };
 
         fetchHotelsData(searchQuery, page);
-    }, [searchQuery, page]);
+    }, [searchQuery, page, hotelApi]);
 
     const handleSearch = () => {
         setPage(0);
@@ -93,25 +90,27 @@ export default function Hotels() {
     const handleDelete = async (hotelID: number) => {
         showLoader();
         try {
-            const response = await fetch(`http://localhost:8080/api/hotels/${hotelID}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                },
-            });
+            // Use the generated API to delete hotel
+            await hotelApi.deleteHotel(hotelID);
 
-            if (!response.ok) {
-                throw new Error('Failed to delete hotel');
+            message.success(t("admin.hotels.deleteSuccess", `Hotel with ID ${hotelID} deleted successfully`));
+
+            // Remove the deleted hotel from local state
+            setHotels((prevHotels) => prevHotels.filter((hotel) => hotel.id !== hotelID));
+        } catch (error: any) {
+            console.error('Error deleting hotel:', error);
+
+            // Handle authentication errors
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                message.error(t("common.unauthorized", "Unauthorized access"));
+                navigate("/login");
+                return;
             }
 
-            console.log(`Hotel with ID ${hotelID} deleted successfully`);
-
-            setHotels((prevHotels) => prevHotels.filter((hotel) => hotel.id !== hotelID));
-        } catch (error) {
-            console.error('Error deleting hotel:', error);
+            message.error(t("admin.hotels.deleteError", "Failed to delete hotel"));
+        } finally {
+            hideLoader();
         }
-        hideLoader();
     };
 
     const columns = [
@@ -153,7 +152,7 @@ export default function Hotels() {
         {
             title: t('admin.hotels.columns.actions', 'Actions'),
             key: 'actions',
-            render: (_: any, record: Hotel) => (
+            render: (_: any, record: any) => (
                 <div onClick={(e) => e.stopPropagation()}>
                     <Popconfirm
                         title={t('admin.hotels.deleteConfirmation', 'Are you sure you want to delete this hotel?')}
@@ -175,8 +174,9 @@ export default function Hotels() {
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-center gap-10 items-center">
+            <div className="mt-20 rounded-lg pt-10 pb-5 float-end w-full flex justify-between gap-10 items-center px-5">
                 <h1 className="text-2xl font-bold">{t('admin.hotels.title', 'Hotels')}</h1>
+                <div className="text-sm text-gray-500">{t('common.total', 'Total')}: {totalElements}</div>
             </div>
 
             <main className="flex-grow p-5">
@@ -210,9 +210,11 @@ export default function Hotels() {
                         pagination={{
                             current: page + 1,
                             pageSize: PAGE_SIZE,
-                            total: totalPages * PAGE_SIZE,
+                            total: totalElements,
                             onChange: (page) => setPage(page - 1),
                         }}
+                        bordered
+                        size="middle"
                         onRow={(record) => ({
                             onClick: () => navigate(`/admin/hotels/${record.id}`),
                         })}

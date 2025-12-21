@@ -35,7 +35,6 @@ class RoomRepositoryTest {
         Room room = new Room();
         room.setHotel(hotel);
         room.setRoomNumber(101L);
-        room.setRoomType(RoomType.FAMILY_ROOM);
         room.setCapacity(2);
         room.setPriceModifier(BigDecimal.ONE);
         room.setStatus(RoomStatus.AVAILABLE);

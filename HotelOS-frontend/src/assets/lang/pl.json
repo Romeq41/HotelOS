@@ -24,7 +24,8 @@
         "select": "Wybierz",
         "deselect": "Odznacz",
         "delete": "Usuń",
-        "cancel": "Anuluj"
+        "cancel": "Anuluj",
+        "unauthorized": "Nieautoryzowany dostęp"
     },
     
     "roomTypes": {
@@ -94,7 +95,10 @@
         "adminDashboard": "Panel Administratora",
         "users": "Użytkownicy",
         "profile": "Mój Profil",
-        "logout": "Wyloguj"
+        "logout": "Wyloguj",
+        "otherHotels": "Sprawdź inne hotele w naszej ofercie",
+        "clientOperationsHeaderSectionTitle": "Operacje Klienta",
+        "hotelOperationsHeaderSectionTitle": "Hotel Operations"         
     },
     "explore": {
         "title": "Eksploruj Nasze Hotele",
@@ -151,6 +155,7 @@
         "perNight": "za noc",
         "bookNow": "Zarezerwuj Teraz",
         "noRoomsAvailable": "Brak dostępnych pokoi w wybranych datach",
+        "noOtherRoomTypesAvailable": "Brak innych typów pokoi dostępnych.",
         "selectValidDates": "Proszę wybrać prawidłowe daty zameldowania i wymeldowania",
         "backToExplore": "Powrót do Eksploracji",
         "contact": "Skontaktuj się z Hotelem",
@@ -275,7 +280,24 @@
                 "imageUploadPartialError": "Hotel zaktualizowany, ale nie udało się przesłać zdjęcia",
                 "imageTypeError": "Możesz przesyłać tylko pliki graficzne!",
                 "imageSizeError": "Zdjęcie musi być mniejsze niż 5MB!",
-                "imageHint": "Prześlij zdjęcie hotelu (maks. 5MB)"
+                "imageHint": "Prześlij zdjęcie hotelu (maks. 5MB)",
+                "primaryImageName": "zdjecie-glowne.jpg",
+                "additionalImageName": "zdjecie-hotelu-{{index}}.jpg",
+                "noImagesFound": "Nie znaleziono istniejących zdjęć dla tego hotelu",
+                "fetchErrorLog": "Błąd pobierania hotelu:",
+                "primaryImageDeleteError": "Błąd usuwania zdjęcia głównego:",
+                "imageDeleteErrorLog": "Błąd usuwania zdjęcia:",
+                "formValuesLog": "Wartości formularza:",
+                "primaryImageUploadErrorLog": "Błąd przesyłania zdjęcia głównego:",
+                "additionalImagesUploadErrorLog": "Błąd przesyłania dodatkowych zdjęć:",
+                "updateErrorLog": "Błąd aktualizacji hotelu:",
+                "primaryImageUploadSuccess": "Zdjęcie główne przesłane pomyślnie",
+                "primaryImageUploadError": "Hotel zaktualizowany, ale nie udało się przesłać zdjęcia głównego",
+                "imageDeleteSuccess": "Zdjęcie usunięte pomyślnie",
+                "primaryImageHint": "Prześlij główne zdjęcie hotelu, które będzie wyświetlane jako główne (maks. 5MB). To zdjęcie reprezentuje Twój hotel w wynikach wyszukiwania.",
+                "additionalImagesHint": "Prześlij dodatkowe zdjęcia hotelu do galerii (maks. 5MB każde, maks. 9 zdjęć). Obecnie: {{count}} dodatkowych zdjęć.",
+                "selectPrimaryImage": "Zdjęcie Główne",
+                "selectAdditionalImages": "Dodaj Więcej"
             },
             "fields": {
                 "name": "Nazwa Hotelu",
@@ -284,7 +306,25 @@
                 "state": "Województwo/Prowincja",
                 "zipCode": "Kod Pocztowy",
                 "country": "Kraj",
-                "image": "Zdjęcie Hotelu"
+                "image": "Zdjęcie Hotelu",
+                "email": "Email",
+                "phoneNumber": "Numer Telefonu",
+                "basePrice": "Cena Podstawowa",
+                "description": "Opis",
+                "primaryImage": "Zdjęcie Główne",
+                "additionalImages": "Dodatkowe Zdjęcia"
+            },
+            "placeholders": {
+                "name": "Wprowadź nazwę hotelu",
+                "address": "Wprowadź adres uliczny",
+                "city": "Wprowadź nazwę miasta",
+                "state": "Wprowadź województwo lub prowincję",
+                "country": "Wprowadź nazwę kraju",
+                "zipCode": "Wprowadź kod pocztowy",
+                "email": "Wprowadź adres email",
+                "phoneNumber": "Wprowadź numer telefonu",
+                "basePrice": "Wprowadź cenę podstawową",
+                "description": "Wprowadź opis hotelu (opcjonalne)"
             },
             "details": {
                 "statistics": "Statystyki hotelu",
@@ -307,7 +347,11 @@
                 "zipCodeUSInvalid": "Amerykański kod pocztowy musi być w formacie: 12345 lub 12345-6789",
                 "zipCodeCAInvalid": "Kanadyjski kod pocztowy musi być w formacie: A1A 1A1",
                 "zipCodePLInvalid": "Polski kod pocztowy musi być w formacie: 12-345",
-                "zipCodeUKInvalid": "Brytyjski kod pocztowy jest nieprawidłowy"
+                "zipCodeUKInvalid": "Brytyjski kod pocztowy jest nieprawidłowy",
+                "emailRequired": "Proszę wprowadzić email!",
+                "emailInvalid": "Proszę wprowadzić prawidłowy email!",
+                "phoneRequired": "Proszę wprowadzić numer telefonu!",
+                "basePriceRequired": "Proszę wprowadzić cenę podstawową!"
             },
             "title": "Hotele",
             "searchPlaceholder": "Szukaj hoteli",
@@ -333,7 +377,10 @@
             "seeReservations": "Zobacz rezerwacje",
             "seeEmployees": "Zobacz pracowników",
             "loading": "Ładowanie informacji o hotelu...",
-            "title_users": "Pracownicy Hotelu",
+            "title_users": "Użytkownicy",
+            "fetchError": "Nie udało się załadować danych hoteli",
+            "deleteSuccess": "Hotel usunięty pomyślnie",
+            "deleteError": "Nie udało się usunąć hotelu",
             "rooms": {
                 "add": {
                     "title": "Dodaj Nowy Pokój",
@@ -514,7 +561,10 @@
         "rooms": "Pokoje",
         "guests": "Goście",
         "amenities": "Udogodnienia",
-        "services": "Usługi"
+        "services": "Usługi",
+        "staff": "Personel",
+        "overview": "Mój Hotel"
+
     },
     "user": {
         "profile": {

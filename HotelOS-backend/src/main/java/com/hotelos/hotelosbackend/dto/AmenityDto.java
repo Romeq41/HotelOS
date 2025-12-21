@@ -1,6 +1,7 @@
 package com.hotelos.hotelosbackend.dto;
 
 import com.hotelos.hotelosbackend.models.AmenityType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -9,6 +10,8 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Amenity Data Transfer Object")
+
 public class AmenityDto {
     private Long id;
 

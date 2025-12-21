@@ -4,7 +4,7 @@ import { Room } from '../interfaces/Room';
 import { ReservationStatus } from '../interfaces/Reservation';
 import { useLoading } from '../contexts/LoaderContext';
 import { useTranslation } from 'react-i18next';
-import { UserType } from '../interfaces/User';
+import { getPermissionContext, getReturnUrl } from '../utils/routeUtils';
 import {
     Form,
     Input,
@@ -30,26 +30,15 @@ export default function AddReservation() {
     const [loading, setLoading] = useState(false);
     const { Option } = Select;
 
-    const getPermissionContext = () => {
-        if (location.pathname.includes('/admin/')) {
-            return UserType.ADMIN;
-        } else if (location.pathname.includes('/manager/')) {
-            return UserType.MANAGER;
-        } else if (location.pathname.includes('/staff/')) {
-            return UserType.STAFF;
-        }
+    // Get current permission context based on the URL path
+    const getCurrentPermissionContext = () => {
+        return getPermissionContext(location.pathname);
     };
 
-    const getReturnUrl = () => {
-        const permissionContext = getPermissionContext();
-        if (permissionContext === UserType.ADMIN) {
-            return `/admin/hotels/${hotelId}/reservations`;
-        } else if (permissionContext === UserType.MANAGER) {
-            return `/manager/hotel/${hotelId}/reservations`;
-        } else if (permissionContext === UserType.STAFF) {
-            return `/staff/${hotelId}/reservations`;
-        }
-        return '/';
+    // Get the appropriate return URL after form submission
+    const getCurrentReturnUrl = () => {
+        const permissionContext = getCurrentPermissionContext();
+        return getReturnUrl(permissionContext, hotelId || '', 'reservations');
     };
 
     useEffect(() => {
@@ -134,7 +123,7 @@ export default function AddReservation() {
             form.resetFields();
 
             setTimeout(() => {
-                navigate(getReturnUrl());
+                navigate(getCurrentReturnUrl());
             }, 1500);
 
         } catch (error) {
@@ -301,7 +290,7 @@ export default function AddReservation() {
                                     {t('admin.reservations.addReservation', 'Add Reservation')}
                                 </Button>
                                 <Button
-                                    onClick={() => navigate(getReturnUrl())}
+                                    onClick={() => navigate(getCurrentReturnUrl())}
                                 >
                                     {t('common.cancel', 'Cancel')}
                                 </Button>

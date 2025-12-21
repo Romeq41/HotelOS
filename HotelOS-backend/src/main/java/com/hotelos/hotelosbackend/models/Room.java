@@ -19,16 +19,20 @@ public class Room {
     @Id
     @Column(name = "room_id")
     private long roomId;
+
     @Basic
     @NotNull
     @Column(name = "room_number")
     private long roomNumber;
-    @Basic
-    @Column(name = "type")
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "room_type_id")
     private RoomType roomType;
+
     @Basic
     @Column(name = "capacity")
     private Integer capacity;
+
     @Basic
     @Column(name = "price_modifier")
     private BigDecimal priceModifier;
@@ -41,6 +45,7 @@ public class Room {
     @Basic
     @Column(name = "description")
     private String description;
+
     @Basic
     @Column(name = "image_path")
     private String imagePath;
@@ -73,14 +78,20 @@ public class Room {
         if (o == null || getClass() != o.getClass())
             return false;
         Room room = (Room) o;
-        return roomId == room.roomId && Objects.equals(hotel, room.hotel)
-                && Objects.equals(roomNumber, room.roomNumber) && Objects.equals(roomType, room.roomType)
-                && Objects.equals(capacity, room.capacity) && Objects.equals(priceModifier, room.priceModifier)
-                && Objects.equals(status, room.status);
+        return roomId == room.roomId &&
+                Objects.equals(hotel, room.hotel) &&
+                Objects.equals(roomNumber, room.roomNumber) &&
+                (roomType == null ? room.roomType == null :
+                        roomType.getId() != null && roomType.getId().equals(room.getRoomType() != null ? room.getRoomType().getId() : null)) &&
+                Objects.equals(capacity, room.capacity) &&
+                Objects.equals(priceModifier, room.priceModifier) &&
+                Objects.equals(status, room.status);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(roomId, hotel, roomNumber, roomType, capacity, priceModifier, status);
+        return Objects.hash(roomId, hotel, roomNumber,
+                roomType != null ? roomType.getId() : null,
+                capacity, priceModifier, status);
     }
 }

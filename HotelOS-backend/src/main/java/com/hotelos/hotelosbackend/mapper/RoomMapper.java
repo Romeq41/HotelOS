@@ -7,6 +7,7 @@ import com.hotelos.hotelosbackend.services.PriceCalculationService;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Mapper(componentModel = "spring")
@@ -16,17 +17,17 @@ public abstract class RoomMapper {
     protected PriceCalculationService priceCalculationService;
 
     @Mapping(target = "hotel", source = "hotel")
+    @Mapping(target = "price", expression = "java(calculateDefaultPrice(room))")
     public abstract RoomDto toDto(Room room);
 
-    @AfterMapping
-    protected void calculateDefaultPrice(Room room, @MappingTarget RoomDto dto) {
-        if (room == null || dto == null) {
-            return;
+    // Remove @AfterMapping and add this helper method
+    protected BigDecimal calculateDefaultPrice(Room room) {
+        if (room == null) {
+            return null;
         }
 
         LocalDate today = LocalDate.now();
-        // default 1-night stay
-        dto.setPrice(priceCalculationService.calculateRoomPrice(room, today, today.plusDays(1)));
+        return priceCalculationService.calculateRoomPrice(room, today, today.plusDays(1));
     }
 
     public RoomDto toDto(Room room, LocalDate checkIn, LocalDate checkOut) {
@@ -35,8 +36,8 @@ public abstract class RoomMapper {
         }
 
         RoomDto dto = toDto(room);
+        // Override the default price with specific dates
         dto.setPrice(priceCalculationService.calculateRoomPrice(room, checkIn, checkOut));
-
         return dto;
     }
 
@@ -50,7 +51,6 @@ public abstract class RoomMapper {
 
         Room room = toEntity(roomDto);
         room.setHotel(hotel);
-
         return room;
     }
 }

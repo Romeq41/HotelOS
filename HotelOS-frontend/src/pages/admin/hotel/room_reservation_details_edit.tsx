@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Room } from '../../../interfaces/Room';
 import { ReservationStatus } from '../../../interfaces/Reservation';
 import { useLoading } from '../../../contexts/LoaderContext';
 import { useTranslation } from 'react-i18next';
-import { UserType } from '../../../interfaces/User';
+import { getPermissionContext, getReturnUrl } from '../../../utils/routeUtils';
+import { RoomDto } from "../../../api/generated/api";
+import { FormItemWithVerification } from '../../../components/form';
+
 import moment from 'moment';
 import {
     Form,
-    Input,
     Button,
     Select,
     InputNumber,
@@ -19,58 +20,49 @@ import {
     message,
     Space
 } from 'antd';
+import { hotelApi, reservationApi } from '../../../api/apiConfig';
 
 export default function EditReservation() {
     const { hotelId, reservationId } = useParams<{ hotelId: string; reservationId: string }>();
     const navigate = useNavigate();
     const location = useLocation();
-    const [rooms, setRooms] = useState<Room[]>([]);
+    const [rooms, setRooms] = useState<RoomDto[]>([]);
     const { showLoader, hideLoader } = useLoading();
     const { t } = useTranslation();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const { Option } = Select;
 
-    const getPermissionContext = () => {
-        if (location.pathname.includes('/admin/')) {
-            return UserType.ADMIN;
-        } else if (location.pathname.includes('/manager/')) {
-            return UserType.MANAGER;
-        } else if (location.pathname.includes('/staff/')) {
-            return UserType.STAFF;
-        }
-    };
-
-    const getReturnUrl = () => {
-        const permissionContext = getPermissionContext();
-        if (permissionContext === UserType.ADMIN) {
-            return `/admin/hotels/${hotelId}/reservations`;
-        } else if (permissionContext === UserType.MANAGER) {
-            return `/manager/hotel/${hotelId}/reservations`;
-        } else if (permissionContext === UserType.STAFF) {
-            return `/staff/${hotelId}/reservations`;
-        }
-        return '/';
-    };
+    const permissionContext = getPermissionContext(location.pathname);
 
     useEffect(() => {
         const fetchRooms = async () => {
             showLoader();
+
             try {
-                const res = await fetch(`http://localhost:8080/api/hotels/${hotelId}/rooms`, {
-                    headers: {
-                        Authorization: `Bearer ${document.cookie.replace(
-                            /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
-                            '$1'
-                        )}`,
-                    },
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    setRooms(data.content || data);
-                }
+                // Get all rooms for this hotel, with pagination to ensure we get everything
+                const response = await hotelApi.getRoomsByHotelId(
+                    Number(hotelId),
+                    0,  // page
+                    100, // size - using a large number to get all rooms
+                    undefined // roomNumber - not filtering by room number
+                );
+
+                // Handle both paginated and direct array response
+                const roomsData = Array.isArray(response.data) ? response.data :
+                    (response.data.content || []);
+
+                // Sort rooms by room number for better usability
+                const sortedRooms = [...roomsData].sort((a, b) =>
+                    (a.roomNumber || 0) - (b.roomNumber || 0)
+                );
+
+                console.log('Fetched and sorted rooms:', sortedRooms);
+                setRooms(sortedRooms);
+
             } catch (err) {
                 console.error('Error fetching rooms:', err);
+                message.error(t('admin.reservations.edit.errorFetchingRooms', 'Failed to fetch rooms'));
             } finally {
                 hideLoader();
             }
@@ -79,28 +71,38 @@ export default function EditReservation() {
         const fetchReservation = async () => {
             showLoader();
             try {
-                const res = await fetch(`http://localhost:8080/api/reservations/${reservationId}`, {
-                    headers: {
-                        Authorization: `Bearer ${document.cookie.replace(
-                            /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
-                            '$1'
-                        )}`,
-                    },
+                // Use generated API instead of direct fetch
+                const response = await reservationApi.getReservationById(Number(reservationId));
+                const reservation = response.data;
+
+                console.log('Fetched reservation:', reservation);
+
+                // Set form values from response
+                form.setFieldsValue({
+                    roomId: reservation.room?.roomId?.toString() || null,
+                    reservationName: reservation.reservationName || '',
+                    checkInDate: reservation.checkInDate ? moment(reservation.checkInDate) : null,
+                    checkOutDate: reservation.checkOutDate ? moment(reservation.checkOutDate) : null,
+                    status: reservation.status || ReservationStatus.PENDING,
+                    totalAmount: reservation.totalAmount || 0,
+                    primaryGuestName: reservation.primaryGuestName || '',
+                    primaryGuestEmail: reservation.primaryGuestEmail || '',
+                    primaryGuestPhone: reservation.primaryGuestPhone || '',
+                    numberOfAdults: reservation.numberOfAdults || 1,
+                    numberOfChildren: reservation.numberOfChildren || 0,
+                    specialRequests: reservation.specialRequests || ''
                 });
-                if (res.ok) {
-                    const reservation = await res.json();
-                    form.setFieldsValue({
-                        guestId: reservation.guestId || null,
-                        roomId: reservation.room?.roomId?.toString() || null,
-                        reservationName: reservation.reservationName || '',
-                        checkInDate: reservation.checkInDate ? moment(reservation.checkInDate, 'YYYY-MM-DD') : null,
-                        checkOutDate: reservation.checkOutDate ? moment(reservation.checkOutDate, 'YYYY-MM-DD') : null,
-                        status: reservation.status || ReservationStatus.PENDING,
-                        totalAmount: reservation.totalAmount || 0,
-                    });
-                }
+
+                // Log the room information
+                console.log('Original room:', reservation.room);
             } catch (err) {
                 console.error('Error fetching reservation:', err);
+                message.error(t('admin.reservations.edit.errorFetchingReservation', 'Failed to load reservation details'));
+
+                // Navigate back after error
+                setTimeout(() => {
+                    navigate(getReturnUrl(permissionContext, hotelId || '', 'reservations'));
+                }, 2000);
             } finally {
                 hideLoader();
             }
@@ -130,46 +132,46 @@ export default function EditReservation() {
         }
     };
 
-    const onFinish = async (values: { roomId: string; guestId: any; reservationName: any; checkInDate: { format: (arg0: string) => any; }; checkOutDate: { format: (arg0: string) => any; }; status: any; totalAmount: any; }) => {
+    const onFinish = async (values: any) => {
         setLoading(true);
         showLoader();
         try {
             const selectedRoom = rooms.find((r) => r.roomId.toString() === values.roomId);
+
+            if (!selectedRoom) {
+                throw new Error('Selected room not found');
+            }
+
+            // Prepare reservation data matching the API contract
             const reservationData = {
-                guestId: values.guestId ? Number(values.guestId) : null,
+                reservationId: Number(reservationId),
                 room: selectedRoom,
-                reservationName: values.reservationName,
+                reservationName: values.reservationName || '',
                 checkInDate: values.checkInDate.format('YYYY-MM-DD'),
                 checkOutDate: values.checkOutDate.format('YYYY-MM-DD'),
                 status: values.status,
                 totalAmount: Number(values.totalAmount),
+                primaryGuestName: values.primaryGuestName || '',
+                primaryGuestEmail: values.primaryGuestEmail || '',
+                primaryGuestPhone: values.primaryGuestPhone || '',
+                numberOfAdults: values.numberOfAdults || 1,
+                numberOfChildren: values.numberOfChildren || 0,
+                specialRequests: values.specialRequests || ''
             };
 
-            const response = await fetch(`http://localhost:8080/api/reservations/${reservationId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${document.cookie.replace(
-                        /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
-                        '$1'
-                    )}`,
-                },
-                body: JSON.stringify(reservationData),
-            });
+            console.log('Submitting updated reservation:', reservationData);
 
-            if (!response.ok) {
-                if (response.status === 400) {
-                    const errors = await response.json();
-                    for (const [field, message] of Object.entries(errors)) {
-                        console.error(`${field}: ${message}`);
-                    }
-                } else {
-                    throw new Error('Failed to update reservation');
-                }
-            }
+            // Call the API endpoint to update the reservation
+            const response = await reservationApi.updateReservation(
+                Number(reservationId),
+                reservationData
+            );
+
+            console.log('Update response:', response);
             message.success(t('admin.reservations.edit.success', 'Reservation updated successfully!'));
 
-            navigate(getReturnUrl());
+            // Navigate back to the reservations list
+            navigate(getReturnUrl(permissionContext, hotelId || '', 'reservations'));
 
 
         } catch (error) {
@@ -197,12 +199,14 @@ export default function EditReservation() {
                     >
                         <Row gutter={24}>
                             <Col span={12}>
-                                <Form.Item
-                                    name="guestId"
-                                    label={t('admin.reservations.form.fields.guestId', 'Guest ID')}
-                                >
-                                    <InputNumber style={{ width: '100%' }} />
-                                </Form.Item>
+                                <FormItemWithVerification
+                                    type="text"
+                                    name="primaryGuestName"
+                                    label={t('admin.reservations.form.fields.primaryGuestName', 'Primary Guest Name')}
+                                    placeholder={t('admin.reservations.form.placeholders.primaryGuestName', 'Enter guest name')}
+                                    required
+                                    maxLength={100}
+                                />
                             </Col>
 
                             <Col span={12}>
@@ -214,23 +218,60 @@ export default function EditReservation() {
                                         message: t('admin.reservations.form.errors.roomRequired', 'Room is required')
                                     }]}
                                 >
-                                    <Select placeholder={t('admin.reservations.form.selectRoom', 'Select a room')}>
-                                        {rooms.map(room => (
-                                            <Option key={room.roomId} value={room.roomId.toString()}>
-                                                {`${room.roomNumber} - ${room.roomType} (${t('admin.reservations.form.price', 'Price')}: $${room.price})`}
+                                    <Select
+                                        placeholder={t('admin.reservations.form.selectRoom', 'Select a room')}
+                                        optionLabelProp="label"
+                                        showSearch
+                                        optionFilterProp="label"
+                                        filterOption={(input, option) => {
+                                            // Use the option label for basic filtering
+                                            const optionLabel = option?.label?.toString() || '';
+
+                                            // Also search in room type and other properties if available
+                                            const roomId = option?.value?.toString();
+                                            const room = rooms.find(r => r.roomId?.toString() === roomId);
+                                            const roomType = room?.roomType?.name || '';
+
+                                            return (
+                                                optionLabel.toLowerCase().includes(input.toLowerCase()) ||
+                                                roomType.toLowerCase().includes(input.toLowerCase())
+                                            );
+                                        }}
+                                        style={{ width: '100%' }}
+                                    >
+                                        {rooms.length > 0 ? rooms.map((room, index) => (
+                                            <Option
+                                                key={`${room.roomId}-${index}`}
+                                                value={room.roomId?.toString()}
+                                                label={`Room ${room.roomNumber}`}
+                                            >
+                                                <div className="room-option-container">
+                                                    <strong>Room {room.roomNumber}</strong>
+                                                    {room.roomType?.name && (
+                                                        <span className="ml-2">• {room.roomType.name}</span>
+                                                    )}
+                                                    <span className="ml-2 text-green-600">• ${room.price?.toFixed(2)}</span>
+                                                    {room.capacity && (
+                                                        <span className="ml-2">• {t('admin.reservations.form.capacity', 'Capacity')}: {room.capacity}</span>
+                                                    )}
+                                                </div>
                                             </Option>
-                                        ))}
+                                        )) : (
+                                            <Option disabled>{t('admin.reservations.form.noRooms', 'No rooms available')}</Option>
+                                        )}
                                     </Select>
                                 </Form.Item>
                             </Col>
 
                             <Col span={12}>
-                                <Form.Item
+                                <FormItemWithVerification
+                                    type="text"
                                     name="reservationName"
                                     label={t('admin.reservations.form.fields.reservationName', 'Reservation Name')}
-                                >
-                                    <Input maxLength={100} />
-                                </Form.Item>
+                                    placeholder={t('admin.reservations.form.placeholders.reservationName', 'Enter reservation name')}
+                                    required
+                                    maxLength={100}
+                                />
                             </Col>
 
                             <Col span={12}>
@@ -250,6 +291,61 @@ export default function EditReservation() {
                                         ))}
                                     </Select>
                                 </Form.Item>
+                            </Col>
+
+                            <Col span={12}>
+                                <FormItemWithVerification
+                                    type="email"
+                                    name="primaryGuestEmail"
+                                    label={t('admin.reservations.form.fields.primaryGuestEmail', 'Primary Guest Email')}
+                                    placeholder={t('admin.reservations.form.placeholders.primaryGuestEmail', 'Enter guest email')}
+                                    maxLength={100}
+                                />
+                            </Col>
+
+                            <Col span={12}>
+                                <FormItemWithVerification
+                                    type="text"
+                                    name="primaryGuestPhone"
+                                    label={t('admin.reservations.form.fields.primaryGuestPhone', 'Primary Guest Phone')}
+                                    placeholder={t('admin.reservations.form.placeholders.primaryGuestPhone', 'Enter guest phone')}
+                                    pattern={/^\+?[0-9\s\-\(\)]{8,20}$/}
+                                    patternMessage={t('admin.reservations.form.errors.invalidPhone', 'Please enter a valid phone number')}
+                                    maxLength={20}
+                                />
+                            </Col>
+
+                            <Col span={12}>
+                                <FormItemWithVerification
+                                    type="number"
+                                    name="numberOfAdults"
+                                    label={t('admin.reservations.form.fields.numberOfAdults', 'Number of Adults')}
+                                    required
+                                    min={1}
+                                    max={20}
+                                    minMessage={t('admin.reservations.form.errors.minAdults', 'At least 1 adult is required')}
+                                />
+                            </Col>
+
+                            <Col span={12}>
+                                <FormItemWithVerification
+                                    type="number"
+                                    name="numberOfChildren"
+                                    label={t('admin.reservations.form.fields.numberOfChildren', 'Number of Children')}
+                                    min={0}
+                                    max={10}
+                                />
+                            </Col>
+
+                            <Col span={24}>
+                                <FormItemWithVerification
+                                    type="textarea"
+                                    name="specialRequests"
+                                    label={t('admin.reservations.form.fields.specialRequests', 'Special Requests')}
+                                    placeholder={t('admin.reservations.form.placeholders.specialRequests', 'Enter any special requests or notes')}
+                                    rows={3}
+                                    maxLength={500}
+                                />
                             </Col>
 
                             <Col span={12}>
@@ -335,7 +431,7 @@ export default function EditReservation() {
                                     {t('admin.reservations.edit.saveChanges', 'Save Changes')}
                                 </Button>
                                 <Button
-                                    onClick={() => navigate(getReturnUrl())}
+                                    onClick={() => navigate(getReturnUrl(permissionContext, hotelId || '', 'reservations'))}
                                 >
                                     {t('common.cancel', 'Cancel')}
                                 </Button>
