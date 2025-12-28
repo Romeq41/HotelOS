@@ -6,7 +6,8 @@ export enum ReservationStatus {
     CONFIRMED = "CONFIRMED",
     CHECKED_IN = "CHECKED_IN",
     CHECKED_OUT = "CHECKED_OUT",
-    CANCELLED = "CANCELLED"
+    CANCELLED = "CANCELLED",
+    EXPIRED = "EXPIRED"
 }
 
 export interface Reservation {

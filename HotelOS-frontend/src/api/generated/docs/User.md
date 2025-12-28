@@ -21,9 +21,9 @@ Name | Type | Description | Notes
 **enabled** | **boolean** |  | [optional] [default to undefined]
 **username** | **string** |  | [optional] [default to undefined]
 **authorities** | [**Array&lt;GrantedAuthority&gt;**](GrantedAuthority.md) |  | [optional] [default to undefined]
-**accountNonLocked** | **boolean** |  | [optional] [default to undefined]
 **credentialsNonExpired** | **boolean** |  | [optional] [default to undefined]
 **accountNonExpired** | **boolean** |  | [optional] [default to undefined]
+**accountNonLocked** | **boolean** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -47,9 +47,9 @@ const instance: User = {
     enabled,
     username,
     authorities,
-    accountNonLocked,
     credentialsNonExpired,
     accountNonExpired,
+    accountNonLocked,
 };
 ```
 

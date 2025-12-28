@@ -1,60 +1,43 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Hotel } from "../../interfaces/Hotel";
+import { use, useEffect, useState } from "react";
+import { HotelDto, HotelStatisticsDto } from "../../api/generated/api";
 import { useLoading } from "../../contexts/LoaderContext";
 import { useTranslation } from "react-i18next";
+import { useApi } from "../../api/useApi";
 
-interface HotelStatisticsDto {
-    hotelId: number;
-    staffCount: number;
-    managerCount: number;
-    totalUserCount: number;
-    currentlyOccupiedCount: number;
-    currentlyAvailableCount: number;
-    totalRoomCount: number;
-    reservationsCount: number;
+export interface ImageData {
+    imageId: number;
+    altText: string | null;
+    imageUrl: string;
 }
-
 
 export default function HotelPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const [hotel, setHotel] = useState<Hotel | null>(null);
+    const [hotel, setHotel] = useState<HotelDto | null>(null);
     const { showLoader, hideLoader } = useLoading();
     const { t } = useTranslation();
+    const { hotel: hotelApi } = useApi();
+    const [hotelImage, setHotelImage] = useState<ImageData>();
 
-    const [statistics, setStatistics] = useState<HotelStatisticsDto>(
-        {
-            hotelId: 0,
-            staffCount: 0,
-            managerCount: 0,
-            totalUserCount: 0,
-            currentlyOccupiedCount: 0,
-            currentlyAvailableCount: 0,
-            totalRoomCount: 0,
-            reservationsCount: 0
-        }
-    );
+    const [statistics, setStatistics] = useState<HotelStatisticsDto>({
+        hotelId: 0,
+        staffCount: 0,
+        managerCount: 0,
+        totalUserCount: 0,
+        currentlyOccupiedCount: 0,
+        currentlyAvailableCount: 0,
+        totalRoomCount: 0,
+        reservationsCount: 0,
+    });
 
     useEffect(() => {
         const fetchStatistics = async () => {
             showLoader();
             try {
-                const res = await fetch(`http://localhost:8080/api/hotels/${id}/statistics`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                    }
-                });
-                const data = await res.json();
-
-                if (!data) {
-                    console.error("Invalid data format:", data);
-                    return;
-                }
-
-                setStatistics(data);
+                if (!id) return;
+                const { data } = await hotelApi.getHotelStatistics(Number(id));
+                setStatistics(data as any);
             } catch (error) {
                 console.error("Failed to fetch employees:", error);
             }
@@ -65,15 +48,13 @@ export default function HotelPage() {
             if (!id) return;
             showLoader();
             try {
-                const res = await fetch(`http://localhost:8080/api/hotels/${id}`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                    }
-                });
-                const data = await res.json();
-                setHotel(data);
+                const { data } = await hotelApi.getHotelById(Number(id));
+                setHotel(data as HotelDto);
+
+                const imageData = await hotelApi.getHotelImage(Number(id));
+                console.log(imageData);
+                setHotelImage(imageData.data as ImageData);
+
             } catch (error) {
                 console.error("Failed to fetch hotel:", error);
             }
@@ -84,14 +65,14 @@ export default function HotelPage() {
         fetchHotel();
     }, [id]);
 
-    const totalRooms = statistics.totalRoomCount;
-    const occupiedRooms = statistics.currentlyOccupiedCount;
-    const freeRooms = statistics.currentlyAvailableCount;
+    const totalRooms = statistics.totalRoomCount ?? 0;
+    const occupiedRooms = statistics.currentlyOccupiedCount ?? 0;
+    const freeRooms = statistics.currentlyAvailableCount ?? 0;
     const occupiedPercent = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
 
-    const totalEmployees = statistics.totalUserCount;
-    const managerCount = statistics.managerCount;
-    const staffCount = statistics.staffCount;
+    const totalEmployees = statistics.totalUserCount ?? 0;
+    const managerCount = statistics.managerCount ?? 0;
+    const staffCount = statistics.staffCount ?? 0;
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100 mt-20">
@@ -104,7 +85,7 @@ export default function HotelPage() {
                                 <div className="mb-4">
                                     <img
                                         src={
-                                            `http://localhost:8080/api/hotels/${hotel.id}/image` ||
+                                            hotelImage?.imageUrl ||
                                             "https://via.placeholder.com/160"
                                         }
                                         alt={hotel.name}
@@ -136,19 +117,19 @@ export default function HotelPage() {
                                     </p>
                                     <hr className="my-2" />
                                     <p>
-                                        <strong>{t('admin.hotels.details.country', 'Country')}:</strong> {hotel.country || t('common.unknown', 'Unknown')}
+                                        <strong>{t('admin.hotels.details.country', 'Country')}:</strong> {hotel.addressInformation?.country || t('common.unknown', 'Unknown')}
                                     </p>
                                     <p>
-                                        <strong>{t('admin.hotels.details.state', 'State')}:</strong> {hotel.state || t('common.unknown', 'Unknown')}
+                                        <strong>{t('admin.hotels.details.state', 'State')}:</strong> {hotel.addressInformation?.state || t('common.unknown', 'Unknown')}
                                     </p>
                                     <p>
-                                        <strong>{t('admin.hotels.details.city', 'City')}:</strong> {hotel.city || t('common.unknown', 'Unknown')}
+                                        <strong>{t('admin.hotels.details.city', 'City')}:</strong> {hotel.addressInformation?.city || t('common.unknown', 'Unknown')}
                                     </p>
                                     <p>
-                                        <strong>{t('admin.hotels.details.address', 'Address')}:</strong> {hotel.address || t('common.unknown', 'Unknown')}
+                                        <strong>{t('admin.hotels.details.address', 'Address')}:</strong> {hotel.addressInformation?.address || t('common.unknown', 'Unknown')}
                                     </p>
                                     <p>
-                                        <strong>{t('admin.hotels.details.zipCode', 'Zip-code')}:</strong> {hotel.zipCode || t('common.unknown', 'Unknown')}
+                                        <strong>{t('admin.hotels.details.zipCode', 'Zip-code')}:</strong> {hotel.addressInformation?.zipCode || t('common.unknown', 'Unknown')}
                                     </p>
                                     <div className="mt-3">
                                         <button

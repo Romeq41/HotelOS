@@ -5,9 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.With;
+import org.springframework.cglib.core.Local;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
@@ -39,11 +41,11 @@ public class Reservation {
 
     @Basic
     @Column(name = "check_in_date")
-    private Date checkInDate;
+    private LocalDate checkInDate;
 
     @Basic
     @Column(name = "check_out_date")
-    private Date checkOutDate;
+    private LocalDate checkOutDate;
 
     @Basic
     @Enumerated(EnumType.STRING)

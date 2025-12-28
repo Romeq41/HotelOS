@@ -309,10 +309,13 @@ public class IHotelServices implements HotelServices {
                 .map(hotelMapper::toOfferDto)
                 .orElseThrow(() -> new NoSuchElementException("Hotel with id " + id + " not found"));
 
-        List<RoomDto> roomDtos = roomRepository.findAllByHotelId(id).stream()
+        List<RoomDto> roomDtos = Optional.ofNullable(checkIn)
+                .flatMap(in -> Optional.ofNullable(checkOut)
+                        .map(out -> roomRepository.findAvailableRoomsByHotelAndDates(id, in, out)))
+                .orElseGet(() -> roomRepository.findAllByHotelId(id))
+                .stream()
                 .map(room -> roomMapper.toDto(room, checkIn, checkOut))
                 .toList();
-
         // Find cheapest room overall
         RoomDto cheapestRoom = roomDtos.stream()
                 .filter(room -> room.getStatus() == RoomStatus.AVAILABLE)

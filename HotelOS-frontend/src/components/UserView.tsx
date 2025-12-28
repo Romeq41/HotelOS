@@ -1,25 +1,62 @@
-import { useEffect, useState } from "react";
-import { Form, Input, Button, Card, message, Alert } from "antd";
+import { useState, useEffect } from "react";
+import { Form, Input, Button, Card, message, Alert, Tag, Spin } from "antd";
 import { LockOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useUser } from "../contexts/UserContext.tsx";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useLoading } from "../contexts/LoaderContext";
+import useApi from "../api/useApi";
+import { UserType } from "../interfaces/User";
+import { ReservationDto } from "../api/generated/api";
+import { API_BASE_PATH, getToken } from "../api/apiConfig";
 
 export default function UserView() {
     const navigate = useNavigate();
-    const { user, isAuth } = useUser();
+    const { user } = useUser();
     const { t } = useTranslation();
     const { showLoader, hideLoader } = useLoading();
+    const { auth: authApi } = useApi();
     const [form] = Form.useForm();
     const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
     const [errorMessage, setErrorMessage] = useState("");
+    const isGuest = (user?.userType || "").toString().toUpperCase() === UserType.Guest;
+    const [reservations, setReservations] = useState<ReservationDto[]>([]);
+    const [reservationsLoading, setReservationsLoading] = useState(false);
+    const [reservationsError, setReservationsError] = useState("");
+
+    const formatDate = (value?: string) => value ? new Date(value).toLocaleDateString() : t("user.profile.dateUnknown", "Unknown date");
 
     useEffect(() => {
-        if (!isAuth) {
-            navigate("/login");
-        }
-    }, [isAuth, navigate]);
+        const fetchReservations = async () => {
+            if (!user?.userId) return;
+            setReservationsLoading(true);
+            setReservationsError("");
+            try {
+                const token = getToken();
+                const response = await fetch(`${API_BASE_PATH}/api/reservations/user/${user.userId}?page=0&size=20`, {
+                    headers: {
+                        Accept: "application/json",
+                        ...(token ? { Authorization: `Bearer ${token}` } : {})
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Request failed with status ${response.status}`);
+                }
+
+                const data = await response.json();
+                const content = Array.isArray(data) ? data : (data?.content || []);
+                setReservations(content as ReservationDto[]);
+            } catch (err: any) {
+                console.error("Failed to load reservations", err);
+                setReservationsError(t("user.profile.reservationsLoadError", "Could not load your reservations."));
+            } finally {
+                setReservationsLoading(false);
+            }
+        };
+
+        fetchReservations();
+    }, [user?.userId, t]);
 
     const handlePasswordChange = async (values: any) => {
         showLoader();
@@ -31,47 +68,10 @@ export default function UserView() {
                 return;
             }
 
-            const response = await fetch("http://localhost:8080/api/auth/change-password", {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email: values.email,
-                    newPassword: values.password,
-                }),
+            await authApi.changePassword({
+                email: values.email,
+                newPassword: values.password,
             });
-
-            const responseText = await response.text();
-            let data;
-
-            try {
-                data = responseText ? JSON.parse(responseText) : {};
-            } catch (parseError) {
-                console.error("Failed to parse response:", parseError);
-            }
-
-            if (!response.ok) {
-                if (response.status === 400 && data) {
-                    if (typeof data === "object" && Object.keys(data).length > 0) {
-                        const errorMessages = [];
-                        for (const [field, errMsg] of Object.entries(data)) {
-                            errorMessages.push(`${field}: ${errMsg}`);
-                        }
-                        setErrorMessage(errorMessages.join(". "));
-                        setSubmitStatus("error");
-                        throw new Error("Validation failed");
-                    }
-
-                    if ((data as any).message) {
-                        setErrorMessage((data as any).message as string);
-                        setSubmitStatus("error");
-                        throw new Error((data as any).message as string);
-                    }
-                }
-
-                throw new Error("Password change failed");
-            }
 
             setSubmitStatus("success");
             message.success({
@@ -83,7 +83,14 @@ export default function UserView() {
         } catch (error: any) {
             console.error("Error changing password:", error);
             setSubmitStatus("error");
-            setErrorMessage(error.message || t("user.profile.passwordChangeError", "Failed to change password. Please try again."));
+            const apiMessage = error?.response?.data?.message;
+            const validation = error?.response?.data;
+            if (validation && typeof validation === "object" && !apiMessage) {
+                const messages = Object.entries(validation).map(([field, msg]) => `${field}: ${msg}`);
+                setErrorMessage(messages.join(". "));
+            } else {
+                setErrorMessage(apiMessage || error.message || t("user.profile.passwordChangeError", "Failed to change password. Please try again."));
+            }
         } finally {
             hideLoader();
         }
@@ -109,55 +116,53 @@ export default function UserView() {
     };
 
     return (
-        <div className="flex flex-col sm:flex-row h-screen bg-gray-100 mt-20">
-            {/* Left Section: Hotel data */}
-            <div className="sm:w-1/2 w-full bg-white shadow-lg p-8 text-center sm:text-left">
-                <h2 className="text-2xl font-bold mb-6">{t("user.profile.hotelInfo", "Hotel Information")}</h2>
-                <ul className="space-y-4">
-                    <li>
-                        <strong>{t("user.profile.fields.hotelName", "Hotel Name")}:</strong> Grand Hotel
-                    </li>
-                    <li>
-                        <strong>{t("user.profile.fields.location", "Location")}:</strong> 123 Main Street, Cityville
-                    </li>
-                    <li>
-                        <strong>{t("user.profile.fields.checkInTime", "Check-in Time")}:</strong> 3:00 PM
-                    </li>
-                    <li>
-                        <strong>{t("user.profile.fields.checkOutTime", "Check-out Time")}:</strong> 11:00 AM
-                    </li>
-                    <li>
-                        <strong>{t("user.profile.fields.contact", "Contact")}:</strong> +1 234 567 890
-                    </li>
-                </ul>
-            </div>
+        <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 mt-20 gap-6 p-8 pb-10">
+            {/* Left: User information */}
+            <div className="lg:w-1/2 w-full">
+                <Card className="shadow-md h-full">
+                    <h2 className="text-2xl font-bold mb-4">
+                        {user?.firstName} {user?.lastName}
+                    </h2>
+                    {isGuest && (
+                        <Button
+                            type="primary"
+                            className="mb-6"
+                            onClick={() => navigate("/user/edit")}
+                        >
+                            {t("user.profile.editProfile", "Edit contact & address")}
+                        </Button>
+                    )}
+                    <ul className="space-y-3 text-left">
+                        <li>
+                            <div className="text-xs text-gray-500">{t("user.profile.fields.email", "Email")}</div>
+                            <div className="font-medium break-all">{user?.email || t("user.profile.notProvided", "Not provided")}</div>
+                        </li>
+                        <li>
+                            <div className="text-xs text-gray-500">{t("user.profile.fields.address", "Address")}</div>
+                            <div className="font-medium">{user?.addressInformation?.address || t("user.profile.notProvided", "Not provided")}</div>
+                        </li>
+                        <li className="grid grid-cols-2 gap-3">
+                            <div>
+                                <div className="text-xs text-gray-500">{t("user.profile.fields.city", "City")}</div>
+                                <div className="font-medium">{user?.addressInformation?.city || t("user.profile.notProvided", "Not provided")}</div>
+                            </div>
+                            <div>
+                                <div className="text-xs text-gray-500">{t("user.profile.fields.country", "Country")}</div>
+                                <div className="font-medium">{user?.addressInformation?.country || t("user.profile.notProvided", "Not provided")}</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div className="text-xs text-gray-500">{t("user.profile.fields.phone", "Phone")}</div>
+                            <div className="font-medium">{user?.contactInformation?.phoneNumber || t("user.profile.notProvided", "Not provided")}</div>
+                        </li>
+                        <li>
+                            <div className="text-xs text-gray-500">{t("user.profile.fields.position", "Position")}</div>
+                            <div className="font-medium">{user?.position || t("user.profile.notProvided", "Not provided")}</div>
+                        </li>
+                    </ul>
 
-            {/* Right Section: User data */}
-            <div className="sm:w-1/2 w-full bg-gray-50 shadow-lg p-8 flex flex-col items-center">
-                <img
-                    src={`http://localhost:8080/api/users/${user?.userId}/image` || "https://via.placeholder.com/160"}
-                    alt={t("user.profile.userPhoto", "User Photo")}
-                    className="w-32 h-32 rounded-full mb-6 shadow-md"
-                />
-                <h2 className="text-2xl font-bold mb-4">
-                    {user?.firstName} {user?.lastName}
-                </h2>
-                <ul className="space-y-4 text-center">
-                    <li>
-                        <strong>{t("user.profile.fields.email", "Email")}:</strong> {user?.email}
-                    </li>
-                    <li>
-                        <strong>{t("user.profile.fields.address", "Address")}:</strong> {user?.addressInformation?.address || t("user.profile.notProvided", "Not provided")}
-                    </li>
-                    <li>
-                        <strong>{t("user.profile.fields.phone", "Phone")}:</strong> {user?.contactInformation?.phoneNumber || t("user.profile.notProvided", "Not provided")}
-                    </li>
-                    <li>
-                        <strong>{t("user.profile.fields.position", "Position")}:</strong> {user?.position || t("user.profile.notProvided", "Not provided")}
-                    </li>
-                </ul>
+                    <hr className="my-6 text-gray-500" />
 
-                <Card className="w-full mt-8 shadow-md">
                     {submitStatus === "success" && (
                         <Alert
                             message={t("user.profile.passwordChangeSuccessAlert", "Success")}
@@ -238,7 +243,71 @@ export default function UserView() {
                             />
                         </Form.Item>
                     </Form>
+
                 </Card>
+
+            </div>
+
+            {/* Right: reservations and password */}
+            <div className="lg:w-1/2 w-full space-y-4">
+                <Card className="shadow-md">
+                    <h3 className="text-xl font-semibold mb-2">{t("user.profile.reservations", "Reservation history")}</h3>
+                    <p className="text-sm text-gray-600 mb-2">{t("user.profile.reservationsInfo", "Your reservations will appear here.")}</p>
+
+                    {reservationsError && (
+                        <Alert
+                            message={t("user.profile.reservations", "Reservation history")}
+                            description={reservationsError}
+                            type="error"
+                            showIcon
+                            className="mb-3"
+                        />
+                    )}
+
+                    {reservationsLoading ? (
+                        <div className="flex items-center gap-2 text-gray-600">
+                            <Spin size="small" />
+                            <span>{t("user.profile.reservationsLoading", "Loading your reservations...")}</span>
+                        </div>
+                    ) : reservations.length === 0 ? (
+                        <Alert
+                            type="info"
+                            message={t("user.profile.noReservations", "No reservations yet")}
+                            description={t("user.profile.noReservationsDescription", "Book a stay to see it listed here.")}
+                            showIcon
+                        />
+                    ) : (
+                        <div className="space-y-3">
+                            {reservations.map((reservation) => (
+                                <Card key={reservation.reservationId || reservation.checkInDate} className="border rounded-md shadow-sm">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <div className="font-semibold text-lg">{reservation.reservationName || t("user.profile.unnamedReservation", "Reservation")}</div>
+                                        <Tag color="blue">{reservation.status || ""}</Tag>
+                                    </div>
+                                    <div className="text-sm text-gray-700 flex flex-wrap gap-3">
+                                        <span>{formatDate(reservation.checkInDate)} → {formatDate(reservation.checkOutDate)}</span>
+                                        {reservation.room?.roomNumber && (
+                                            <span>{t("user.profile.room", "Room")}: {reservation.room.roomNumber}</span>
+                                        )}
+                                        {reservation.room?.hotel?.name && (
+                                            <span>{reservation.room.hotel.name}</span>
+                                        )}
+                                        {reservation.totalAmount !== undefined && (
+                                            <span>{t("user.profile.total", "Total")}: {reservation.totalAmount}</span>
+                                        )}
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                    )}
+
+                    <div className="flex gap-2 flex-wrap mt-4">
+                        <Button type="primary" onClick={() => navigate("/explore")}>{t("user.profile.explore", "Explore offers")}</Button>
+                        <Button onClick={() => navigate(0)}>{t("user.profile.refresh", "Refresh")}</Button>
+                    </div>
+                </Card>
+
+
             </div>
         </div>
     );

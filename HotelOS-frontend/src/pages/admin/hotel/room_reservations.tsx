@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Input, Popconfirm } from 'antd';
+import { Table, Button, Input, Popconfirm, message } from 'antd';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Reservation } from '../../../interfaces/Reservation';
-import { Hotel } from '../../../interfaces/Hotel';
+import { ReservationDto, HotelDto } from '../../../api/generated/api';
 import { useLoading } from '../../../contexts/LoaderContext';
 import { useTranslation } from 'react-i18next';
 import { getBaseUrl, getPermissionContext } from '../../../utils/routeUtils';
+import { useApi } from '../../../api/useApi';
 
 export default function Admin_Hotel_Room_Reservations() {
     const { hotelId } = useParams<{ hotelId: string }>();
@@ -13,8 +13,8 @@ export default function Admin_Hotel_Room_Reservations() {
     const location = useLocation();
     const { t } = useTranslation();
 
-    const [reservations, setReservations] = useState<Reservation[]>([]);
-    const [hotel, setHotel] = useState<Hotel>();
+    const [reservations, setReservations] = useState<ReservationDto[]>([]);
+    const [hotel, setHotel] = useState<HotelDto>();
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [inputValue, setInputValue] = useState('');
@@ -24,30 +24,14 @@ export default function Admin_Hotel_Room_Reservations() {
     const PAGE_SIZE = 10;
 
     const permissionContext = getPermissionContext(location.pathname);
+    const { hotel: hotelApi, reservation: reservationApi } = useApi();
 
     useEffect(() => {
         const fetchHotelData = async () => {
             showLoader();
             try {
-                const response = await fetch(`http://localhost:8080/api/hotels/${hotelId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                if (response.status === 401 || response.status === 403) {
-                    console.log('Unauthorized or forbidden access. Redirecting to login page...');
-                    window.location.href = '/login';
-                }
-
-                const data = await response.json();
-                setHotel(data);
+                const { data } = await hotelApi.getHotelById(Number(hotelId));
+                setHotel(data as HotelDto);
             } catch (error) {
                 console.error('Error fetching hotel data:', error);
             }
@@ -61,50 +45,23 @@ export default function Admin_Hotel_Room_Reservations() {
         const fetchReservationsData = async () => {
             showLoader();
 
-            const params = new URLSearchParams({
-                page: page.toString(),
-                size: PAGE_SIZE.toString(),
-                ...(searchQuery ? { reservationName: searchQuery } : {})
-            });
-
             try {
-                const response = await fetch(`http://localhost:8080/api/reservations/hotel/${hotelId}?${params}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                    },
-                });
+                const { data } = await reservationApi.getAllReservationsByHotelId(
+                    Number(hotelId),
+                    page,
+                    PAGE_SIZE,
+                    searchQuery || undefined
+                );
 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
+                const content = (data as any).content ?? data;
+                const reservationsWithKeys = content.map((reservation: ReservationDto) => ({
+                    ...reservation,
+                    key: reservation.reservationId,
+                }));
 
-                if (response.status === 401 || response.status === 403) {
-                    window.location.href = '/login';
-                    return;
-                }
-
-                const data = await response.json();
-                if (data.content) {
-                    const reservationsWithKeys = data.content.map((reservation: Reservation) => ({
-                        ...reservation,
-                        key: reservation.reservationId,
-                    }));
-
-                    setReservations(reservationsWithKeys);
-                    setTotalPages(data.totalPages);
-                    setPage(data.number);
-                } else {
-                    const reservationsWithKeys = data.map((reservation: Reservation) => ({
-                        ...reservation,
-                        key: reservation.reservationId,
-                    }));
-
-                    setReservations(reservationsWithKeys);
-                    setTotalPages(Math.ceil(reservationsWithKeys.length / PAGE_SIZE));
-                    setPage(0);
-                }
+                setReservations(reservationsWithKeys);
+                setTotalPages((data as any).totalPages ?? Math.ceil(reservationsWithKeys.length / PAGE_SIZE));
+                setPage((data as any).number ?? page);
             } catch (error) {
                 console.error('Error fetching reservations:', error);
             }
@@ -125,24 +82,32 @@ export default function Admin_Hotel_Room_Reservations() {
         }
     };
 
-    const handleDelete = async (reservationId: number) => {
+    const handleDelete = async (reservationId?: number) => {
+        if (reservationId === undefined) return;
+
         showLoader();
         try {
-            const response = await fetch(`http://localhost:8080/api/reservations/${reservationId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to delete reservation');
-            }
+            await reservationApi.deleteReservation(reservationId);
 
             setReservations(prev => prev.filter(r => r.reservationId !== reservationId));
         } catch (error) {
             console.error('Error deleting reservation:', error);
+        }
+        hideLoader();
+    };
+
+    const handleConfirm = async (reservationId?: number) => {
+        if (reservationId === undefined) return;
+
+        showLoader();
+        try {
+            const { data: existing } = await reservationApi.getReservationById(reservationId);
+            const { data: updated } = await reservationApi.updateReservation(reservationId, { ...(existing as any), status: 'CONFIRMED' });
+            setReservations(prev => prev.map(r => r.reservationId === reservationId ? { ...r, status: (updated as any).status } : r));
+            message.success(t('admin.reservations.confirmed', 'Reservation confirmed'));
+        } catch (error) {
+            console.error('Error confirming reservation:', error);
+            message.error(t('admin.reservations.confirmError', 'Failed to confirm reservation'));
         }
         hideLoader();
     };
@@ -157,13 +122,14 @@ export default function Admin_Hotel_Room_Reservations() {
             title: t('admin.reservations.columns.room', 'Room'),
             dataIndex: ['room', 'roomNumber'],
             key: 'roomNumber',
-            render: (_: any, record: Reservation) => record.room?.roomNumber || t('admin.reservations.noRoom', 'No Room'),
+            render: (_: any, record: ReservationDto) => record.room?.roomNumber ?? t('admin.reservations.noRoom', 'No Room'),
         },
         {
             title: t('admin.reservations.columns.guest', 'Guest'),
             dataIndex: ['guest', 'email'],
             key: 'guestEmail',
-            render: (_: any, record: Reservation) => record.guest?.email || t('admin.reservations.noGuest', 'No Guest'),
+            render: (_: any, record: ReservationDto) =>
+                record.user?.email || record.primaryGuestEmail || t('admin.reservations.noGuest', 'No Guest'),
         },
         {
             title: t('admin.reservations.columns.reservationName', 'Reservation Name'),
@@ -194,6 +160,7 @@ export default function Admin_Hotel_Room_Reservations() {
                     CHECKED_IN: t('admin.reservations.columns.status.checked_in', 'Checked In'),
                     CHECKED_OUT: t('admin.reservations.columns.status.checked_out', 'Checked Out'),
                     CANCELLED: t('admin.reservations.columns.status.cancelled', 'Cancelled'),
+                    EXPIRED: t('admin.reservations.columns.status.expired', 'Expired'),
                 };
                 return statusMap[status] || status;
             },
@@ -202,13 +169,21 @@ export default function Admin_Hotel_Room_Reservations() {
             title: t('admin.reservations.columns.total', 'Total'),
             dataIndex: 'totalAmount',
             key: 'totalAmount',
-            render: (amount: number) => `$${amount.toFixed(2)}`,
+            render: (amount: number | undefined) => `$${(amount ?? 0).toFixed(2)}`,
         },
         {
             title: t('admin.reservations.columns.actions', 'Actions'),
             key: 'actions',
-            render: (_: any, record: Reservation) => (
+            render: (_: any, record: ReservationDto) => (
                 <div onClick={(e) => e.stopPropagation()}>
+                    <Button
+                        type="primary"
+                        disabled={record.status === 'CONFIRMED'}
+                        onClick={() => handleConfirm(record.reservationId)}
+                        className="mr-2 bg-green-600 hover:bg-green-700 border-green-600"
+                    >
+                        {t('admin.reservations.confirmReservation', 'Confirm')}
+                    </Button>
                     <Popconfirm
                         title={t('admin.reservations.deleteConfirmation', 'Are you sure you want to delete this reservation?')}
                         onConfirm={() => handleDelete(record.reservationId)}

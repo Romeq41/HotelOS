@@ -387,6 +387,12 @@ export interface GuestDto {
     'isPrimaryGuest'?: boolean;
     /**
      * 
+     * @type {boolean}
+     * @memberof GuestDto
+     */
+    'isAdult'?: boolean;
+    /**
+     * 
      * @type {string}
      * @memberof GuestDto
      */
@@ -648,13 +654,19 @@ export interface PageAmenityDto {
      * @type {number}
      * @memberof PageAmenityDto
      */
+    'totalPages'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PageAmenityDto
+     */
     'totalElements'?: number;
     /**
      * 
      * @type {number}
      * @memberof PageAmenityDto
      */
-    'totalPages'?: number;
+    'numberOfElements'?: number;
     /**
      * 
      * @type {number}
@@ -679,12 +691,6 @@ export interface PageAmenityDto {
      * @memberof PageAmenityDto
      */
     'sort'?: SortObject;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageAmenityDto
-     */
-    'numberOfElements'?: number;
     /**
      * 
      * @type {boolean}
@@ -721,13 +727,19 @@ export interface PageHotelDto {
      * @type {number}
      * @memberof PageHotelDto
      */
+    'totalPages'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PageHotelDto
+     */
     'totalElements'?: number;
     /**
      * 
      * @type {number}
      * @memberof PageHotelDto
      */
-    'totalPages'?: number;
+    'numberOfElements'?: number;
     /**
      * 
      * @type {number}
@@ -752,12 +764,6 @@ export interface PageHotelDto {
      * @memberof PageHotelDto
      */
     'sort'?: SortObject;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageHotelDto
-     */
-    'numberOfElements'?: number;
     /**
      * 
      * @type {boolean}
@@ -794,13 +800,19 @@ export interface PageHotelOfferDto {
      * @type {number}
      * @memberof PageHotelOfferDto
      */
+    'totalPages'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PageHotelOfferDto
+     */
     'totalElements'?: number;
     /**
      * 
      * @type {number}
      * @memberof PageHotelOfferDto
      */
-    'totalPages'?: number;
+    'numberOfElements'?: number;
     /**
      * 
      * @type {number}
@@ -825,12 +837,6 @@ export interface PageHotelOfferDto {
      * @memberof PageHotelOfferDto
      */
     'sort'?: SortObject;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageHotelOfferDto
-     */
-    'numberOfElements'?: number;
     /**
      * 
      * @type {boolean}
@@ -867,13 +873,19 @@ export interface PageReservationDto {
      * @type {number}
      * @memberof PageReservationDto
      */
+    'totalPages'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PageReservationDto
+     */
     'totalElements'?: number;
     /**
      * 
      * @type {number}
      * @memberof PageReservationDto
      */
-    'totalPages'?: number;
+    'numberOfElements'?: number;
     /**
      * 
      * @type {number}
@@ -898,12 +910,6 @@ export interface PageReservationDto {
      * @memberof PageReservationDto
      */
     'sort'?: SortObject;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageReservationDto
-     */
-    'numberOfElements'?: number;
     /**
      * 
      * @type {boolean}
@@ -940,13 +946,19 @@ export interface PageRoomDto {
      * @type {number}
      * @memberof PageRoomDto
      */
+    'totalPages'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PageRoomDto
+     */
     'totalElements'?: number;
     /**
      * 
      * @type {number}
      * @memberof PageRoomDto
      */
-    'totalPages'?: number;
+    'numberOfElements'?: number;
     /**
      * 
      * @type {number}
@@ -971,12 +983,6 @@ export interface PageRoomDto {
      * @memberof PageRoomDto
      */
     'sort'?: SortObject;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageRoomDto
-     */
-    'numberOfElements'?: number;
     /**
      * 
      * @type {boolean}
@@ -1013,13 +1019,19 @@ export interface PageUserDto {
      * @type {number}
      * @memberof PageUserDto
      */
+    'totalPages'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PageUserDto
+     */
     'totalElements'?: number;
     /**
      * 
      * @type {number}
      * @memberof PageUserDto
      */
-    'totalPages'?: number;
+    'numberOfElements'?: number;
     /**
      * 
      * @type {number}
@@ -1044,12 +1056,6 @@ export interface PageUserDto {
      * @memberof PageUserDto
      */
     'sort'?: SortObject;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageUserDto
-     */
-    'numberOfElements'?: number;
     /**
      * 
      * @type {boolean}
@@ -1120,10 +1126,10 @@ export interface PageableObject {
     'sort'?: SortObject;
     /**
      * 
-     * @type {number}
+     * @type {boolean}
      * @memberof PageableObject
      */
-    'pageSize'?: number;
+    'paged'?: boolean;
     /**
      * 
      * @type {number}
@@ -1132,10 +1138,10 @@ export interface PageableObject {
     'pageNumber'?: number;
     /**
      * 
-     * @type {boolean}
+     * @type {number}
      * @memberof PageableObject
      */
-    'paged'?: boolean;
+    'pageSize'?: number;
     /**
      * 
      * @type {boolean}
@@ -1315,7 +1321,8 @@ export const ReservationDtoStatusEnum = {
     Confirmed: 'CONFIRMED',
     CheckedIn: 'CHECKED_IN',
     CheckedOut: 'CHECKED_OUT',
-    Cancelled: 'CANCELLED'
+    Cancelled: 'CANCELLED',
+    Expired: 'EXPIRED'
 } as const;
 
 export type ReservationDtoStatusEnum = typeof ReservationDtoStatusEnum[keyof typeof ReservationDtoStatusEnum];
@@ -1642,12 +1649,6 @@ export interface User {
      * @type {boolean}
      * @memberof User
      */
-    'accountNonLocked'?: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof User
-     */
     'credentialsNonExpired'?: boolean;
     /**
      * 
@@ -1655,6 +1656,12 @@ export interface User {
      * @memberof User
      */
     'accountNonExpired'?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof User
+     */
+    'accountNonLocked'?: boolean;
 }
 
 export const UserUserTypeEnum = {
@@ -3457,7 +3464,7 @@ export const HotelManagementApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getHotelById(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Hotel>> {
+        async getHotelById(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<HotelDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getHotelById(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['HotelManagementApi.getHotelById']?.[localVarOperationServerIndex]?.url;
@@ -3706,7 +3713,7 @@ export const HotelManagementApiFactory = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getHotelById(id: number, options?: RawAxiosRequestConfig): AxiosPromise<Hotel> {
+        getHotelById(id: number, options?: RawAxiosRequestConfig): AxiosPromise<HotelDto> {
             return localVarFp.getHotelById(id, options).then((request) => request(axios, basePath));
         },
         /**
@@ -4246,6 +4253,49 @@ export const ReservationControllerApiAxiosParamCreator = function (configuration
         },
         /**
          * 
+         * @param {number} userId 
+         * @param {number} [page] 
+         * @param {number} [size] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getReservationsByUser: async (userId: number, page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('getReservationsByUser', 'userId', userId)
+            const localVarPath = `/api/reservations/user/{userId}`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {ReservationDto} reservationDto 
          * @param {*} [options] Override http request option.
@@ -4346,6 +4396,20 @@ export const ReservationControllerApiFp = function(configuration?: Configuration
         },
         /**
          * 
+         * @param {number} userId 
+         * @param {number} [page] 
+         * @param {number} [size] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getReservationsByUser(userId: number, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageReservationDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getReservationsByUser(userId, page, size, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReservationControllerApi.getReservationsByUser']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {number} id 
          * @param {ReservationDto} reservationDto 
          * @param {*} [options] Override http request option.
@@ -4405,6 +4469,17 @@ export const ReservationControllerApiFactory = function (configuration?: Configu
          */
         getReservationById(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ReservationDto> {
             return localVarFp.getReservationById(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} userId 
+         * @param {number} [page] 
+         * @param {number} [size] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getReservationsByUser(userId: number, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<PageReservationDto> {
+            return localVarFp.getReservationsByUser(userId, page, size, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4471,6 +4546,19 @@ export class ReservationControllerApi extends BaseAPI {
      */
     public getReservationById(id: number, options?: RawAxiosRequestConfig) {
         return ReservationControllerApiFp(this.configuration).getReservationById(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} userId 
+     * @param {number} [page] 
+     * @param {number} [size] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReservationControllerApi
+     */
+    public getReservationsByUser(userId: number, page?: number, size?: number, options?: RawAxiosRequestConfig) {
+        return ReservationControllerApiFp(this.configuration).getReservationsByUser(userId, page, size, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -24,8 +24,8 @@ import AmenityItem from '../../components/hotel/AmenityItem';
 import ContactInfo from '../../components/hotel/ContactInfo';
 import { getLocationString, getRoomImageUrl } from '../../components/hotel/HotelUtils';
 import ReservationForm from '../../components/hotel/ReservationForm';
-import RoomCard from '../../components/hotel/RoomCard';
 import RoomDetailsDialog from '../../components/hotel/RoomDetailsDialog';
+import RoomOptions from '../../components/hotel/RoomOptions';
 import { UniversalSlider } from '../../components/UniversalSlider';
 import { useLoading } from '../../contexts/LoaderContext';
 import { useTranslation } from 'react-i18next';
@@ -41,15 +41,8 @@ const HotelDetails: React.FC = () => {
 
     const [hotel, setHotel] = useState<HotelOfferDto | null>(null);
     const [hotelImages, setHotelImages] = useState<any[]>([]);
-    const [checkInDate, setCheckInDate] = useState<Date | null>(() => {
-        const today = new Date();
-        return today;
-    });
-    const [checkOutDate, setCheckOutDate] = useState<Date | null>(() => {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        return tomorrow;
-    });
+    const [checkInDate, setCheckInDate] = useState<Date | null>(null);
+    const [checkOutDate, setCheckOutDate] = useState<Date | null>(null);
     const [guests, setGuests] = useState<number>(1);
     const [selectedRoom, setSelectedRoom] = useState<string>('');
     const [error, setError] = useState<string>('');
@@ -57,6 +50,7 @@ const HotelDetails: React.FC = () => {
     const [selectedRoomDetails, setSelectedRoomDetails] = useState<RoomDto | null>(null);
     const [showRoomDetails, setShowRoomDetails] = useState<boolean>(false);
     const [showContact, setShowContact] = useState<boolean>(false);
+    const [isRoomsLoading, setIsRoomsLoading] = useState<boolean>(false);
 
     const theme = useTheme();
 
@@ -130,22 +124,35 @@ const HotelDetails: React.FC = () => {
         fetchHotelDetails();
     }, [hotelId]);
 
+    const toDateOnly = (date: Date | null) => {
+        if (!date) return undefined;
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`; // Local date without timezone shift
+    };
+
     useEffect(() => {
         const fetchOffersForDates = async () => {
             if (!hotelId || !checkInDate || !checkOutDate) return;
-            showLoader();
+
+            // Avoid firing requests with an invalid range (check-out before/equals check-in),
+            // which would return all rooms and momentarily show reserved rooms as free.
+            if (checkOutDate <= checkInDate) return;
+
+            setIsRoomsLoading(true);
             try {
                 const response = await hotelApi.getHotelWithOffers(
                     Number(hotelId),
-                    checkInDate.toISOString(),
-                    checkOutDate.toISOString()
+                    toDateOnly(checkInDate),
+                    toDateOnly(checkOutDate)
                 );
                 const hotelData = response.data as HotelOfferDto;
                 setHotel(hotelData);
             } catch (e) {
                 console.error('Error fetching offers for selected dates:', e);
             } finally {
-                hideLoader();
+                setIsRoomsLoading(false);
             }
         };
 
@@ -176,8 +183,8 @@ const HotelDetails: React.FC = () => {
         // Navigate to booking page with parameters
         navigate(`/book/${hotelId}/${selectedRoom}`, {
             state: {
-                checkInDate: checkInDate.toISOString(),
-                checkOutDate: checkOutDate.toISOString(),
+                checkInDate: toDateOnly(checkInDate),
+                checkOutDate: toDateOnly(checkOutDate),
                 guests
             }
         });
@@ -758,31 +765,18 @@ const HotelDetails: React.FC = () => {
                                             </Box>
                                         )}
 
-                                        {!hasDates ? (
-                                            <Alert severity="info" sx={{ mt: 2 }}>
-                                                {t('hotelDetails.selectDatesToSeeRooms', 'Select check-in and check-out dates to see available rooms.')}
-                                            </Alert>
-                                        ) : availableRooms.length > 0 ? (
-                                            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
-                                                {availableRooms.map((room) => (
-                                                    <RoomCard
-                                                        key={room.roomId}
-                                                        room={room}
-                                                        isBestValue={hotel.cheapestRoom && hotel.cheapestRoom.roomId === room.roomId}
-                                                        onViewDetails={handleRoomDetailsView}
-                                                        onSelectRoom={(roomId) => {
-                                                            setSelectedRoom(roomId);
-                                                            setActiveTab(0); // Go back to overview
-                                                        }}
-                                                        getRoomImageUrl={getRoomImageUrl}
-                                                    />
-                                                ))}
-                                            </Box>
-                                        ) : (
-                                            <Alert severity="info" sx={{ mt: 2 }}>
-                                                {t('hotelDetails.noRoomsAvailable')}
-                                            </Alert>
-                                        )}
+                                        <RoomOptions
+                                            rooms={availableRooms}
+                                            hasDates={hasDates}
+                                            isLoading={isRoomsLoading}
+                                            cheapestRoomId={hotel.cheapestRoom?.roomId?.toString()}
+                                            onViewDetails={handleRoomDetailsView}
+                                            onSelectRoom={(roomId) => {
+                                                setSelectedRoom(roomId);
+                                                setActiveTab(0);
+                                            }}
+                                            getRoomImageUrl={getRoomImageUrl}
+                                        />
                                     </>
                                 )}
                             </Box>
@@ -816,6 +810,7 @@ const HotelDetails: React.FC = () => {
                             availableRooms={availableRooms}
                             cheapestRoomId={hotel.cheapestRoom?.roomId?.toString()}
                             handleBooking={handleBooking}
+                            isLoadingRooms={isRoomsLoading}
                         />
 
                         <ContactInfo

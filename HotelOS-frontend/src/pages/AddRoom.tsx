@@ -25,8 +25,6 @@ import {
 import { UploadOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
 
-// No local DTO: use generated RoomDto when calling API. We'll shape payload accordingly.
-
 export default function AddRoom() {
     const { hotelId } = useParams<{ hotelId: string }>();
     const navigate = useNavigate();

@@ -458,9 +458,9 @@ public class HotelController {
             @ApiResponse(responseCode = "200", description = "Hotel found"),
             @ApiResponse(responseCode = "404", description = "Hotel not found")
     })
-    public ResponseEntity<Hotel> getHotelById(
+    public ResponseEntity<HotelDto> getHotelById(
             @Parameter(description = "Hotel ID") @PathVariable Long id) {
-        return hotelServices.getHotelById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return hotelServices.getHotelById(id).map(hotelMapper::toDto).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{id}/statistics")

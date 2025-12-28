@@ -52,8 +52,8 @@ class ReservationRepositoryTest {
         Reservation reservation = new Reservation();
         reservation.setUser(user);
         reservation.setRoom(room);
-        reservation.setCheckInDate(Date.valueOf(LocalDate.now()));
-        reservation.setCheckOutDate(Date.valueOf(LocalDate.now().plusDays(1)));
+        reservation.setCheckInDate(LocalDate.now());
+        reservation.setCheckOutDate(LocalDate.now().plusDays(1));
         reservation.setStatus(ReservationStatus.CONFIRMED);
         reservation.setTotalAmount(BigDecimal.valueOf(100.00));
 
@@ -83,8 +83,8 @@ class ReservationRepositoryTest {
         Reservation reservation = new Reservation();
         reservation.setUser(guest);
         reservation.setRoom(room);
-        reservation.setCheckInDate(Date.valueOf(LocalDate.now()));
-        reservation.setCheckOutDate(Date.valueOf(LocalDate.now().plusDays(1)));
+        reservation.setCheckInDate(LocalDate.now());
+        reservation.setCheckOutDate(LocalDate.now().plusDays(1));
         reservation.setStatus(ReservationStatus.CONFIRMED);
         reservation = reservationRepository.save(reservation);
 
@@ -113,8 +113,8 @@ class ReservationRepositoryTest {
         Reservation reservation = new Reservation();
         reservation.setUser(guest);
         reservation.setRoom(room);
-        reservation.setCheckInDate(Date.valueOf(LocalDate.now()));
-        reservation.setCheckOutDate(Date.valueOf(LocalDate.now().plusDays(1)));
+        reservation.setCheckInDate(LocalDate.now());
+        reservation.setCheckOutDate(LocalDate.now().plusDays(1));
         reservation.setStatus(ReservationStatus.CONFIRMED);
         reservation = reservationRepository.save(reservation);
 

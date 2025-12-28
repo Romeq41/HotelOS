@@ -55,4 +55,15 @@ public class EmailService {
                         tempPassword + "\n\n" +
                         "Please log in and change your password immediately.");
     }
+
+    public void sendPasswordChanged(String to, String firstName) {
+        String safeName = (firstName == null || firstName.isBlank()) ? "there" : firstName;
+        sendPlainText(
+                to,
+                "Your HotelOS password was changed",
+                "Hi " + safeName + ",\n\n" +
+                        "This is a confirmation that your HotelOS account password was changed.\n\n" +
+                        "If you made this change, no action is needed.\n" +
+                        "If you did not authorize this change, please reset your password immediately or contact support.");
+    }
 }

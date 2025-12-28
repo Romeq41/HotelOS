@@ -43,5 +43,7 @@ public class GuestDto {
 
     private Boolean isPrimaryGuest;
 
+    private Boolean isAdult;
+
     private String specialRequirements;
 }

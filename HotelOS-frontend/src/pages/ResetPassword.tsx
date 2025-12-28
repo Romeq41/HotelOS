@@ -4,11 +4,13 @@ import { useLoading } from '../contexts/LoaderContext';
 import { useTranslation } from 'react-i18next';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import useApi from '../api/useApi';
 
 export default function ResetPassword() {
     const { showLoader, hideLoader } = useLoading();
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { auth: authApi } = useApi();
 
     const [form] = Form.useForm();
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -18,46 +20,7 @@ export default function ResetPassword() {
     const handleSubmit = async (values: any) => {
         showLoader();
         try {
-            const response = await fetch('http://localhost:8080/api/auth/reset-password', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: values.email,
-                }),
-            });
-
-            const responseText = await response.text();
-            let data;
-
-            try {
-                data = responseText ? JSON.parse(responseText) : {};
-            } catch (parseError) {
-                console.error("Failed to parse response:", parseError);
-            }
-
-            if (!response.ok) {
-                if (response.status === 400 && data) {
-                    if (typeof data === 'object' && Object.keys(data).length > 0) {
-                        const errorMessages = [];
-                        for (const [field, errMsg] of Object.entries(data)) {
-                            errorMessages.push(`${field}: ${errMsg}`);
-                        }
-                        setErrorMessage(errorMessages.join('. '));
-                        setSubmitStatus('error');
-                        throw new Error('Validation failed');
-                    }
-
-                    if (data.message) {
-                        setErrorMessage(data.message);
-                        setSubmitStatus('error');
-                        throw new Error(data.message);
-                    }
-                }
-
-                throw new Error('Password reset failed');
-            }
+            await authApi.resetPassword({ email: values.email });
 
             setSubmitStatus('success');
             setConfirmReset(false);
@@ -77,7 +40,14 @@ export default function ResetPassword() {
         } catch (error: any) {
             console.error('Error resetting password:', error);
             setSubmitStatus('error');
-            setErrorMessage(error.message || t('auth.resetPassword.errorMessage', 'Failed to reset password. Please try again.'));
+            const apiMessage = error?.response?.data?.message;
+            const validation = error?.response?.data;
+            if (validation && typeof validation === 'object' && !apiMessage) {
+                const messages = Object.entries(validation).map(([field, msg]) => `${field}: ${msg}`);
+                setErrorMessage(messages.join('. '));
+            } else {
+                setErrorMessage(apiMessage || error.message || t('auth.resetPassword.errorMessage', 'Failed to reset password. Please try again.'));
+            }
         } finally {
             hideLoader();
         }

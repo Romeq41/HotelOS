@@ -13,11 +13,12 @@ import {
     Col,
     Card,
     message,
-    Space
+    Space,
+    Select
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadFile, UploadProps } from "antd/es/upload/interface";
-import { HotelDto } from "../../../api/generated/api";
+import { HotelDto, AmenityDto, AmenityDtoTypeEnum } from "../../../api/generated/api";
 import { useApi } from "../../../api/useApi";
 
 export default function Adminpage_hotel_edit() {
@@ -26,11 +27,12 @@ export default function Adminpage_hotel_edit() {
     const [form] = Form.useForm();
     const { t } = useTranslation();
     const [hotelData, setHotelData] = useState<HotelDto | null>(null);
+    const [amenities, setAmenities] = useState<AmenityDto[]>([]);
     const [fileList, setFileList] = useState<UploadFile[]>([]);
     const [primaryImage, setPrimaryImage] = useState<UploadFile | null>(null);
     const [loading, setLoading] = useState(false);
     const { showLoader, hideLoader } = useLoading();
-    const { hotel: hotelApi } = useApi();
+    const { hotel: hotelApi, amenity: amenityApi } = useApi();
 
     useEffect(() => {
         const fetchHotelData = async () => {
@@ -42,6 +44,24 @@ export default function Adminpage_hotel_edit() {
                 const hotelResponse = await hotelApi.getHotelById(Number(id));
                 const hotel = hotelResponse.data as HotelDto;
                 setHotelData(hotel);
+                // Fetch amenities for this hotel (include all by requesting large page)
+                try {
+                    const amenitiesResponse = await amenityApi.getAmenitiesByHotelId(Number(id), 0, 500);
+                    const content = (amenitiesResponse.data as any).content ?? amenitiesResponse.data;
+                    setAmenities(content as AmenityDto[]);
+                    form.setFieldsValue({
+                        amenities: (content as AmenityDto[]).map(a => ({
+                            id: a.id,
+                            name: a.name,
+                            type: a.type,
+                            description: a.description,
+                            distanceKm: a.distanceKm,
+                            imageUrl: a.imageUrl,
+                        }))
+                    });
+                } catch (amenityErr) {
+                    console.warn('Unable to load amenities', amenityErr);
+                }
 
                 // Transform the HotelDto for the form
                 const formValues = {
@@ -239,6 +259,31 @@ export default function Adminpage_hotel_edit() {
 
             // Update hotel using the API
             await hotelApi.updateHotelById(Number(id), hotelDto);
+
+            // Handle amenities
+            const formAmenities: AmenityDto[] = (values.amenities || []).map((a: any) => ({
+                ...a,
+                hotel: { id: Number(id) } as HotelDto,
+            }));
+
+            const existingById = new Map((amenities || []).filter(a => a.id).map(a => [a.id as number, a]));
+            const incomingIds = new Set(formAmenities.filter(a => a.id).map(a => a.id as number));
+
+            // Delete removed amenities
+            for (const existing of amenities) {
+                if (existing.id && !incomingIds.has(existing.id)) {
+                    await amenityApi.deleteAmenity(existing.id);
+                }
+            }
+
+            // Upsert current amenities
+            for (const amenity of formAmenities) {
+                if (amenity.id) {
+                    await amenityApi.updateAmenity(amenity.id, amenity as any);
+                } else {
+                    await amenityApi.addAmenity(amenity as any);
+                }
+            }
 
             // Handle primary image upload
             if (primaryImage && !primaryImage.url) {
@@ -444,6 +489,103 @@ export default function Adminpage_hotel_edit() {
                                         </Form.Item>
                                     </Col>
                                 </Row>
+
+                                <Form.List name="amenities">
+                                    {(fields, { add, remove }) => (
+                                        <Card
+                                            title={t('admin.hotels.fields.amenities', 'Amenities')}
+                                            size="small"
+                                            className="mb-4"
+                                            extra={<Button onClick={() => add()}>{t('admin.hotels.amenities.add', 'Add amenity')}</Button>}
+                                        >
+                                            {fields.length === 0 && (
+                                                <div className="text-sm text-gray-500 mb-3">
+                                                    {t('admin.hotels.amenities.none', 'No amenities added yet.')}
+                                                </div>
+                                            )}
+                                            {fields.map((field) => (
+                                                <Card key={field.key} className="mb-3" size="small">
+                                                    <Row gutter={12}>
+                                                        <Col span={0}>
+                                                            <Form.Item
+                                                                {...field}
+                                                                name={[field.name, 'id']}
+                                                                fieldKey={[field.fieldKey!, 'id']}
+                                                                hidden
+                                                            >
+                                                                <Input />
+                                                            </Form.Item>
+                                                        </Col>
+                                                        <Col span={6}>
+                                                            <Form.Item
+                                                                {...field}
+                                                                name={[field.name, 'name']}
+                                                                fieldKey={[field.fieldKey!, 'name']}
+                                                                label={t('admin.hotels.amenities.name', 'Name')}
+                                                                rules={[{ required: true, message: t('admin.hotels.amenities.nameRequired', 'Amenity name is required') }]}
+                                                            >
+                                                                <Input maxLength={100} />
+                                                            </Form.Item>
+                                                        </Col>
+                                                        <Col span={6}>
+                                                            <Form.Item
+                                                                {...field}
+                                                                name={[field.name, 'type']}
+                                                                fieldKey={[field.fieldKey!, 'type']}
+                                                                label={t('admin.hotels.amenities.type', 'Type')}
+                                                            >
+                                                                <Select allowClear>
+                                                                    {Object.values(AmenityDtoTypeEnum).map((type) => (
+                                                                        <Select.Option key={type} value={type}>
+                                                                            {type}
+                                                                        </Select.Option>
+                                                                    ))}
+                                                                </Select>
+                                                            </Form.Item>
+                                                        </Col>
+                                                        <Col span={6}>
+                                                            <Form.Item
+                                                                {...field}
+                                                                name={[field.name, 'distanceKm']}
+                                                                fieldKey={[field.fieldKey!, 'distanceKm']}
+                                                                label={t('admin.hotels.amenities.distance', 'Distance (km)')}
+                                                            >
+                                                                <InputNumber min={0} step={0.1} style={{ width: '100%' }} />
+                                                            </Form.Item>
+                                                        </Col>
+                                                        <Col span={6}>
+                                                            <Form.Item
+                                                                {...field}
+                                                                name={[field.name, 'imageUrl']}
+                                                                fieldKey={[field.fieldKey!, 'imageUrl']}
+                                                                label={t('admin.hotels.amenities.imageUrl', 'Image URL')}
+                                                            >
+                                                                <Input maxLength={255} />
+                                                            </Form.Item>
+                                                        </Col>
+                                                    </Row>
+                                                    <Row gutter={12}>
+                                                        <Col span={18}>
+                                                            <Form.Item
+                                                                {...field}
+                                                                name={[field.name, 'description']}
+                                                                fieldKey={[field.fieldKey!, 'description']}
+                                                                label={t('admin.hotels.amenities.description', 'Description')}
+                                                            >
+                                                                <Input.TextArea rows={2} maxLength={500} />
+                                                            </Form.Item>
+                                                        </Col>
+                                                        <Col span={6} className="flex items-center">
+                                                            <Button danger onClick={() => remove(field.name)}>
+                                                                {t('common.delete', 'Delete')}
+                                                            </Button>
+                                                        </Col>
+                                                    </Row>
+                                                </Card>
+                                            ))}
+                                        </Card>
+                                    )}
+                                </Form.List>
 
                                 <Row gutter={24}>
                                     <Col span={12}>

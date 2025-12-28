@@ -351,7 +351,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getHotelById**
-> Hotel getHotelById()
+> HotelDto getHotelById()
 
 Returns details for a specific hotel
 
@@ -382,7 +382,7 @@ const { status, data } = await apiInstance.getHotelById(
 
 ### Return type
 
-**Hotel**
+**HotelDto**
 
 ### Authorization
 

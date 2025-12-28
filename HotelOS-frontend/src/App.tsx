@@ -37,6 +37,8 @@ import ResetPassword from "./pages/ResetPassword";
 import Explore from "./pages/user/Explore";
 import HotelDetails from "./pages/user/Hotel_Offer_details";
 import Admin_Hotel_Room_Type_Add from "./pages/admin/hotel/room_type_add";
+import EditProfile from "./pages/user/EditProfile";
+import BookReservation from "./pages/user/BookReservation";
 
 const App = () => {
     return (
@@ -62,6 +64,14 @@ const App = () => {
                                 element={<ProtectedRoute allowedRoles={[UserType.Guest, UserType.Staff, UserType.Manager, UserType.Admin]} />}
                             >
                                 <Route path="/user" element={<Userpage />} />
+                                <Route path="/book/:hotelId/:roomId" element={<BookReservation />} />
+                            </Route>
+
+                            {/* Guest-only routes */}
+                            <Route
+                                element={<ProtectedRoute allowedRoles={[UserType.Guest, UserType.Staff, UserType.Manager, UserType.Admin]} />}
+                            >
+                                <Route path="/user/edit" element={<EditProfile />} />
                             </Route>
 
                             {/* Admin routes */}

@@ -17,7 +17,9 @@ import {
     message,
     Space,
     InputNumber,
-    Switch
+    Switch,
+    Table,
+    Tag
 } from "antd";
 
 export default function Admin_Hotel_Room_Type_Add() {
@@ -28,9 +30,12 @@ export default function Admin_Hotel_Room_Type_Add() {
     const [form] = Form.useForm();
     const [hotel, setHotel] = useState<HotelDto | null>(null);
     const [loading, setLoading] = useState(false);
+    const [roomTypes, setRoomTypes] = useState<RoomTypeDto[]>([]);
+    const [editingRoomTypeId, setEditingRoomTypeId] = useState<number | null>(null);
     const { showLoader, hideLoader } = useLoading();
     const { t } = useTranslation();
     const { hotel: hotelApi, roomTypes: roomTypesApi } = useApi();
+    const roomTypeIdToActivate = new URLSearchParams(location.search).get('roomTypeId');
 
     // Helper function to determine the correct base path
     const getBasePath = () => {
@@ -54,6 +59,8 @@ export default function Admin_Hotel_Room_Type_Add() {
                 const response = await hotelApi.getHotelById(Number(hotelId));
                 const hotelData = response.data as HotelDto;
                 setHotel(hotelData);
+                const { data } = await roomTypesApi.getRoomTypesByHotelId(Number(hotelId), true);
+                setRoomTypes(((data as any).content ?? data) as RoomTypeDto[]);
             } catch (error: any) {
                 console.error("Error fetching hotel data:", error);
 
@@ -71,6 +78,32 @@ export default function Admin_Hotel_Room_Type_Add() {
         fetchHotelData();
     }, [hotelId]);
 
+    const refreshRoomTypes = async () => {
+        if (!hotelId) return;
+        const { data } = await roomTypesApi.getRoomTypesByHotelId(Number(hotelId), true);
+        setRoomTypes(((data as any).content ?? data) as RoomTypeDto[]);
+    };
+
+    const handleActivateRoomType = async () => {
+        if (!roomTypeIdToActivate) return;
+        showLoader();
+        try {
+            await roomTypesApi.activateRoomType(Number(roomTypeIdToActivate));
+            message.success(t('admin.hotels.roomTypes.activate.success', 'Room type activated successfully'));
+            await refreshRoomTypes();
+        } catch (error: any) {
+            console.error('Error activating room type:', error);
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                message.error(t('common.unauthorized', 'Unauthorized access'));
+                navigate('/login');
+            } else {
+                message.error(t('admin.hotels.roomTypes.activate.error', 'Failed to activate room type'));
+            }
+        } finally {
+            hideLoader();
+        }
+    };
+
     const onFinish = async (values: any) => {
         if (!hotelId) return;
         setLoading(true);
@@ -79,7 +112,6 @@ export default function Admin_Hotel_Room_Type_Add() {
         try {
             console.log("Form values:", values);
 
-            // Create the RoomTypeDto object from form values
             const roomTypeDto: RoomTypeDto = {
                 name: values.name,
                 priceFactor: Number(values.priceFactor),
@@ -88,10 +120,17 @@ export default function Admin_Hotel_Room_Type_Add() {
                 active: values.active !== undefined ? values.active : true
             };
 
-            // Create room type using the API
-            await roomTypesApi.createRoomType(roomTypeDto);
+            if (editingRoomTypeId) {
+                await roomTypesApi.updateRoomType(editingRoomTypeId, roomTypeDto);
+                message.success(t('admin.hotels.roomTypes.add.updateSuccess', 'Room type updated successfully'));
+            } else {
+                await roomTypesApi.createRoomType(roomTypeDto);
+                message.success(t('admin.hotels.roomTypes.add.createSuccess', 'Room type created successfully'));
+            }
 
-            message.success(t('admin.hotels.roomTypes.add.createSuccess', 'Room type created successfully'));
+            await refreshRoomTypes();
+            setEditingRoomTypeId(null);
+            form.resetFields();
 
             // Navigate back to the room details edit page or rooms list
             const basePath = getBasePath();
@@ -140,6 +179,77 @@ export default function Admin_Hotel_Room_Type_Add() {
         return Promise.resolve();
     };
 
+    const handleEdit = (roomType: RoomTypeDto) => {
+        setEditingRoomTypeId(roomType.id as number);
+        form.setFieldsValue({
+            name: roomType.name,
+            priceFactor: roomType.priceFactor,
+            description: roomType.description,
+            active: roomType.active,
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleToggleActive = async (roomType: RoomTypeDto) => {
+        if (!roomType.id) return;
+        showLoader();
+        try {
+            if (roomType.active) {
+                await roomTypesApi.deactivateRoomType(roomType.id);
+                message.success(t('admin.hotels.roomTypes.deactivate.success', 'Room type deactivated'));
+            } else {
+                await roomTypesApi.activateRoomType(roomType.id);
+                message.success(t('admin.hotels.roomTypes.activate.success', 'Room type activated successfully'));
+            }
+            await refreshRoomTypes();
+        } catch (error: any) {
+            console.error('Error toggling room type:', error);
+            message.error(t('admin.hotels.roomTypes.toggle.error', 'Failed to update room type status'));
+        } finally {
+            hideLoader();
+        }
+    };
+
+    const columns = [
+        {
+            title: t('admin.hotels.roomTypes.fields.name', 'Name'),
+            dataIndex: 'name',
+            key: 'name',
+        },
+        {
+            title: t('admin.hotels.roomTypes.fields.priceFactor', 'Price Factor'),
+            dataIndex: 'priceFactor',
+            key: 'priceFactor',
+            render: (value: number) => value?.toFixed(1),
+        },
+        {
+            title: t('admin.hotels.roomTypes.fields.description', 'Description'),
+            dataIndex: 'description',
+            key: 'description',
+            ellipsis: true,
+        },
+        {
+            title: t('admin.hotels.roomTypes.fields.active', 'Active'),
+            dataIndex: 'active',
+            key: 'active',
+            render: (active: boolean) => active ? <Tag color="green">{t('common.active', 'Active')}</Tag> : <Tag color="red">{t('common.inactive', 'Inactive')}</Tag>,
+        },
+        {
+            title: t('admin.hotels.roomTypes.fields.actions', 'Actions'),
+            key: 'actions',
+            render: (_: any, record: RoomTypeDto) => (
+                <Space>
+                    <Button onClick={() => handleEdit(record)}>
+                        {t('common.edit', 'Edit')}
+                    </Button>
+                    <Button type="primary" danger={record.active} onClick={() => handleToggleActive(record)}>
+                        {record.active ? t('common.deactivate', 'Deactivate') : t('common.activate', 'Activate')}
+                    </Button>
+                </Space>
+            ),
+        },
+    ];
+
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
             <div className="mt-20 p-5 flex justify-center">
@@ -157,6 +267,30 @@ export default function Admin_Hotel_Room_Type_Add() {
                     variant="outlined"
                     className="w-full max-w-4xl"
                 >
+                    <Space className="mb-4">
+                        {roomTypeIdToActivate && (
+                            <Card size="small" className="bg-gray-50">
+                                <div className="flex items-center justify-between gap-4">
+                                    <div>
+                                        <p className="font-medium">
+                                            {t('admin.hotels.roomTypes.activate.heading', 'Activate room type')}
+                                        </p>
+                                        <p className="text-sm text-gray-600">
+                                            {t('admin.hotels.roomTypes.activate.hint', 'Click to activate room type with ID {{id}}.', { id: roomTypeIdToActivate })}
+                                        </p>
+                                    </div>
+                                    <Button type="primary" onClick={handleActivateRoomType}>
+                                        {t('admin.hotels.roomTypes.activate.cta', 'Activate')}
+                                    </Button>
+                                </div>
+                            </Card>
+                        )}
+
+                        <Button onClick={() => document.getElementById('room-types-table')?.scrollIntoView({ behavior: 'smooth' })}>
+                            {t('admin.hotels.roomTypes.viewAll', 'View all room types')}
+                        </Button>
+                    </Space>
+
                     <Form
                         form={form}
                         layout="vertical"
@@ -306,6 +440,14 @@ export default function Admin_Hotel_Room_Type_Add() {
                             </div>
                         )}
                     </Form>
+
+                    <Card id="room-types-table" className="mt-8" title={t('admin.hotels.roomTypes.list.title', 'Room Types')}>
+                        <Table
+                            columns={columns}
+                            dataSource={(roomTypes || []).map((rt) => ({ ...rt, key: rt.id }))}
+                            pagination={false}
+                        />
+                    </Card>
                 </Card>
             </div>
         </div>

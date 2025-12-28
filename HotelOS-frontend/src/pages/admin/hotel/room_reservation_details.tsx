@@ -1,6 +1,6 @@
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Reservation } from "../../../interfaces/Reservation";
+import { Reservation, ReservationStatus } from "../../../interfaces/Reservation";
 import { useLoading } from "../../../contexts/LoaderContext";
 import { useTranslation } from "react-i18next";
 import { getBaseUrl, getPermissionContext } from "../../../utils/routeUtils";
@@ -39,6 +39,29 @@ export default function Admin_Hotel_Room_Reservation_Details() {
         fetchReservation();
     }, [hotelId, reservationId, reservationApi, navigate, t]);
 
+    const handleConfirm = async () => {
+        if (!reservation) return;
+        showLoader();
+        try {
+            const response = await reservationApi.updateReservation(
+                reservation.reservationId,
+                { ...(reservation as any), status: ReservationStatus.CONFIRMED }
+            );
+            setReservation(response.data as any);
+            message.success(t('admin.reservations.confirmed', 'Reservation confirmed'));
+        } catch (error: any) {
+            console.error('Error confirming reservation:', error);
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                message.error(t('common.unauthorized', 'Unauthorized access'));
+                navigate('/login');
+                return;
+            }
+            message.error(t('admin.reservations.confirmError', 'Failed to confirm reservation'));
+        } finally {
+            hideLoader();
+        }
+    };
+
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
             <div className="container mt-20 mx-auto py-8 px-4">
@@ -72,6 +95,14 @@ export default function Admin_Hotel_Room_Reservation_Details() {
                             </p>
 
                             <hr className="block my-3" />
+                            {reservation.status !== ReservationStatus.CONFIRMED && (
+                                <button
+                                    onClick={handleConfirm}
+                                    className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 m-2"
+                                >
+                                    {t('admin.reservations.confirmReservation', 'Confirm reservation')}
+                                </button>
+                            )}
                             <button
                                 onClick={() => {
                                     const base = getBaseUrl(permissionContext, hotelId || '');

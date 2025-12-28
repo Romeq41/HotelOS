@@ -32,7 +32,8 @@ public class ReservationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReservationDto> getReservationById(@PathVariable @Positive(message = "ID must be a positive number") Long id) {
+    public ResponseEntity<ReservationDto> getReservationById(
+            @PathVariable @Positive(message = "ID must be a positive number") Long id) {
         return reservationServices.getReservationById(id)
                 .map(reservation -> ResponseEntity.ok(reservationMapper.toDto(reservation)))
                 .orElse(ResponseEntity.notFound().build());
@@ -61,13 +62,26 @@ public class ReservationController {
             @RequestParam(defaultValue = "10") @Positive int size,
             @RequestParam(required = false) String reservationName) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ReservationDto> reservations = reservationServices.getReservationsWithFilters(hotelId, reservationName, pageable)
+        Page<ReservationDto> reservations = reservationServices
+                .getReservationsWithFilters(hotelId, reservationName, pageable)
+                .map(reservationMapper::toDto);
+        return ResponseEntity.ok(reservations);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Page<ReservationDto>> getReservationsByUser(
+            @PathVariable @Positive Long userId,
+            @RequestParam(defaultValue = "0") @PositiveOrZero int page,
+            @RequestParam(defaultValue = "10") @Positive int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ReservationDto> reservations = reservationServices.getReservationsByUser(userId, pageable)
                 .map(reservationMapper::toDto);
         return ResponseEntity.ok(reservations);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReservation(@PathVariable @Positive(message = "ID must be a positive number") Long id) {
+    public ResponseEntity<Void> deleteReservation(
+            @PathVariable @Positive(message = "ID must be a positive number") Long id) {
         reservationServices.deleteReservation(id);
         return ResponseEntity.noContent().build();
     }

@@ -53,6 +53,9 @@ public class Guest {
     private Boolean isPrimaryGuest; // Main contact person for the reservation
 
     @Column
+    private Boolean isAdult;
+
+    @Column
     private String specialRequirements;
 
     // Audit fields

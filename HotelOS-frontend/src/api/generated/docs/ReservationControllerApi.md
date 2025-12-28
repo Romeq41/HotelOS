@@ -8,6 +8,7 @@ All URIs are relative to *http://localhost:8080*
 |[**deleteReservation**](#deletereservation) | **DELETE** /api/reservations/{id} | |
 |[**getAllReservationsByHotelId**](#getallreservationsbyhotelid) | **GET** /api/reservations/hotel/{hotelId} | |
 |[**getReservationById**](#getreservationbyid) | **GET** /api/reservations/{id} | |
+|[**getReservationsByUser**](#getreservationsbyuser) | **GET** /api/reservations/user/{userId} | |
 |[**updateReservation**](#updatereservation) | **PUT** /api/reservations/{id} | |
 
 # **addReservation**
@@ -202,6 +203,62 @@ const { status, data } = await apiInstance.getReservationById(
 ### Return type
 
 **ReservationDto**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/hal+json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getReservationsByUser**
+> PageReservationDto getReservationsByUser()
+
+
+### Example
+
+```typescript
+import {
+    ReservationControllerApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ReservationControllerApi(configuration);
+
+let userId: number; // (default to undefined)
+let page: number; // (optional) (default to 0)
+let size: number; // (optional) (default to 10)
+
+const { status, data } = await apiInstance.getReservationsByUser(
+    userId,
+    page,
+    size
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **userId** | [**number**] |  | defaults to undefined|
+| **page** | [**number**] |  | (optional) defaults to 0|
+| **size** | [**number**] |  | (optional) defaults to 10|
+
+
+### Return type
+
+**PageReservationDto**
 
 ### Authorization
 

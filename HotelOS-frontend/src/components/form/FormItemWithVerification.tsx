@@ -175,6 +175,8 @@ const FormItemWithVerification: React.FC<FormItemWithVerificationProps> = ({
                         disabled={disabled}
                         readOnly={readOnly}
                         allowClear={allowClear}
+                        value={value}
+                        onChange={onChange}
                         style={{ width }}
                     />
                 );
@@ -187,6 +189,8 @@ const FormItemWithVerification: React.FC<FormItemWithVerificationProps> = ({
                         disabled={disabled}
                         readOnly={readOnly}
                         allowClear={allowClear}
+                        value={value}
+                        onChange={onChange}
                         style={{ width }}
                     />
                 );
@@ -197,6 +201,8 @@ const FormItemWithVerification: React.FC<FormItemWithVerificationProps> = ({
                         placeholder={placeholder}
                         disabled={disabled}
                         allowClear={allowClear}
+                        value={value}
+                        onChange={onChange}
                         style={{ width }}
                     />
                 );
@@ -209,6 +215,8 @@ const FormItemWithVerification: React.FC<FormItemWithVerificationProps> = ({
                         disabled={disabled}
                         readOnly={readOnly}
                         allowClear={allowClear}
+                        value={value}
+                        onChange={onChange}
                         style={{ width }}
                     />
                 );
@@ -220,6 +228,8 @@ const FormItemWithVerification: React.FC<FormItemWithVerificationProps> = ({
                         disabled={disabled}
                         min={min}
                         max={max}
+                        value={value}
+                        onChange={onChange}
                         style={{ width }}
                     />
                 );
@@ -231,6 +241,8 @@ const FormItemWithVerification: React.FC<FormItemWithVerificationProps> = ({
                         disabled={disabled}
                         allowClear={allowClear}
                         options={options}
+                        value={value}
+                        onChange={onChange}
                         style={{ width }}
                     />
                 );
@@ -240,23 +252,25 @@ const FormItemWithVerification: React.FC<FormItemWithVerificationProps> = ({
                     <DatePicker
                         placeholder={placeholder}
                         disabled={disabled}
+                        value={value}
+                        onChange={onChange}
                         style={{ width }}
                     />
                 );
 
             case 'checkbox':
-                return <Checkbox disabled={disabled}>{placeholder}</Checkbox>;
+                return <Checkbox disabled={disabled} checked={value} onChange={(e) => onChange && onChange(e.target.checked)}>{placeholder}</Checkbox>;
 
             case 'radio':
                 return (
-                    <Radio.Group disabled={disabled} options={options} />
+                    <Radio.Group disabled={disabled} options={options} value={value} onChange={(e) => onChange && onChange(e.target.value)} />
                 );
 
             case 'switch':
-                return <Switch disabled={disabled} />;
+                return <Switch disabled={disabled} checked={value} onChange={(checked) => onChange && onChange(checked)} />;
 
             default:
-                return <Input placeholder={placeholder} style={{ width }} />;
+                return <Input placeholder={placeholder} style={{ width }} value={value} onChange={onChange} />;
         }
     };
 

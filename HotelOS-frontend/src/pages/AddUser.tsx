@@ -3,10 +3,12 @@ import { Form, Input, Button, Card, message, Alert } from 'antd';
 import { useLoading } from '../contexts/LoaderContext';
 import { useTranslation } from 'react-i18next';
 import { CheckCircleOutlined } from '@ant-design/icons';
+import { useApi } from '../api/useApi';
 
 export default function AddUser() {
     const { showLoader, hideLoader } = useLoading();
     const { t } = useTranslation();
+    const { auth: authApi } = useApi();
 
     const [form] = Form.useForm();
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -14,20 +16,7 @@ export default function AddUser() {
     const handleSubmit = async (values: any) => {
         showLoader();
         try {
-            const response = await fetch('http://localhost:8080/api/auth/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1")}`,
-                },
-                body: JSON.stringify(values),
-            });
-
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-
-            await response.json();
+            await authApi.register(values as any);
             setSubmitStatus('success');
 
             message.success({

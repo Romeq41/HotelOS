@@ -46,7 +46,8 @@ public class AuthenticationService {
     }
 
     public void changePassword(PasswordChangeRequest request) {
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (user.getUserType() == UserType.ADMIN) {
             throw new RuntimeException("User not found");
@@ -54,6 +55,10 @@ public class AuthenticationService {
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+
+        if (user.getEmail() != null) {
+            emailService.sendPasswordChanged(user.getEmail(), user.getFirstName());
+        }
     }
 
     public void resetPassword(PasswordResetRequest request) {

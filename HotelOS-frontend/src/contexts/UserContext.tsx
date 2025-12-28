@@ -1,18 +1,20 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect, Dispatch, SetStateAction, useCallback } from "react";
 import { LoginRequest, RegisterRequest, User as ApiUser } from "../api/generated/api";
 import useApi from "../api/useApi";
-import { User } from "../interfaces/User";
+import { User, UserDto } from "../interfaces/User";
 import { useLoading } from "./LoaderContext";
 
 interface UserContextType {
-    user: User | null;
+    user: UserDto | null;
     isAuth: boolean;
     setIsAuth: React.Dispatch<React.SetStateAction<boolean>>;
+    setUser: Dispatch<SetStateAction<UserDto | null>>;
     isAuthDone: boolean;
     setIsAuthDone: React.Dispatch<React.SetStateAction<boolean>>;
     logout: () => void;
     login: (email: string, password: string) => Promise<void>;
-    register: (payload: RegisterRequest) => Promise<User | null>;
+    register: (payload: RegisterRequest) => Promise<UserDto | null>;
+    fetchUser: () => Promise<void>;
     error: any;
     clearError: () => void;
 }
@@ -21,41 +23,40 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
     const { auth: authApi, getToken } = useApi();
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<UserDto | null>(null);
     const [isAuth, setIsAuth] = useState<boolean>(false);
     const { showLoader, hideLoader } = useLoading();
     const [error, setError] = useState<string | null>(null);
     const [isAuthDone, setIsAuthDone] = useState<boolean>(false);
 
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            showLoader();
-            setIsAuthDone(false);
-            const token = getToken();
-            if (token) {
-                try {
-                    const { data } = await authApi.authenticate({ token });
-                    if (data && (data as any).user) {
-                        const authUser = (data as any).user as ApiUser;
-                        setUser(authUser);
-                        setIsAuth(true);
-                    }
-                } catch (err) {
-                    console.error("Error fetching user:", err);
-                    setError("Authentication failed");
-                } finally {
-                    setIsAuthDone(true);
-                    hideLoader();
+    const fetchUser = useCallback(async () => {
+        showLoader();
+        setIsAuthDone(false);
+        const token = getToken();
+        if (token) {
+            try {
+                const { data } = await authApi.authenticate({ token });
+                if (data && (data as any).user) {
+                    const authUser = (data as any).user as UserDto;
+                    setUser(authUser);
+                    setIsAuth(true);
                 }
-            } else {
+            } catch (err) {
+                console.error("Error fetching user:", err);
+                setError("Authentication failed");
+            } finally {
                 setIsAuthDone(true);
                 hideLoader();
             }
-        };
+        } else {
+            setIsAuthDone(true);
+            hideLoader();
+        }
+    }, [authApi, getToken]);
 
+    useEffect(() => {
         fetchUser();
-    }, []);
+    }, [fetchUser]);
 
     const login = async (email: string, password: string): Promise<void> => {
         showLoader();
@@ -71,7 +72,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             }
 
             const authData: any = data;
-            const mappedUser: User | null = authData.user ? (authData.user as ApiUser) : null;
+            const mappedUser: UserDto | null = authData.user ? (authData.user as UserDto) : null;
 
             if (authData.token) {
                 const expires = new Date();
@@ -102,7 +103,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         );
     };
 
-    const register = async (payload: RegisterRequest): Promise<User | null> => {
+    const register = async (payload: RegisterRequest): Promise<UserDto | null> => {
         try {
             showLoader();
             setIsAuthDone(false);
@@ -116,7 +117,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             }
 
             const authData: any = data;
-            const registeredUser: User | null = authData.user ? (authData.user as ApiUser) : null;
+            const registeredUser: UserDto | null = authData.user ? (authData.user as UserDto) : null;
 
             if (authData.token) {
                 const expires = new Date();
@@ -144,20 +145,20 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
 
     return (
-        <UserContext.Provider value={
-            {
-                user,
-                isAuth,
-                setIsAuth,
-                login,
-                logout,
-                register,
-                error,
-                clearError: () => setError(null),
-                isAuthDone,
-                setIsAuthDone
-
-            }}>
+        <UserContext.Provider value={{
+            user,
+            isAuth,
+            setIsAuth,
+            setUser,
+            login,
+            logout,
+            register,
+            fetchUser,
+            error,
+            clearError: () => setError(null),
+            isAuthDone,
+            setIsAuthDone
+        }}>
             {children}
         </UserContext.Provider>
     );

@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Room } from '../interfaces/Room';
-import { ReservationStatus } from '../interfaces/Reservation';
+import { RoomDto, ReservationDtoStatusEnum, ReservationDto, UserDto } from '../api/generated/api';
 import { useLoading } from '../contexts/LoaderContext';
 import { useTranslation } from 'react-i18next';
 import { getPermissionContext, getReturnUrl } from '../utils/routeUtils';
+import { useApi } from '../api/useApi';
 import {
     Form,
     Input,
@@ -23,12 +23,13 @@ export default function AddReservation() {
     const { hotelId } = useParams<{ hotelId: string }>();
     const navigate = useNavigate();
     const location = useLocation();
-    const [rooms, setRooms] = useState<Room[]>([]);
+    const [rooms, setRooms] = useState<RoomDto[]>([]);
     const { showLoader, hideLoader } = useLoading();
     const { t } = useTranslation();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const { Option } = Select;
+    const { hotel: hotelApi, reservation: reservationApi } = useApi();
 
     // Get current permission context based on the URL path
     const getCurrentPermissionContext = () => {
@@ -45,18 +46,8 @@ export default function AddReservation() {
         const fetchRooms = async () => {
             showLoader();
             try {
-                const res = await fetch(`http://localhost:8080/api/hotels/${hotelId}/rooms`, {
-                    headers: {
-                        Authorization: `Bearer ${document.cookie.replace(
-                            /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
-                            '$1'
-                        )}`,
-                    },
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    setRooms(data.content || data);
-                }
+                const { data } = await hotelApi.getRoomsByHotelId(Number(hotelId), 0, 1000);
+                setRooms(((data as any).content ?? data) as RoomDto[]);
             } catch (err) {
                 console.error('Error fetching rooms:', err);
             } finally {
@@ -92,33 +83,17 @@ export default function AddReservation() {
 
         try {
             const selectedRoom = rooms.find((r) => r.roomId.toString() === values.roomId);
-            const reservationData = {
-                guestId: values.guestId ? Number(values.guestId) : null,
-                room: selectedRoom,
+            const reservationData: ReservationDto = {
+                room: selectedRoom as RoomDto,
                 reservationName: values.reservationName,
                 checkInDate: values.checkInDate.format('YYYY-MM-DD'),
                 checkOutDate: values.checkOutDate.format('YYYY-MM-DD'),
-                status: values.status,
+                status: values.status as ReservationDtoStatusEnum,
                 totalAmount: values.totalAmount,
+                user: values.guestId ? ({ userId: Number(values.guestId) } as UserDto) : undefined,
             };
 
-            const response = await fetch('http://localhost:8080/api/reservations', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${document.cookie.replace(
-                        /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
-                        '$1'
-                    )}`,
-                },
-                body: JSON.stringify(reservationData),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to create reservation');
-            }
-
-            await response.json();
+            await reservationApi.addReservation(reservationData as any);
             message.success(t('admin.reservations.form.success', 'Reservation Added!'));
             form.resetFields();
 
@@ -149,7 +124,7 @@ export default function AddReservation() {
                         onFinish={onFinish}
                         onValuesChange={onValuesChange}
                         initialValues={{
-                            status: ReservationStatus.PENDING,
+                            status: ReservationDtoStatusEnum.Pending,
                             totalAmount: 0
                         }}
                     >
@@ -175,7 +150,7 @@ export default function AddReservation() {
                                     <Select placeholder={t('admin.reservations.form.selectRoom', 'Select a room')}>
                                         {rooms.map(room => (
                                             <Option key={room.roomId} value={room.roomId.toString()}>
-                                                {`${room.roomNumber} - ${room.roomType} (${t('admin.reservations.form.price', 'Price')}: $${room.price})`}
+                                                {`${room.roomNumber} - ${room.roomType?.name ?? room.roomType} (${t('admin.reservations.form.price', 'Price')}: $${room.price})`}
                                             </Option>
                                         ))}
                                     </Select>
@@ -201,7 +176,7 @@ export default function AddReservation() {
                                     }]}
                                 >
                                     <Select>
-                                        {Object.values(ReservationStatus).map((status) => (
+                                        {Object.values(ReservationDtoStatusEnum).map((status) => (
                                             <Option key={status} value={status}>
                                                 {t(`admin.reservations.columns.status.${status.toLowerCase()}`, status)}
                                             </Option>

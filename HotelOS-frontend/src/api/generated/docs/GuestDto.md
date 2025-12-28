@@ -17,6 +17,7 @@ Name | Type | Description | Notes
 **nationality** | **string** |  | [optional] [default to undefined]
 **bookedById** | **number** |  | [optional] [default to undefined]
 **isPrimaryGuest** | **boolean** |  | [optional] [default to undefined]
+**isAdult** | **boolean** |  | [optional] [default to undefined]
 **specialRequirements** | **string** |  | [optional] [default to undefined]
 
 ## Example
@@ -36,6 +37,7 @@ const instance: GuestDto = {
     nationality,
     bookedById,
     isPrimaryGuest,
+    isAdult,
     specialRequirements,
 };
 ```

@@ -17,9 +17,11 @@ public interface ReservationServices {
 
     Optional<Reservation> getReservationById(Long id);
 
+    Page<Reservation> getReservationsByUser(Long userId, Pageable pageable);
+
     void deleteReservation(Long id);
 
     List<Reservation> getAllReservationsByHotelId(Long hotelId);
 
-    Page<Reservation> getReservationsWithFilters(Long hotelId,String reservationName, Pageable pageable);
+    Page<Reservation> getReservationsWithFilters(Long hotelId, String reservationName, Pageable pageable);
 }

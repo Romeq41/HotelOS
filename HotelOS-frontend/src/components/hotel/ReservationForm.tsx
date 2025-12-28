@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
     Card,
     CardContent,
@@ -12,7 +12,8 @@ import {
     MenuItem,
     Chip,
     SelectChangeEvent,
-    useTheme
+    useTheme,
+    CircularProgress
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -32,6 +33,7 @@ interface ReservationFormProps {
     availableRooms: RoomDto[];
     cheapestRoomId?: string;
     handleBooking: () => void;
+    isLoadingRooms?: boolean;
 }
 
 const ReservationForm: React.FC<ReservationFormProps> = ({
@@ -45,12 +47,38 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
     handleRoomChange,
     availableRooms,
     cheapestRoomId,
-    handleBooking
+    handleBooking,
+    isLoadingRooms
 }) => {
     const { t } = useTranslation();
     const theme = useTheme();
 
+    useEffect(() => {
+        const today = new Date();
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const baseCheckIn = checkInDate || today;
+        if (!checkInDate) setCheckInDate(baseCheckIn);
+
+        if (!checkOutDate || checkOutDate <= baseCheckIn) {
+            const nextDay = new Date(baseCheckIn);
+            nextDay.setDate(baseCheckIn.getDate() + 1);
+            setCheckOutDate(nextDay);
+        }
+    }, [checkInDate, checkOutDate, setCheckInDate, setCheckOutDate]);
+
+    const dateRangeError = useMemo(() => {
+        if (!checkInDate || !checkOutDate) return '';
+        return checkOutDate <= checkInDate
+            ? t('hotelDetails.checkoutMustDiffer', 'Check-out must be after check-in')
+            : '';
+    }, [checkInDate, checkOutDate, t]);
+
     const selectedRoomDetails = availableRooms.find(room => room.roomId?.toString() === selectedRoom);
+    const maxCapacity = selectedRoomDetails?.capacity ?? 6;
+    const exceedsCapacity = selectedRoomDetails ? guests > maxCapacity : false;
+    const isBookingDisabled = !checkInDate || !checkOutDate || !selectedRoom || availableRooms.length === 0 || !!dateRangeError || !!isLoadingRooms || exceedsCapacity;
 
     // Normalize room type label whether roomType is an object or a string-ified DTO
     const getRoomTypeLabel = (room: RoomDto): string => {
@@ -112,6 +140,7 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
                             value={checkInDate}
                             onChange={setCheckInDate}
                             minDate={new Date()}
+                            disabled={isLoadingRooms}
                             slotProps={{ textField: { fullWidth: true, variant: 'outlined' } }}
                         />
 
@@ -120,8 +149,24 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
                             value={checkOutDate}
                             onChange={setCheckOutDate}
                             minDate={checkInDate || new Date()}
+                            disabled={isLoadingRooms}
                             slotProps={{ textField: { fullWidth: true, variant: 'outlined' } }}
                         />
+
+                        {isLoadingRooms && (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <CircularProgress size={18} thickness={5} />
+                                <Typography variant="body2" color="text.secondary">
+                                    {t('hotelDetails.loadingAvailability', 'Updating availability...')}
+                                </Typography>
+                            </Box>
+                        )}
+
+                        {dateRangeError && (
+                            <Typography variant="body2" color="error">
+                                {dateRangeError}
+                            </Typography>
+                        )}
 
                         <FormControl fullWidth variant="outlined">
                             <InputLabel>{t('hotelDetails.guests')}</InputLabel>
@@ -130,13 +175,24 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
                                 label={t('hotelDetails.guests')}
                                 onChange={handleGuestsChange}
                             >
-                                {[1, 2, 3, 4, 5, 6].map((num) => (
-                                    <MenuItem key={num} value={num.toString()}>
-                                        {num}
+                                {Array.from({ length: Math.max(6, maxCapacity, guests) }, (_, idx) => idx + 1).map((num) => (
+                                    <MenuItem key={num} value={num.toString()} disabled={selectedRoomDetails ? num > maxCapacity : false}>
+                                        {num}{selectedRoomDetails && num > maxCapacity ? ` (${t('hotelDetails.capacityExceeded', 'Over room capacity')})` : ''}
                                     </MenuItem>
                                 ))}
                             </Select>
+                            {selectedRoomDetails && (
+                                <Typography variant="caption" color={exceedsCapacity ? 'error' : 'text.secondary'} sx={{ mt: 0.5 }}>
+                                    {t('hotelDetails.maxGuestsPerRoom', 'Max guests for this room')}: {maxCapacity}
+                                </Typography>
+                            )}
                         </FormControl>
+
+                        {exceedsCapacity && (
+                            <Typography variant="body2" color="error">
+                                {t('hotelDetails.capacityExceededMessage', 'Reduce guests to match the selected room capacity.')}
+                            </Typography>
+                        )}
 
                         <FormControl fullWidth variant="outlined">
                             <InputLabel>{t('hotelDetails.selectRoom')}</InputLabel>
@@ -144,7 +200,7 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
                                 value={availableRooms.length > 0 ? selectedRoom : ''}
                                 label={t('hotelDetails.selectRoom')}
                                 onChange={handleRoomChange}
-                                disabled={availableRooms.length === 0}
+                                disabled={availableRooms.length === 0 || isLoadingRooms}
                             >
                                 {availableRooms ? availableRooms.map((room) => {
                                     const typeLabel = getRoomTypeLabel(room);
@@ -158,6 +214,11 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
                                     );
                                 }) : <MenuItem disabled>{t('hotelDetails.noRoomsAvailable')}</MenuItem>}
                             </Select>
+                            {availableRooms.length === 0 && (
+                                <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                                    {t('hotelDetails.noRoomsForGuests', 'No rooms available for this number of guests.')}
+                                </Typography>
+                            )}
                         </FormControl>
 
                         {selectedRoom && selectedRoomDetails && (
@@ -215,14 +276,14 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
                     fullWidth
                     size="large"
                     onClick={handleBooking}
-                    disabled={!checkInDate || !checkOutDate || !selectedRoom || availableRooms.length === 0}
+                    disabled={isBookingDisabled}
                     sx={{
                         py: 1.8,
                         borderRadius: 2,
                         fontWeight: 'bold',
                         textTransform: 'none',
                         fontSize: '1.1rem',
-                        background: !(!checkInDate || !checkOutDate || !selectedRoom || availableRooms.length === 0) ?
+                        background: !isBookingDisabled ?
                             'linear-gradient(45deg, #1976d2 30%, #42a5f5 90%)' : undefined,
                         boxShadow: '0px 4px 12px rgba(0,0,0,0.15)',
                         '&:hover': {
@@ -231,7 +292,7 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
                         },
                         position: 'relative',
                         zIndex: 2,
-                        animation: !(!checkInDate || !checkOutDate || !selectedRoom || availableRooms.length === 0) ?
+                        animation: !isBookingDisabled ?
                             'pulse 2s infinite' : 'none',
                         '@keyframes pulse': {
                             '0%': {
