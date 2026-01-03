@@ -149,7 +149,7 @@ export default function Users() {
             render: (val: string) => {
                 const role = (val || '').toUpperCase();
                 const color = role === 'MANAGER' ? 'gold' : role === 'STAFF' ? 'blue' : role === 'GUEST' ? 'green' : 'default';
-                return <Tag color={color}>{role || 'N/A'}</Tag>;
+                return <Tag color={color}>{t(`admin.users.userTypes.${role.toLowerCase()}`, role) || 'N/A'}</Tag>;
             }
         },
         {
