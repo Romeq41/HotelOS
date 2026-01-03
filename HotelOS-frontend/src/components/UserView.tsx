@@ -69,7 +69,8 @@ export default function UserView() {
             }
 
             await authApi.changePassword({
-                email: values.email,
+                email: (values.email || user?.email || "").trim().toLowerCase(),
+                currentPassword: values.currentPassword,
                 newPassword: values.password,
             });
 
@@ -204,14 +205,24 @@ export default function UserView() {
                         </Form.Item>
 
                         <Form.Item
+                            name="currentPassword"
+                            label={t("user.profile.passwordChangeCurrentPassword", "Current Password")}
+                            rules={[
+                                { required: true, message: t("user.profile.currentPasswordRequired", "Current password is required") },
+                            ]}
+                        >
+                            <Input.Password prefix={<LockOutlined />} autoComplete="current-password" />
+                        </Form.Item>
+
+                        <Form.Item
                             name="password"
                             label={t("user.profile.passwordChangeNewPassword", "New Password")}
                             rules={[
                                 { required: true, message: t("user.profile.passwordRequired", "New password is required") },
-                                { min: 6, message: t("user.profile.passwordLength", "Password must be at least 6 characters long") }
+                                { min: 8, message: t("user.profile.passwordLength", "Password must be at least 8 characters long") }
                             ]}
                         >
-                            <Input.Password prefix={<LockOutlined />} />
+                            <Input.Password prefix={<LockOutlined />} autoComplete="new-password" />
                         </Form.Item>
 
                         <Form.Item
@@ -282,7 +293,7 @@ export default function UserView() {
                                 <Card key={reservation.reservationId || reservation.checkInDate} className="border rounded-md shadow-sm">
                                     <div className="flex items-center justify-between mb-1">
                                         <div className="font-semibold text-lg">{reservation.reservationName || t("user.profile.unnamedReservation", "Reservation")}</div>
-                                        <Tag color="blue">{reservation.status || ""}</Tag>
+                                        <Tag color="blue">{reservation.status ? t(`admin.reservations.columns.status.${String(reservation.status).toLowerCase()}`, { defaultValue: String(reservation.status) }) : ""}</Tag>
                                     </div>
                                     <div className="text-sm text-gray-700 flex flex-wrap gap-3">
                                         <span>{formatDate(reservation.checkInDate)} → {formatDate(reservation.checkOutDate)}</span>

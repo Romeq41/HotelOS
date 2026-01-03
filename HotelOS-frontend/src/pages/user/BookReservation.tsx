@@ -14,12 +14,12 @@ import {
     Switch
 } from '@mui/material';
 import { Form } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { useApi } from '../../api/useApi';
 import { GuestDto, ReservationDtoStatusEnum, RoomDto } from '../../api/generated/api';
 import { useLoading } from '../../contexts/LoaderContext';
 import { useUser } from '../../contexts/UserContext';
 import FormItemWithVerification from '../../components/form/FormItemWithVerification';
-import { t } from 'i18next';
 
 export const parseDateOnly = (value?: string | null) => {
     if (!value) return null;
@@ -51,6 +51,7 @@ const BookReservation: React.FC = () => {
     const { roomId } = useParams<{ hotelId: string; roomId: string }>();
     const navigate = useNavigate();
     const { state } = useLocation();
+    const { t } = useTranslation();
     const { reservation: reservationApi, room: roomApi } = useApi();
     const { showLoader, hideLoader } = useLoading();
     const { user } = useUser();
@@ -96,7 +97,7 @@ const BookReservation: React.FC = () => {
                 const { data } = await roomApi.getRoomById(Number(roomId));
                 setRoom(data as RoomDto);
             } catch (e) {
-                setError('Unable to load room details.');
+                setError(t('booking.loadRoomError'));
             } finally {
                 hideLoader();
             }
@@ -141,21 +142,21 @@ const BookReservation: React.FC = () => {
 
     const handleSubmit = async () => {
         if (!checkInDate || !checkOutDate || !room) {
-            setError('Missing booking details. Please start from the hotel page again.');
+            setError(t('booking.missingBookingData'));
             return;
         }
         if (!user?.userId) {
-            setError('You need to be logged in to complete a reservation.');
+            setError(t('booking.loginRequired'));
             return;
         }
         const primaryIsChild = guestForms[0]?.isChild;
         const invalidGuest = guestForms.some((g, idx) => !g.firstName || !g.lastName || (idx === 0 && !g.email) || (idx === 0 && !g.phoneNumber));
         if (primaryIsChild) {
-            setError('Primary guest must be an adult.');
+            setError(t('booking.primaryGuestAdult'));
             return;
         }
         if (invalidGuest) {
-            setError('Please fill in first name and last name for every guest, and email/phone for the primary guest.');
+            setError(t('booking.guestInfoRequired'));
             return;
         }
 
@@ -181,7 +182,7 @@ const BookReservation: React.FC = () => {
             const primary = guestsPayload[0];
 
             await reservationApi.addReservation({
-                reservationName: `${room?.hotel?.name || 'Reservation'} - Room ${room.roomNumber}`,
+                reservationName: `${room?.hotel?.name || t('booking.reservationFallbackName')} - ${t('booking.roomLabel', { roomNumber: room.roomNumber })}`,
                 checkInDate,
                 checkOutDate,
                 totalAmount,
@@ -197,9 +198,9 @@ const BookReservation: React.FC = () => {
                 primaryGuestPhone: primary.phoneNumber
             });
 
-            navigate('/user', { state: { successMessage: 'Reservation created successfully.' } });
+            navigate('/user', { state: { successMessage: t('booking.createSuccess') } });
         } catch (e: any) {
-            setError(e?.response?.data?.message || 'Unable to create reservation.');
+            setError(e?.response?.data?.message || t('booking.createError'));
         } finally {
             hideLoader();
             setIsSubmitting(false);
@@ -212,9 +213,9 @@ const BookReservation: React.FC = () => {
         return (
             <Container maxWidth="md" sx={{ py: 6 }}>
                 <Alert severity="warning" sx={{ mb: 3 }}>
-                    Booking details are missing. Please select dates and room again.
+                    {t('booking.missingDetails')}
                 </Alert>
-                <Button variant="contained" onClick={() => navigate(-1)}>Go Back</Button>
+                <Button variant="contained" onClick={() => navigate(-1)}>{t('booking.goBack')}</Button>
             </Container>
         );
     }
@@ -228,38 +229,38 @@ const BookReservation: React.FC = () => {
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, alignItems: 'flex-start' }}>
                 <Box sx={{ flex: 1, minWidth: 280 }}>
                     <Card sx={{ mb: 3 }}>
-                        <CardHeader title="Reservation summary" subheader={`${nights} night(s) • ${parsedGuests} guest(s)`} />
-                        <CardHeader title={room ? `${room.hotel?.name || ''}` : 'Loading...'} />
+                        <CardHeader title={t('booking.summary.title')} subheader={t('booking.summary.subtitle', { nights, guests: parsedGuests })} />
+                        <CardHeader title={room ? `${room.hotel?.name || ''}` : t('general.loading')} />
                         <CardContent>
                             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                                 <Box sx={{ flex: '1 1 120px' }}>
-                                    <Typography variant="body2" color="text.secondary">Check-in</Typography>
+                                    <Typography variant="body2" color="text.secondary">{t('booking.summary.checkIn')}</Typography>
                                     <Typography variant="h6">{formatDateOnly(checkInDate)}</Typography>
                                 </Box>
                                 <Box sx={{ flex: '1 1 120px' }}>
-                                    <Typography variant="body2" color="text.secondary">Check-out</Typography>
+                                    <Typography variant="body2" color="text.secondary">{t('booking.summary.checkOut')}</Typography>
                                     <Typography variant="h6">{formatDateOnly(checkOutDate)}</Typography>
                                 </Box>
                                 <Box sx={{ flex: '1 1 100%' }}>
-                                    <Typography variant="body2" color="text.secondary">Room</Typography>
-                                    <Typography variant="h6">{room ? `${room.roomType?.name || ''}` : 'Loading...'}</Typography>
+                                    <Typography variant="body2" color="text.secondary">{t('booking.summary.room')}</Typography>
+                                    <Typography variant="h6">{room ? `${room.roomType?.name || ''}` : t('general.loading')}</Typography>
                                 </Box>
                                 <Box sx={{ flex: '1 1 100%' }}>
-                                    <Typography variant="body2" color="text.secondary">Total</Typography>
+                                    <Typography variant="body2" color="text.secondary">{t('booking.summary.total')}</Typography>
                                     <Typography variant="h5">{totalAmount.toFixed(2)}</Typography>
                                 </Box>
                             </Box>
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardHeader title="Special requests" subheader="Optional" />
+                        <CardHeader title={t('booking.specialRequests.title')} subheader={t('booking.specialRequests.optional')} />
                         <CardContent>
                             <Form layout="vertical">
                                 <FormItemWithVerification
                                     type="textarea"
                                     name="specialRequests"
-                                    label="Special requests"
-                                    placeholder="e.g. Late arrival, allergy notes"
+                                    label={t('booking.specialRequests.title')}
+                                    placeholder={t('booking.specialRequests.placeholder')}
                                     value={specialRequests}
                                     onChange={(e) => setSpecialRequests((e?.target?.value ?? e) as string)}
                                     rows={3}
@@ -272,22 +273,22 @@ const BookReservation: React.FC = () => {
 
                 <Box sx={{ flex: 2, minWidth: 320 }}>
                     <Card>
-                        <CardHeader title="Guest details" subheader="We need details for every guest" />
+                        <CardHeader title={t('booking.guests.title')} subheader={t('booking.guests.subtitle')} />
                         <CardContent>
                             <Form layout="vertical">
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                                     {guestForms.map((guest, idx) => (
                                         <Box key={idx}>
                                             <Box sx={{ mb: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                <Typography variant="subtitle1">Guest {idx + 1}</Typography>
-                                                <Typography variant="caption" color="text.secondary">{idx === 0 ? 'Primary guest' : 'Additional guest'}</Typography>
+                                                <Typography variant="subtitle1">{t('booking.guests.guestLabel', { index: idx + 1 })}</Typography>
+                                                <Typography variant="caption" color="text.secondary">{idx === 0 ? t('booking.guests.primaryTag') : t('booking.guests.additionalTag')}</Typography>
                                             </Box>
                                             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                                                 <Box sx={{ flex: '1 1 220px' }}>
                                                     <FormItemWithVerification
                                                         type="text"
                                                         name={`guest-${idx}-firstName`}
-                                                        label="First name"
+                                                        label={t('booking.guests.firstName')}
                                                         required
                                                         value={guest.firstName}
                                                         onChange={(e) => handleGuestChange(idx, 'firstName', (e as any)?.target?.value ?? e)}
@@ -297,7 +298,7 @@ const BookReservation: React.FC = () => {
                                                     <FormItemWithVerification
                                                         type="text"
                                                         name={`guest-${idx}-lastName`}
-                                                        label="Last name"
+                                                        label={t('booking.guests.lastName')}
                                                         required
                                                         value={guest.lastName}
                                                         onChange={(e) => handleGuestChange(idx, 'lastName', (e as any)?.target?.value ?? e)}
@@ -307,7 +308,7 @@ const BookReservation: React.FC = () => {
                                                     <FormItemWithVerification
                                                         type="email"
                                                         name={`guest-${idx}-email`}
-                                                        label="Email"
+                                                        label={t('booking.guests.email')}
                                                         required={idx === 0}
                                                         value={guest.email}
                                                         onChange={(e) => handleGuestChange(idx, 'email', (e as any)?.target?.value ?? e)}
@@ -317,8 +318,8 @@ const BookReservation: React.FC = () => {
                                                     <FormItemWithVerification
                                                         type="text"
                                                         name={`guest-${idx}-phone`}
-                                                        label={t("user.editProfile.phone", "Phone number") as string}
-                                                        placeholder={t("user.editProfile.phonePlaceholder", "+48 123 456 789") as string}
+                                                        label={t('booking.guests.phone')}
+                                                        placeholder={t('booking.guests.phonePlaceholder')}
                                                         required={idx === 0}
                                                         value={guest.phoneNumber}
                                                         minLength={6}
@@ -328,7 +329,7 @@ const BookReservation: React.FC = () => {
                                                 </Box>
                                                 {idx === 0 ? (
                                                     <Box sx={{ flex: '1 1 200px', display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
-                                                        <Typography variant="body2">Primary guest (adult)</Typography>
+                                                        <Typography variant="body2">{t('booking.guests.primaryGuestAdult')}</Typography>
                                                     </Box>
                                                 ) : (
                                                     <Box sx={{ flex: '1 1 200px', display: 'flex', alignItems: 'center' }}>
@@ -341,7 +342,7 @@ const BookReservation: React.FC = () => {
                                                                     inputProps={{ 'aria-label': `Guest ${idx + 1} child toggle` }}
                                                                 />
                                                             }
-                                                            label={guest.isChild ? 'Child' : 'Adult'}
+                                                            label={guest.isChild ? t('booking.guests.child') : t('booking.guests.adult')}
                                                         />
                                                     </Box>
                                                 )}
@@ -356,7 +357,7 @@ const BookReservation: React.FC = () => {
                                             onClick={handleSubmit}
                                             disabled={isSubmitting}
                                         >
-                                            Confirm reservation
+                                            {t('booking.actions.confirm')}
                                         </Button>
                                     </Box>
                                 </Box>

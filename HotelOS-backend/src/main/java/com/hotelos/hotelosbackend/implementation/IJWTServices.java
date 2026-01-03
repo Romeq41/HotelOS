@@ -58,6 +58,32 @@ public class IJWTServices {
                 .compact();
     }
 
+    public String generateResetToken(String email, long ttlMillis) {
+        Map<String, Object> extra = new HashMap<>();
+        extra.put("purpose", "password_reset");
+        return Jwts
+                .builder()
+                .setClaims(extra)
+                .setSubject(email)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + ttlMillis))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public boolean isResetTokenValid(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            if (isTokenExpired(token)) {
+                return false;
+            }
+            Object purpose = claims.get("purpose");
+            return "password_reset".equals(purpose);
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));

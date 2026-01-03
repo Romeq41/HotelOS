@@ -68,7 +68,7 @@ export default function LoginView() {
                         className={`p-2 mb-4 border-2 rounded ${passwordValid ? 'border-green-500' : 'border-red-500'
                             }`}
                     />
-                    {!passwordValid && <p className="text-red-500 text-sm mb-2">{t("auth.validationErrors.password", "Password must be at least 6 characters")}</p>}
+                    {!passwordValid && <p className="text-red-500 text-sm mb-2">{t("auth.validationErrors.password", "Password must be at least 8 characters")}</p>}
 
                     <button
                         type="submit"
@@ -77,7 +77,7 @@ export default function LoginView() {
                         {t("auth.login", "Login")}
                     </button>
                     <p className="text-center text-sm mt-2">
-                        {t("auth.forgotPassword", "Forgot your password?")} <a href="/reset-password" className="text-blue-500 hover:underline">{t("auth.resetPassword", "Reset Password")}</a>
+                        {t("auth.forgotPassword", "Forgot your password?")} <a href="/reset-password" className="text-blue-500 hover:underline">{t("auth.resetPassword.title", "Reset Your Password")}</a>
                     </p>
                     <p className="text-center text-sm mt-2">
                         {t("auth.noAccount", "Don't have an account?")} <Link to="/register" className="text-blue-500 hover:underline">{t("auth.register", "Register")}</Link>

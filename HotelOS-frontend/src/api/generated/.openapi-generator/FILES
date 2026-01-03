@@ -31,7 +31,8 @@ docs/PageUserDto.md
 docs/Pageable.md
 docs/PageableObject.md
 docs/PasswordChangeRequest.md
-docs/PasswordResetRequest.md
+docs/PasswordResetConfirmRequest.md
+docs/PasswordResetInitiateRequest.md
 docs/RegisterRequest.md
 docs/ReservationControllerApi.md
 docs/ReservationDto.md

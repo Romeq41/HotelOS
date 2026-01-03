@@ -23,9 +23,24 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
 
+    private String normalizeEmail(String raw) {
+        if (raw == null)
+            return null;
+        return raw.trim().toLowerCase();
+    }
+
     public AuthenticationResponse register(RegisterRequest request) {
+        String email = normalizeEmail(request.getEmail());
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+
+        userRepository.findByEmail(email).ifPresent(u -> {
+            throw new IllegalStateException("Email already registered");
+        });
+
         var user = new User();
-        user.setEmail(request.getEmail());
+        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -46,12 +61,16 @@ public class AuthenticationService {
     }
 
     public void changePassword(PasswordChangeRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
+        String email = normalizeEmail(request.getEmail());
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (user.getUserType() == UserType.ADMIN) {
             throw new RuntimeException("User not found");
         }
+
+        authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(email, request.getCurrentPassword()));
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
@@ -61,30 +80,40 @@ public class AuthenticationService {
         }
     }
 
-    public void resetPassword(PasswordResetRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
+    public String initiateResetToken(String emailRaw) {
+        String email = normalizeEmail(emailRaw);
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (user.getUserType() == UserType.ADMIN) {
             throw new RuntimeException("User not found");
         }
-        String tempPassword = generateTemporaryPassword();
-        user.setPassword(passwordEncoder.encode(tempPassword));
+
+        String token = jwtServices.generateResetToken(email, 1000 * 60 * 15); // 15 minutes
+        if (user.getEmail() != null) {
+            emailService.sendPasswordResetToken(user.getEmail(), token);
+        }
+        return token;
+    }
+
+    public void confirmResetToken(String token, String newPassword) {
+        if (!jwtServices.isResetTokenValid(token)) {
+            throw new RuntimeException("Invalid or expired reset token");
+        }
+        String email = jwtServices.extractUsername(token);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getUserType() == UserType.ADMIN) {
+            throw new RuntimeException("User not found");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
         if (user.getEmail() != null) {
-            emailService.sendTemporaryPassword(user.getEmail(), tempPassword);
+            emailService.sendPasswordChanged(user.getEmail(), user.getFirstName());
         }
-    }
-
-    private String generateTemporaryPassword() {
-        String chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789@$%!#?&";
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 12; i++) {
-            int idx = (int) (Math.random() * chars.length());
-            sb.append(chars.charAt(idx));
-        }
-        return sb.toString();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {

@@ -654,19 +654,13 @@ export interface PageAmenityDto {
      * @type {number}
      * @memberof PageAmenityDto
      */
-    'totalPages'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageAmenityDto
-     */
     'totalElements'?: number;
     /**
      * 
      * @type {number}
      * @memberof PageAmenityDto
      */
-    'numberOfElements'?: number;
+    'totalPages'?: number;
     /**
      * 
      * @type {number}
@@ -705,6 +699,12 @@ export interface PageAmenityDto {
     'last'?: boolean;
     /**
      * 
+     * @type {number}
+     * @memberof PageAmenityDto
+     */
+    'numberOfElements'?: number;
+    /**
+     * 
      * @type {PageableObject}
      * @memberof PageAmenityDto
      */
@@ -727,19 +727,13 @@ export interface PageHotelDto {
      * @type {number}
      * @memberof PageHotelDto
      */
-    'totalPages'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageHotelDto
-     */
     'totalElements'?: number;
     /**
      * 
      * @type {number}
      * @memberof PageHotelDto
      */
-    'numberOfElements'?: number;
+    'totalPages'?: number;
     /**
      * 
      * @type {number}
@@ -778,6 +772,12 @@ export interface PageHotelDto {
     'last'?: boolean;
     /**
      * 
+     * @type {number}
+     * @memberof PageHotelDto
+     */
+    'numberOfElements'?: number;
+    /**
+     * 
      * @type {PageableObject}
      * @memberof PageHotelDto
      */
@@ -800,19 +800,13 @@ export interface PageHotelOfferDto {
      * @type {number}
      * @memberof PageHotelOfferDto
      */
-    'totalPages'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageHotelOfferDto
-     */
     'totalElements'?: number;
     /**
      * 
      * @type {number}
      * @memberof PageHotelOfferDto
      */
-    'numberOfElements'?: number;
+    'totalPages'?: number;
     /**
      * 
      * @type {number}
@@ -851,6 +845,12 @@ export interface PageHotelOfferDto {
     'last'?: boolean;
     /**
      * 
+     * @type {number}
+     * @memberof PageHotelOfferDto
+     */
+    'numberOfElements'?: number;
+    /**
+     * 
      * @type {PageableObject}
      * @memberof PageHotelOfferDto
      */
@@ -873,19 +873,13 @@ export interface PageReservationDto {
      * @type {number}
      * @memberof PageReservationDto
      */
-    'totalPages'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageReservationDto
-     */
     'totalElements'?: number;
     /**
      * 
      * @type {number}
      * @memberof PageReservationDto
      */
-    'numberOfElements'?: number;
+    'totalPages'?: number;
     /**
      * 
      * @type {number}
@@ -924,6 +918,12 @@ export interface PageReservationDto {
     'last'?: boolean;
     /**
      * 
+     * @type {number}
+     * @memberof PageReservationDto
+     */
+    'numberOfElements'?: number;
+    /**
+     * 
      * @type {PageableObject}
      * @memberof PageReservationDto
      */
@@ -946,19 +946,13 @@ export interface PageRoomDto {
      * @type {number}
      * @memberof PageRoomDto
      */
-    'totalPages'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageRoomDto
-     */
     'totalElements'?: number;
     /**
      * 
      * @type {number}
      * @memberof PageRoomDto
      */
-    'numberOfElements'?: number;
+    'totalPages'?: number;
     /**
      * 
      * @type {number}
@@ -997,6 +991,12 @@ export interface PageRoomDto {
     'last'?: boolean;
     /**
      * 
+     * @type {number}
+     * @memberof PageRoomDto
+     */
+    'numberOfElements'?: number;
+    /**
+     * 
      * @type {PageableObject}
      * @memberof PageRoomDto
      */
@@ -1019,19 +1019,13 @@ export interface PageUserDto {
      * @type {number}
      * @memberof PageUserDto
      */
-    'totalPages'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof PageUserDto
-     */
     'totalElements'?: number;
     /**
      * 
      * @type {number}
      * @memberof PageUserDto
      */
-    'numberOfElements'?: number;
+    'totalPages'?: number;
     /**
      * 
      * @type {number}
@@ -1068,6 +1062,12 @@ export interface PageUserDto {
      * @memberof PageUserDto
      */
     'last'?: boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof PageUserDto
+     */
+    'numberOfElements'?: number;
     /**
      * 
      * @type {PageableObject}
@@ -1135,13 +1135,13 @@ export interface PageableObject {
      * @type {number}
      * @memberof PageableObject
      */
-    'pageNumber'?: number;
+    'pageSize'?: number;
     /**
      * 
      * @type {number}
      * @memberof PageableObject
      */
-    'pageSize'?: number;
+    'pageNumber'?: number;
     /**
      * 
      * @type {boolean}
@@ -1166,18 +1166,43 @@ export interface PasswordChangeRequest {
      * @type {string}
      * @memberof PasswordChangeRequest
      */
+    'currentPassword': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PasswordChangeRequest
+     */
     'newPassword': string;
 }
 /**
  * 
  * @export
- * @interface PasswordResetRequest
+ * @interface PasswordResetConfirmRequest
  */
-export interface PasswordResetRequest {
+export interface PasswordResetConfirmRequest {
     /**
      * 
      * @type {string}
-     * @memberof PasswordResetRequest
+     * @memberof PasswordResetConfirmRequest
+     */
+    'token': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PasswordResetConfirmRequest
+     */
+    'newPassword': string;
+}
+/**
+ * 
+ * @export
+ * @interface PasswordResetInitiateRequest
+ */
+export interface PasswordResetInitiateRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof PasswordResetInitiateRequest
      */
     'email': string;
 }
@@ -1649,13 +1674,13 @@ export interface User {
      * @type {boolean}
      * @memberof User
      */
-    'credentialsNonExpired'?: boolean;
+    'accountNonExpired'?: boolean;
     /**
      * 
      * @type {boolean}
      * @memberof User
      */
-    'accountNonExpired'?: boolean;
+    'credentialsNonExpired'?: boolean;
     /**
      * 
      * @type {boolean}
@@ -2308,6 +2333,41 @@ export const AuthenticationControllerApiAxiosParamCreator = function (configurat
         },
         /**
          * 
+         * @param {PasswordResetConfirmRequest} passwordResetConfirmRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        confirmReset: async (passwordResetConfirmRequest: PasswordResetConfirmRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'passwordResetConfirmRequest' is not null or undefined
+            assertParamExists('confirmReset', 'passwordResetConfirmRequest', passwordResetConfirmRequest)
+            const localVarPath = `/api/auth/reset-password/confirm`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(passwordResetConfirmRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {LoginRequest} loginRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2378,14 +2438,14 @@ export const AuthenticationControllerApiAxiosParamCreator = function (configurat
         },
         /**
          * 
-         * @param {PasswordResetRequest} passwordResetRequest 
+         * @param {PasswordResetInitiateRequest} passwordResetInitiateRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        resetPassword: async (passwordResetRequest: PasswordResetRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'passwordResetRequest' is not null or undefined
-            assertParamExists('resetPassword', 'passwordResetRequest', passwordResetRequest)
-            const localVarPath = `/api/auth/reset-password`;
+        requestReset: async (passwordResetInitiateRequest: PasswordResetInitiateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'passwordResetInitiateRequest' is not null or undefined
+            assertParamExists('requestReset', 'passwordResetInitiateRequest', passwordResetInitiateRequest)
+            const localVarPath = `/api/auth/reset-password/request`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -2393,7 +2453,7 @@ export const AuthenticationControllerApiAxiosParamCreator = function (configurat
                 baseOptions = configuration.baseOptions;
             }
 
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
@@ -2404,7 +2464,7 @@ export const AuthenticationControllerApiAxiosParamCreator = function (configurat
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(passwordResetRequest, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(passwordResetInitiateRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -2447,6 +2507,18 @@ export const AuthenticationControllerApiFp = function(configuration?: Configurat
         },
         /**
          * 
+         * @param {PasswordResetConfirmRequest} passwordResetConfirmRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async confirmReset(passwordResetConfirmRequest: PasswordResetConfirmRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.confirmReset(passwordResetConfirmRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthenticationControllerApi.confirmReset']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {LoginRequest} loginRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2471,14 +2543,14 @@ export const AuthenticationControllerApiFp = function(configuration?: Configurat
         },
         /**
          * 
-         * @param {PasswordResetRequest} passwordResetRequest 
+         * @param {PasswordResetInitiateRequest} passwordResetInitiateRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async resetPassword(passwordResetRequest: PasswordResetRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.resetPassword(passwordResetRequest, options);
+        async requestReset(passwordResetInitiateRequest: PasswordResetInitiateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.requestReset(passwordResetInitiateRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AuthenticationControllerApi.resetPassword']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AuthenticationControllerApi.requestReset']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -2511,6 +2583,15 @@ export const AuthenticationControllerApiFactory = function (configuration?: Conf
         },
         /**
          * 
+         * @param {PasswordResetConfirmRequest} passwordResetConfirmRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        confirmReset(passwordResetConfirmRequest: PasswordResetConfirmRequest, options?: RawAxiosRequestConfig): AxiosPromise<string> {
+            return localVarFp.confirmReset(passwordResetConfirmRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {LoginRequest} loginRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2529,12 +2610,12 @@ export const AuthenticationControllerApiFactory = function (configuration?: Conf
         },
         /**
          * 
-         * @param {PasswordResetRequest} passwordResetRequest 
+         * @param {PasswordResetInitiateRequest} passwordResetInitiateRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        resetPassword(passwordResetRequest: PasswordResetRequest, options?: RawAxiosRequestConfig): AxiosPromise<string> {
-            return localVarFp.resetPassword(passwordResetRequest, options).then((request) => request(axios, basePath));
+        requestReset(passwordResetInitiateRequest: PasswordResetInitiateRequest, options?: RawAxiosRequestConfig): AxiosPromise<string> {
+            return localVarFp.requestReset(passwordResetInitiateRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -2570,6 +2651,17 @@ export class AuthenticationControllerApi extends BaseAPI {
 
     /**
      * 
+     * @param {PasswordResetConfirmRequest} passwordResetConfirmRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthenticationControllerApi
+     */
+    public confirmReset(passwordResetConfirmRequest: PasswordResetConfirmRequest, options?: RawAxiosRequestConfig) {
+        return AuthenticationControllerApiFp(this.configuration).confirmReset(passwordResetConfirmRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @param {LoginRequest} loginRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -2592,13 +2684,13 @@ export class AuthenticationControllerApi extends BaseAPI {
 
     /**
      * 
-     * @param {PasswordResetRequest} passwordResetRequest 
+     * @param {PasswordResetInitiateRequest} passwordResetInitiateRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AuthenticationControllerApi
      */
-    public resetPassword(passwordResetRequest: PasswordResetRequest, options?: RawAxiosRequestConfig) {
-        return AuthenticationControllerApiFp(this.configuration).resetPassword(passwordResetRequest, options).then((request) => request(this.axios, this.basePath));
+    public requestReset(passwordResetInitiateRequest: PasswordResetInitiateRequest, options?: RawAxiosRequestConfig) {
+        return AuthenticationControllerApiFp(this.configuration).requestReset(passwordResetInitiateRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

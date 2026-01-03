@@ -20,7 +20,7 @@ import {
     message,
     Space
 } from 'antd';
-import { hotelApi, reservationApi } from '../../../api/apiConfig';
+import useApi from '../../../api/useApi';
 
 export default function EditReservation() {
     const { hotelId, reservationId } = useParams<{ hotelId: string; reservationId: string }>();
@@ -32,6 +32,7 @@ export default function EditReservation() {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const { Option } = Select;
+    const { hotel: hotelApi, reservation: reservationApi } = useApi();
 
     const permissionContext = getPermissionContext(location.pathname);
 

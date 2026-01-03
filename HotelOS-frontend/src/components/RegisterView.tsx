@@ -25,7 +25,7 @@ export default function RegisterView() {
     }, [isAuth, navigate]);
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const passwordRegex = /^.{6,}$/;
+    const passwordRegex = /^.{8,}$/;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -46,7 +46,7 @@ export default function RegisterView() {
         }
 
         const payload: RegisterRequest = {
-            email,
+            email: email.trim().toLowerCase(),
             password,
             firstName,
             lastName,
@@ -111,7 +111,7 @@ export default function RegisterView() {
                         className={`p-2 mb-2 border-2 rounded ${passwordValid ? "border-green-500" : "border-red-500"}`}
                     />
                     {!passwordValid && (
-                        <p className="text-red-500 text-sm mb-2">{t("auth.validationErrors.password", "Password must be at least 6 characters")}</p>
+                        <p className="text-red-500 text-sm mb-2">{t("auth.validationErrors.password", "Password must be at least 8 characters")}</p>
                     )}
 
                     <button

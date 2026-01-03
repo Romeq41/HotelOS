@@ -10,7 +10,8 @@
         "edit": "Edytuj",
         "delete": "Usuń",
         "back": "Wróć",
-        "next": "Dalej"
+        "next": "Dalej",
+        "exploreNow": "Odkryj teraz"
     },
     "common": {
         "yes": "Tak",
@@ -43,62 +44,28 @@
         "superior_room": "Pokój superior",
         "studio": "Studio"
     },
+
+    "header": {
+        "home": "Strona Główna",
+        "explore": "Eksploruj",
+        "profile": "Profil",
+        "admin": "Panel Admina",
+        "login": "Zaloguj się",
+        "logout": "Wyloguj się",
+        "register": "Zarejestruj się",
+        "otherHotels": "Eksploruj Inne Hotele"
+    },
     
     "roomStatus": {
         "available": "Dostępny",
-        "occupied": "Zajęty",
-        "reserved": "Zarezerwowany",
-        "maintenance": "W trakcie konserwacji",
-        "cleaning": "Sprzątanie",
-        "out_of_service": "Wyłączony z użytku",
-        "checking_out": "Wymeldowanie"
-    },
-    
-    "amenities": {
-        "wifi": "Darmowe Wi-Fi",
-        "parking": "Parking",
-        "breakfast": "Śniadanie w cenie",
-        "pool": "Basen",
-        "fitness_center": "Centrum fitness",
-        "spa": "Spa",
-        "restaurant": "Restauracja",
-        "bar": "Bar",
-        "room_service": "Obsługa pokoju",
-        "air_conditioning": "Klimatyzacja",
-        "concierge": "Concierge",
-        "pets_allowed": "Zwierzęta dozwolone",
-        "conference_room": "Sala konferencyjna",
-        "laundry": "Usługi pralnicze",
-        "shuttle": "Transfer lotniskowy",
-        "business_center": "Centrum biznesowe",
-        "childcare": "Opieka nad dziećmi",
-        "hot_tub": "Jacuzzi",
-        "sauna": "Sauna",
-        "free_toiletries": "Darmowe przybory toaletowe",
-        "coffee_maker": "Ekspres do kawy",
-        "minibar": "Minibar",
-        "flat_screen_tv": "Telewizor z płaskim ekranem",
-        "bathtub": "Wanna",
-        "balcony": "Balkon",
-        "non_smoking": "Pokoje dla niepalących",
-        "beach_access": "Dostęp do plaży",
-        "accessible": "Dostosowany dla osób niepełnosprawnych",
-        "safe": "Sejf w pokoju",
-        "free_parking": "Darmowy parking",
-        "valet_parking": "Obsługa parkingowa",
-        "electric_vehicle_charging": "Ładowanie pojazdów elektrycznych"
-    },
-  
-    "header" : {
-        "language": "Język",
-        "hotels" : "Hotele",
-        "adminDashboard": "Panel Administratora",
-        "users": "Użytkownicy",
-        "profile": "Mój Profil",
-        "logout": "Wyloguj",
-        "otherHotels": "Sprawdź inne hotele w naszej ofercie",
-        "clientOperationsHeaderSectionTitle": "Operacje Klienta",
-        "hotelOperationsHeaderSectionTitle": "Hotel Operations"         
+            "label": "Sortuj według",
+            "rating": "Najwyżej oceniane",
+            "priceLow": "Cena: od najniższej",
+            "priceHigh": "Cena: od najwyższej"
+        },
+        "results": {
+            "found": "Znaleziono {{count}} hoteli",
+            "noHotels": "Brak hoteli spełniających Twoje kryteria."
     },
     "explore": {
         "title": "Eksploruj Nasze Hotele",
@@ -111,13 +78,68 @@
         },
         "sort": {
             "label": "Sortuj według",
-            "rating": "Najwyżej oceniane",
-            "priceLow": "Cena: Od najniższej",
-            "priceHigh": "Cena: Od najwyższej"
+                "title": "Profil Użytkownika",
+                "hotelInfo": "Informacje o Hotelu",
+                "personalInfo": "Informacje Osobiste",
+                "notProvided": "Nie podano",
+                "userPhoto": "Zdjęcie Użytkownika",
+                "dateUnknown": "Nieznana data",
+                "reservations": "Historia rezerwacji",
+                "reservationsInfo": "Twoje rezerwacje pojawią się tutaj.",
+                "reservationsLoadError": "Nie udało się wczytać rezerwacji.",
+                "reservationsLoading": "Ładowanie Twoich rezerwacji...",
+                "noReservations": "Brak rezerwacji",
+                "noReservationsDescription": "Zarezerwuj pobyt, aby zobaczyć go na liście.",
+                "unnamedReservation": "Rezerwacja",
+                "room": "Pokój",
+                "total": "Suma",
+                "explore": "Przeglądaj oferty",
+                "refresh": "Odśwież",
+                "editProfile": "Edytuj dane kontaktowe",
+                "passwordChangeButton": "Zmień hasło",
+                "passwordChangeSuccessButton": "Hasło zmienione",
+                "passwordChangeErrorButton": "Błąd zmiany hasła",
+                "passwordChangeSuccess": "Hasło zostało pomyślnie zmienione!",
+                "passwordChangeError": "Nie udało się zmienić hasła. Spróbuj ponownie.",
+                "passwordChangeSuccessAlert": "Sukces",
+                "passwordChangeSuccessDescription": "Twoje hasło zostało zaktualizowane.",
+                "passwordChangeErrorAlert": "Błąd",
+                "passwordChangeErrorDescription": "Wystąpił problem przy zmianie hasła. Spróbuj ponownie.",
+                "passwordChangeEmail": "Email",
+                "passwordChangeEmailRequired": "Email jest wymagany",
+                "passwordChangeEmailValid": "Wprowadź prawidłowy email",
+                "passwordChangeCurrentPassword": "Obecne hasło",
+                "currentPasswordRequired": "Obecne hasło jest wymagane",
+                "passwordChangeNewPassword": "Nowe hasło",
+                "passwordRequired": "Nowe hasło jest wymagane",
+                "passwordLength": "Hasło musi mieć co najmniej 8 znaków",
+                "passwordChangeConfirmPassword": "Potwierdź hasło",
+                "confirmPasswordRequired": "Potwierdź swoje hasło",
+                "passwordsMismatch": "Hasła nie są takie same!",
+                "priceLow": "Cena: od najniższej",
+                "priceHigh": "Cena: od najwyższej",
+                "fields": {
+                    "hotelName": "Nazwa Hotelu",
+                    "location": "Lokalizacja",
+                    "checkInTime": "Godzina zameldowania",
+                    "checkOutTime": "Godzina wymeldowania",
+                    "contact": "Kontakt",
+                    "email": "Email",
+                    "address": "Adres",
+                    "phone": "Telefon",
+                    "position": "Stanowisko",
+                    "city": "Miasto",
+                    "country": "Kraj"
+                },
+                "noHotels": "Brak hoteli spełniających Twoje kryteria."
         },
-        "results": {
-            "found": "{{count}} Hotele Znalezione",
-            "noHotels": "Brak hoteli spełniających Twoje kryteria."
+        "reservationStatus": {
+            "Pending": "Oczekująca",
+            "Confirmed": "Potwierdzona",
+            "Checked_in": "Zameldowany",
+            "Checked_out": "Wymeldowany",
+            "Cancelled": "Anulowana",
+            "No_show": "Nie pojawił się"
         },
         "price": {
             "from": "Cena od ${{price}} / noc",
@@ -187,7 +209,55 @@
         "contactHelpText": "Potrzebujesz pomocy? Skontaktuj się bezpośrednio z hotelem, aby uzyskać pomoc przy rezerwacji lub specjalnych życzeniach.",
         "phone": "Telefon",
         "email": "Email",
-        "contactHotel": "Skontaktuj się z Hotelem"
+        "contactHotel": "Skontaktuj się z Hotelem",
+        "notFound": "Nie znaleziono hotelu",
+        "loadError": "Nie udało się wczytać szczegółów hotelu",
+        "availableCount": "{{count}} dostępne"
+    },
+    "booking": {
+        "missingDetails": "Brakuje danych rezerwacji. Wybierz ponownie daty i pokój.",
+        "goBack": "Wróć",
+        "loadRoomError": "Nie udało się wczytać szczegółów pokoju.",
+        "missingBookingData": "Brakuje danych rezerwacji. Wróć na stronę hotelu i wybierz ponownie.",
+        "loginRequired": "Musisz być zalogowany, aby dokończyć rezerwację.",
+        "primaryGuestAdult": "Główny gość musi być osobą dorosłą.",
+        "guestInfoRequired": "Uzupełnij imię i nazwisko każdego gościa oraz email i telefon głównego gościa.",
+        "createSuccess": "Rezerwacja została utworzona.",
+        "createError": "Nie udało się utworzyć rezerwacji.",
+        "reservationFallbackName": "Rezerwacja",
+        "roomLabel": "Pokój {{roomNumber}}",
+        "summary": {
+            "title": "Podsumowanie rezerwacji",
+            "subtitle": "{{nights}} noc(e) • {{guests}} gość(i)",
+            "hotel": "Hotel",
+            "checkIn": "Zameldowanie",
+            "checkOut": "Wymeldowanie",
+            "room": "Pokój",
+            "total": "Suma"
+        },
+        "specialRequests": {
+            "title": "Specjalne życzenia",
+            "optional": "Opcjonalne",
+            "placeholder": "np. późny przyjazd, alergie"
+        },
+        "guests": {
+            "title": "Dane gości",
+            "subtitle": "Potrzebujemy danych każdego gościa",
+            "guestLabel": "Gość {{index}}",
+            "primaryTag": "Główny gość",
+            "additionalTag": "Dodatkowy gość",
+            "firstName": "Imię",
+            "lastName": "Nazwisko",
+            "email": "Email",
+            "phone": "Numer telefonu",
+            "phonePlaceholder": "np. +48 123 456 789",
+            "primaryGuestAdult": "Główny gość (dorosły)",
+            "child": "Dziecko",
+            "adult": "Dorosły"
+        },
+        "actions": {
+            "confirm": "Potwierdź rezerwację"
+        }
     },
     "admin": {
         "reservations": {
@@ -526,7 +596,11 @@
                 "state": "Województwo",
                 "city": "Miasto",
                 "address": "Adres",
-                "zipCode": "Kod Pocztowy"
+                "zipCode": "Kod Pocztowy",
+                "contact": "Kontakt",
+                "accountEmail": "Email Autoryzacyjny",
+                "contactEmail": "Email Kontaktowy",
+                "addressInfo": "Informacje Adresowe"
             },
             "unknown": "Nieznane",
             "loading": "Ładowanie informacji o użytkowniku...",
@@ -542,14 +616,59 @@
         "logout": "Wyloguj",
         "signup": "Zarejestruj się",
         "forgotPassword": "Zapomniałem Hasła",
-        "resetPassword": "Zresetuj Hasło",
+        "register": "Zarejestruj się",
+        "registerTitle": "Utwórz konto HotelOS",
+        "haveAccount": "Masz już konto?",
+        "noAccount": "Nie masz konta?",
+        "firstName": "Imię",
+        "lastName": "Nazwisko",
         "email": "Email",
         "password": "Hasło",
         "username": "Nazwa użytkownika",
         "validationErrors": {
             "email": "Proszę wprowadzić prawidłowy adres email",
-            "password": "Hasło musi zawierać co najmniej 6 znaków"
+            "password": "Hasło musi zawierać co najmniej 8 znaków",
+            "firstName": "Imię jest wymagane",
+            "lastName": "Nazwisko jest wymagane"
+        },
+        "resetPassword": {
+            "title": "Zresetuj swoje hasło",
+            "requested": "Sprawdź e-mail i odbierz kod resetu.",
+            "successAlert": "Sukces",
+            "successDescription": "Wysłaliśmy kod resetu. Wpisz go poniżej razem z nowym hasłem.",
+            "successDescriptionFinal": "Hasło zostało zaktualizowane. Przekierowujemy do logowania...",
+            "errorAlert": "Błąd",
+            "errorDescription": "Wystąpił problem z resetem hasła. Spróbuj ponownie.",
+            "errorMessage": "Nie udało się zresetować hasła. Spróbuj ponownie.",
+            "emailSent": "E-mail wysłany",
+            "completed": "Hasło zaktualizowane",
+            "request": "Wyślij e-mail resetujący",
+            "confirm": "Potwierdź nowe hasło",
+            "backToLogin": "Wróć do logowania",
+            "passwordsMismatch": "Hasła nie są takie same",
+            "successMessage": "Hasło zaktualizowane. Możesz się zalogować.",
+            "error": "Błąd",
+            "form": {
+                "email": "Email",
+                "token": "Kod resetu",
+                "newPassword": "Nowe hasło",
+                "confirmPassword": "Potwierdź hasło",
+                "tokenPlaceholder": "Wklej kod z e-maila",
+                "newPasswordPlaceholder": "Wpisz nowe hasło",
+                "confirmPasswordPlaceholder": "Powtórz nowe hasło",
+                "errors": {
+                    "emailRequired": "Email jest wymagany",
+                    "validEmail": "Wprowadź prawidłowy email",
+                    "tokenRequired": "Kod resetu jest wymagany",
+                    "passwordRequired": "Nowe hasło jest wymagane",
+                    "passwordLength": "Hasło musi mieć co najmniej 8 znaków",
+                    "confirmPassword": "Potwierdź swoje hasło"
+                }
+            }
         }
+    },
+    "footer": {
+        "copyright": "JR © 2024"
     },
     "hotel": {
         "booking": "Rezerwacja",
@@ -568,12 +687,30 @@
     },
     "user": {
         "profile": {
+            "editProfile": "Edytuj Profil",
+            "saveChanges": "Zapisz Zmiany",
+            "explore": "Eksploruj Hotele",
+            "refresh": "Odśwież",
+            "reservations": "Moje Rezerwacje",
+            "reservationsInfo": "Twoje rezerwacje pojawią się tutaj.",
+            "reservationsLoading": "Ładowanie rezerwacji...",
+            "reservationsLoadError": "Nie udało się wczytać rezerwacji.",
+            "noReservations": "Brak rezerwacji",
+            "noReservationsDescription": "Nie masz żadnych rezerwacji na ten moment. Zacznij eksplorować nasze hotele i zarezerwuj swój pobyt już dziś!",
             "title": "Profil Użytkownika",
             "hotelInfo": "Informacje o Hotelu",
             "personalInfo": "Informacje Osobiste",
             "notProvided": "Nie podano",
+            "dateUnknown": "Nieznana data",
             "userPhoto": "Zdjęcie Użytkownika",
+            "unnamedReservation": "Rezerwacja",
+            "room": "Pokój",
+            "total": "Suma",
             "fields": {
+                "country": "Kraj",
+                "state": "Województwo",
+                "city": "Miasto",
+                "zipCode": "Kod Pocztowy",
                 "hotelName": "Nazwa Hotelu",
                 "location": "Lokalizacja",
                 "checkInTime": "Czas Zameldowania",
@@ -583,7 +720,27 @@
                 "address": "Adres",
                 "phone": "Telefon",
                 "position": "Stanowisko"
-            }
+                },
+            "passwordChangeButton": "Zmień hasło",
+            "passwordChangeSuccessButton": "Hasło zmienione",
+            "passwordChangeErrorButton": "Błąd zmiany hasła",
+            "passwordChangeSuccess": "Hasło zostało pomyślnie zmienione!",
+            "passwordChangeError": "Nie udało się zmienić hasła. Spróbuj ponownie.",
+            "passwordChangeSuccessAlert": "Sukces",
+            "passwordChangeSuccessDescription": "Twoje hasło zostało zaktualizowane.",
+            "passwordChangeErrorAlert": "Błąd",
+            "passwordChangeErrorDescription": "Wystąpił problem przy zmianie hasła. Spróbuj ponownie.",
+            "passwordChangeEmail": "Email",
+            "passwordChangeEmailRequired": "Email jest wymagany",
+            "passwordChangeEmailValid": "Wprowadź prawidłowy email",
+            "passwordChangeCurrentPassword": "Obecne hasło",
+            "currentPasswordRequired": "Obecne hasło jest wymagane",
+            "passwordChangeNewPassword": "Nowe hasło",
+            "passwordRequired": "Nowe hasło jest wymagane",
+            "passwordLength": "Hasło musi mieć co najmniej 8 znaków",
+            "passwordChangeConfirmPassword": "Potwierdź hasło",
+            "confirmPasswordRequired": "Potwierdź swoje hasło",
+            "passwordsMismatch": "Hasła nie są takie same!"
         }
     },
     "features": {

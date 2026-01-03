@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class Guest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long guestId;
 
     @Column(nullable = false)
     private String firstName;

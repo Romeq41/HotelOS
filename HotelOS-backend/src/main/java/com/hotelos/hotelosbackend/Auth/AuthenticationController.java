@@ -18,20 +18,37 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticationResponse> register(@Valid @RequestBody RegisterRequest request) {
         try {
             return ResponseEntity.ok(authenticationService.register(request));
+        } catch (IllegalStateException e) {
+            logger.warn("Registration rejected: {}", e.getMessage());
+            return ResponseEntity.status(409).build();
+        } catch (IllegalArgumentException e) {
+            logger.warn("Registration invalid: {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logger.error("Error while registering user", e);
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @PutMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@Valid @RequestBody PasswordResetRequest request) {
+    @PostMapping("/reset-password/request")
+    public ResponseEntity<String> requestReset(@Valid @RequestBody PasswordResetInitiateRequest request) {
         try {
-            authenticationService.resetPassword(request);
+            authenticationService.initiateResetToken(request.getEmail());
+            return ResponseEntity.ok("Reset token sent if the email exists.");
+        } catch (RuntimeException e) {
+            logger.warn("Reset request rejected: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("Failed to initiate password reset");
+        }
+    }
+
+    @PostMapping("/reset-password/confirm")
+    public ResponseEntity<String> confirmReset(@Valid @RequestBody PasswordResetConfirmRequest request) {
+        try {
+            authenticationService.confirmResetToken(request.getToken(), request.getNewPassword());
             return ResponseEntity.ok("Password reset successfully");
-        } catch (Exception e) {
-            logger.error("Error while resetting password", e);
-            return ResponseEntity.badRequest().body("Failed to reset password");
+        } catch (RuntimeException e) {
+            logger.warn("Reset confirm rejected: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("Invalid or expired reset token");
         }
     }
 
@@ -40,6 +57,12 @@ public class AuthenticationController {
         try {
             authenticationService.changePassword(request);
             return ResponseEntity.ok("Password changed successfully");
+        } catch (org.springframework.security.core.AuthenticationException ae) {
+            logger.warn("Password change rejected: bad current password");
+            return ResponseEntity.status(401).body("Invalid current password");
+        } catch (RuntimeException e) {
+            logger.warn("Error while changing password: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("Failed to change password");
         } catch (Exception e) {
             logger.error("Error while changing password", e);
             return ResponseEntity.badRequest().body("Failed to change password");

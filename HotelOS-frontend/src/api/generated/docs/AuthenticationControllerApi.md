@@ -6,9 +6,10 @@ All URIs are relative to *http://localhost:8080*
 |------------- | ------------- | -------------|
 |[**authenticate**](#authenticate) | **POST** /api/auth/authenticate | |
 |[**changePassword**](#changepassword) | **PUT** /api/auth/change-password | |
+|[**confirmReset**](#confirmreset) | **POST** /api/auth/reset-password/confirm | |
 |[**login**](#login) | **POST** /api/auth/login | |
 |[**register**](#register) | **POST** /api/auth/register | |
-|[**resetPassword**](#resetpassword) | **PUT** /api/auth/reset-password | |
+|[**requestReset**](#requestreset) | **POST** /api/auth/reset-password/request | |
 
 # **authenticate**
 > AuthenticationResponse authenticate(authenticationRequest)
@@ -89,6 +90,57 @@ const { status, data } = await apiInstance.changePassword(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **passwordChangeRequest** | **PasswordChangeRequest**|  | |
+
+
+### Return type
+
+**string**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/hal+json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **confirmReset**
+> string confirmReset(passwordResetConfirmRequest)
+
+
+### Example
+
+```typescript
+import {
+    AuthenticationControllerApi,
+    Configuration,
+    PasswordResetConfirmRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AuthenticationControllerApi(configuration);
+
+let passwordResetConfirmRequest: PasswordResetConfirmRequest; //
+
+const { status, data } = await apiInstance.confirmReset(
+    passwordResetConfirmRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **passwordResetConfirmRequest** | **PasswordResetConfirmRequest**|  | |
 
 
 ### Return type
@@ -214,8 +266,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **resetPassword**
-> string resetPassword(passwordResetRequest)
+# **requestReset**
+> string requestReset(passwordResetInitiateRequest)
 
 
 ### Example
@@ -224,16 +276,16 @@ No authorization required
 import {
     AuthenticationControllerApi,
     Configuration,
-    PasswordResetRequest
+    PasswordResetInitiateRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AuthenticationControllerApi(configuration);
 
-let passwordResetRequest: PasswordResetRequest; //
+let passwordResetInitiateRequest: PasswordResetInitiateRequest; //
 
-const { status, data } = await apiInstance.resetPassword(
-    passwordResetRequest
+const { status, data } = await apiInstance.requestReset(
+    passwordResetInitiateRequest
 );
 ```
 
@@ -241,7 +293,7 @@ const { status, data } = await apiInstance.resetPassword(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **passwordResetRequest** | **PasswordResetRequest**|  | |
+| **passwordResetInitiateRequest** | **PasswordResetInitiateRequest**|  | |
 
 
 ### Return type

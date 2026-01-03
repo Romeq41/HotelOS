@@ -6,6 +6,8 @@ import { CheckCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useApi from '../api/useApi';
 
+type ResetStage = 'request' | 'confirm';
+
 export default function ResetPassword() {
     const { showLoader, hideLoader } = useLoading();
     const { t } = useTranslation();
@@ -15,28 +17,51 @@ export default function ResetPassword() {
     const [form] = Form.useForm();
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
-    const [confirmReset, setConfirmReset] = useState(false);
+    const [stage, setStage] = useState<ResetStage>('request');
+    const [lastSuccessStage, setLastSuccessStage] = useState<ResetStage | null>(null);
+
+    const normalizeEmail = (raw: string) => raw.trim().toLowerCase();
 
     const handleSubmit = async (values: any) => {
         showLoader();
+        setSubmitStatus('idle');
+        setErrorMessage('');
         try {
-            await authApi.resetPassword({ email: values.email });
+            if (stage === 'request') {
+                const email = normalizeEmail(values.email);
+                await authApi.requestReset({ email });
 
-            setSubmitStatus('success');
-            setConfirmReset(false);
+                setLastSuccessStage('request');
+                setSubmitStatus('success');
+                setStage('confirm');
+                form.setFieldsValue({ email });
 
-            message.success({
-                content: t('auth.resetPassword.successMessage', 'Temporary password generated and sent to your email.'),
-                duration: 4,
-                icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />
-            });
+                message.success({
+                    content: t('auth.resetPassword.requested', 'Check your email for the reset code.'),
+                    duration: 4,
+                    icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />
+                });
+            } else {
+                if (values.newPassword !== values.confirmPassword) {
+                    throw new Error(t('auth.resetPassword.passwordsMismatch', 'Passwords do not match'));
+                }
 
-            form.resetFields();
+                await authApi.confirmReset({
+                    token: values.token,
+                    newPassword: values.newPassword,
+                });
 
-            setTimeout(() => {
-                navigate('/login');
-            }, 3000);
+                setLastSuccessStage('confirm');
+                setSubmitStatus('success');
+                message.success({
+                    content: t('auth.resetPassword.successMessage', 'Password updated. You can now log in.'),
+                    duration: 4,
+                    icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />
+                });
 
+                form.resetFields();
+                setTimeout(() => navigate('/login'), 1500);
+            }
         } catch (error: any) {
             console.error('Error resetting password:', error);
             setSubmitStatus('error');
@@ -56,22 +81,27 @@ export default function ResetPassword() {
     const getButtonProps = () => {
         if (submitStatus === 'success') {
             return {
-                className: "bg-green-600 hover:bg-green-700",
-                children: t('auth.resetPassword.success', 'Email Sent!')
+                className: 'bg-green-600 hover:bg-green-700',
+                children: successStage === 'request'
+                    ? t('auth.resetPassword.emailSent', 'Email sent')
+                    : t('auth.resetPassword.completed', 'Password updated')
             };
-        } else if (submitStatus === 'error') {
+        }
+        if (submitStatus === 'error') {
             return {
-                className: "bg-red-600 hover:bg-red-700",
-                children: t('auth.resetPassword.error', 'Error Resetting Password')
+                className: 'bg-red-600 hover:bg-red-700',
+                children: t('auth.resetPassword.error', 'Error')
             };
         }
         return {
-            className: confirmReset ? "bg-yellow-500 hover:bg-yellow-600" : "bg-blue-600 hover:bg-blue-700",
-            children: confirmReset
-                ? t('auth.resetPassword.confirm', 'Confirm reset')
-                : t('auth.resetPassword.reset', 'Send temporary password')
+            className: stage === 'request' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-yellow-500 hover:bg-yellow-600',
+            children: stage === 'request'
+                ? t('auth.resetPassword.request', 'Send reset email')
+                : t('auth.resetPassword.confirm', 'Confirm new password')
         };
     };
+
+    const successStage = lastSuccessStage || stage;
 
     return (
         <div className="flex flex-col min-h-screen mt-20 bg-gray-100">
@@ -85,7 +115,9 @@ export default function ResetPassword() {
                         {submitStatus === 'success' && (
                             <Alert
                                 message={t('auth.resetPassword.successAlert', 'Success')}
-                                description={t('auth.resetPassword.successDescription', 'A temporary password was generated and sent to your email. You will be redirected to login.')}
+                                description={successStage === 'request'
+                                    ? t('auth.resetPassword.successDescription', 'We emailed you a reset code. Enter it below with a new password.')
+                                    : t('auth.resetPassword.successDescriptionFinal', 'Your password was updated. Redirecting to login...')}
                                 type="success"
                                 showIcon
                                 className="mb-6"
@@ -101,16 +133,6 @@ export default function ResetPassword() {
                                 showIcon
                                 className="mb-6"
                                 closable
-                            />
-                        )}
-
-                        {confirmReset && submitStatus !== 'success' && (
-                            <Alert
-                                message={t('auth.resetPassword.confirmTitle', 'Confirm reset')}
-                                description={t('auth.resetPassword.confirmDescription', 'This will invalidate your current password and send a temporary one to your email.')}
-                                type="warning"
-                                showIcon
-                                className="mb-6"
                             />
                         )}
 
@@ -135,25 +157,58 @@ export default function ResetPassword() {
                                     }
                                 ]}
                             >
-                                <Input prefix={<span className="text-gray-400">@</span>} placeholder="example@email.com" />
+                                <Input prefix={<span className="text-gray-400">@</span>} placeholder="example@email.com" disabled={stage === 'confirm'} />
                             </Form.Item>
+
+                            {stage === 'confirm' && (
+                                <>
+                                    <Form.Item
+                                        name="token"
+                                        label={t('auth.resetPassword.form.token', 'Reset code')}
+                                        rules={[{ required: true, message: t('auth.resetPassword.form.errors.tokenRequired', 'Reset code is required') }]}
+                                    >
+                                        <Input placeholder={t('auth.resetPassword.form.tokenPlaceholder', 'Paste the code from email')} />
+                                    </Form.Item>
+
+                                    <Form.Item
+                                        name="newPassword"
+                                        label={t('auth.resetPassword.form.newPassword', 'New password')}
+                                        rules={[
+                                            { required: true, message: t('auth.resetPassword.form.errors.passwordRequired', 'New password is required') },
+                                            { min: 8, message: t('auth.resetPassword.form.errors.passwordLength', 'Password must be at least 8 characters') }
+                                        ]}
+                                    >
+                                        <Input.Password placeholder={t('auth.resetPassword.form.newPasswordPlaceholder', 'Enter new password')} />
+                                    </Form.Item>
+
+                                    <Form.Item
+                                        name="confirmPassword"
+                                        label={t('auth.resetPassword.form.confirmPassword', 'Confirm password')}
+                                        dependencies={['newPassword']}
+                                        rules={[
+                                            { required: true, message: t('auth.resetPassword.form.errors.confirmPassword', 'Please confirm your password') },
+                                            ({ getFieldValue }) => ({
+                                                validator(_, value) {
+                                                    if (!value || getFieldValue('newPassword') === value) {
+                                                        return Promise.resolve();
+                                                    }
+                                                    return Promise.reject(new Error(t('auth.resetPassword.passwordsMismatch', 'Passwords do not match')));
+                                                },
+                                            })
+                                        ]}
+                                    >
+                                        <Input.Password placeholder={t('auth.resetPassword.form.confirmPasswordPlaceholder', 'Repeat new password')} />
+                                    </Form.Item>
+                                </>
+                            )}
 
                             <Form.Item className="flex justify-center mt-6">
                                 <Button
                                     id="submitButton"
                                     type="primary"
-                                    htmlType="button"
+                                    htmlType="submit"
                                     size="large"
-                                    onClick={() => {
-                                        if (submitStatus === 'success') return;
-                                        if (!confirmReset) {
-                                            setConfirmReset(true);
-                                            setSubmitStatus('idle');
-                                            setErrorMessage('');
-                                            return;
-                                        }
-                                        form.submit();
-                                    }}
+                                    disabled={submitStatus === 'success' && lastSuccessStage === 'confirm'}
                                     {...getButtonProps()}
                                 />
                             </Form.Item>

@@ -62,7 +62,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         showLoader();
         setIsAuthDone(false);
         setError(null);
-        const payload: LoginRequest = { email, password };
+        const payload: LoginRequest = { email: email.trim().toLowerCase(), password };
         try {
             const { data } = await authApi.login(payload);
             if (!data || (data as any).error) {
@@ -109,7 +109,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             setIsAuthDone(false);
             setError(null);
 
-            const { data } = await authApi.register(payload);
+            const { data } = await authApi.register({
+                ...payload,
+                email: payload.email.trim().toLowerCase(),
+            });
 
             if (!data || (data as any).error) {
                 setError("Registration failed. Please check your details.");
@@ -131,9 +134,15 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             }
 
             return registeredUser;
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error registering user:", error);
-            setError("Registration failed. Please try again.");
+            const apiMessage = error?.response?.data?.message;
+            const status = error?.response?.status;
+            if (status === 409) {
+                setError(apiMessage || "Email already registered. Try logging in or use a different email.");
+            } else {
+                setError(apiMessage || "Registration failed. Please try again.");
+            }
             return null;
         } finally {
             setIsAuthDone(true);

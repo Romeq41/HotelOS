@@ -10,7 +10,8 @@
         "edit": "Edit",
         "delete": "Delete",
         "back": "Back",
-        "next": "Next"
+        "next": "Next",
+        "exploreNow": "Explore Now"
     },
     "explore": {
         "title": "Explore Our Hotels",
@@ -99,7 +100,55 @@
         "contactHelpText": "Need help? Contact the hotel directly for assistance with your booking or special requests.",
         "phone": "Phone",
         "email": "Email",
-        "contactHotel": "Contact Hotel"
+        "contactHotel": "Contact Hotel",
+        "notFound": "Hotel not found",
+        "loadError": "Failed to load hotel details",
+        "availableCount": "{{count}} available"
+    },
+    "booking": {
+        "missingDetails": "Booking details are missing. Please select dates and room again.",
+        "goBack": "Go Back",
+        "loadRoomError": "Unable to load room details.",
+        "missingBookingData": "Missing booking details. Please start from the hotel page again.",
+        "loginRequired": "You need to be logged in to complete a reservation.",
+        "primaryGuestAdult": "Primary guest must be an adult.",
+        "guestInfoRequired": "Please fill in first name and last name for every guest, and email/phone for the primary guest.",
+        "createSuccess": "Reservation created successfully.",
+        "createError": "Unable to create reservation.",
+        "reservationFallbackName": "Reservation",
+        "roomLabel": "Room {{roomNumber}}",
+        "summary": {
+            "title": "Reservation summary",
+            "subtitle": "{{nights}} night(s) • {{guests}} guest(s)",
+            "hotel": "Hotel",
+            "checkIn": "Check-in",
+            "checkOut": "Check-out",
+            "room": "Room",
+            "total": "Total"
+        },
+        "specialRequests": {
+            "title": "Special requests",
+            "optional": "Optional",
+            "placeholder": "e.g. Late arrival, allergy notes"
+        },
+        "guests": {
+            "title": "Guest details",
+            "subtitle": "We need details for every guest",
+            "guestLabel": "Guest {{index}}",
+            "primaryTag": "Primary guest",
+            "additionalTag": "Additional guest",
+            "firstName": "First name",
+            "lastName": "Last name",
+            "email": "Email",
+            "phone": "Phone number",
+            "phonePlaceholder": "e.g. +48 123 456 789",
+            "primaryGuestAdult": "Primary guest (adult)",
+            "child": "Child",
+            "adult": "Adult"
+        },
+        "actions": {
+            "confirm": "Confirm reservation"
+        }
     },
     "common": {
         "yes": "Yes",
@@ -561,14 +610,59 @@
         "logout": "Logout",
         "signup": "Sign Up",
         "forgotPassword": "Forgot Password",
-        "resetPassword": "Reset Password",
+        "register": "Register",
+        "registerTitle": "Create your HotelOS account",
+        "haveAccount": "Already have an account?",
+        "noAccount": "Don't have an account?",
+        "firstName": "First name",
+        "lastName": "Last name",
         "email": "Email",
         "password": "Password",
         "username": "Username",
         "validationErrors": {
             "email": "Please enter a valid email address",
-            "password": "Password must be at least 6 characters"
+            "password": "Password must be at least 8 characters",
+            "firstName": "First name is required",
+            "lastName": "Last name is required"
+        },
+        "resetPassword": {
+            "title": "Reset Your Password",
+            "requested": "Check your email for the reset code.",
+            "successAlert": "Success",
+            "successDescription": "We emailed you a reset code. Enter it below with a new password.",
+            "successDescriptionFinal": "Your password was updated. Redirecting to login...",
+            "errorAlert": "Error",
+            "errorDescription": "There was a problem resetting your password. Please try again.",
+            "errorMessage": "Failed to reset password. Please try again.",
+            "emailSent": "Email sent",
+            "completed": "Password updated",
+            "request": "Send reset email",
+            "confirm": "Confirm new password",
+            "backToLogin": "Back to Login",
+            "passwordsMismatch": "Passwords do not match",
+            "successMessage": "Password updated. You can now log in.",
+            "error": "Error",
+            "form": {
+                "email": "Email",
+                "token": "Reset code",
+                "newPassword": "New password",
+                "confirmPassword": "Confirm password",
+                "tokenPlaceholder": "Paste the code from email",
+                "newPasswordPlaceholder": "Enter new password",
+                "confirmPasswordPlaceholder": "Repeat new password",
+                "errors": {
+                    "emailRequired": "Email is required",
+                    "validEmail": "Please enter a valid email",
+                    "tokenRequired": "Reset code is required",
+                    "passwordRequired": "New password is required",
+                    "passwordLength": "Password must be at least 8 characters",
+                    "confirmPassword": "Please confirm your password"
+                }
+            }
         }
+    },
+    "footer": {
+        "copyright": "JR © 2024"
     },
     "hotel": {
         "booking": "Booking",
@@ -589,18 +683,61 @@
             "personalInfo": "Personal Information",
             "notProvided": "Not provided",
             "userPhoto": "User Photo",
+            "dateUnknown": "Unknown date",
+            "reservations": "Reservation history",
+            "reservationsInfo": "Your reservations will appear here.",
+            "reservationsLoadError": "Could not load your reservations.",
+            "reservationsLoading": "Loading your reservations...",
+            "noReservations": "No reservations yet",
+            "noReservationsDescription": "Book a stay to see it listed here.",
+            "unnamedReservation": "Reservation",
+            "room": "Room",
+            "total": "Total",
+            "explore": "Explore offers",
+            "refresh": "Refresh",
+            "editProfile": "Edit contact & address",
+            "passwordChangeButton": "Change Password",
+            "passwordChangeSuccessButton": "Password Changed",
+            "passwordChangeErrorButton": "Error Changing Password",
+            "passwordChangeSuccess": "Password successfully changed!",
+            "passwordChangeError": "Failed to change password. Please try again.",
+            "passwordChangeSuccessAlert": "Success",
+            "passwordChangeSuccessDescription": "Your password has been updated.",
+            "passwordChangeErrorAlert": "Error",
+            "passwordChangeErrorDescription": "There was a problem changing your password. Please try again.",
+            "passwordChangeEmail": "Email",
+            "passwordChangeEmailRequired": "Email is required",
+            "passwordChangeEmailValid": "Please enter a valid email",
+            "passwordChangeCurrentPassword": "Current Password",
+            "currentPasswordRequired": "Current password is required",
+            "passwordChangeNewPassword": "New Password",
+            "passwordRequired": "New password is required",
+            "passwordLength": "Password must be at least 8 characters long",
+            "passwordChangeConfirmPassword": "Confirm Password",
+            "confirmPasswordRequired": "Please confirm your password",
+            "passwordsMismatch": "The two passwords do not match!",
             "fields": {
-            "hotelName": "Hotel Name",
-            "location": "Location",
-            "checkInTime": "Check-in Time",
-            "checkOutTime": "Check-out Time",
-            "contact": "Contact",
-            "email": "Email",
-            "address": "Address",
-            "phone": "Phone",
-            "position": "Position"
+                "hotelName": "Hotel Name",
+                "location": "Location",
+                "checkInTime": "Check-in Time",
+                "checkOutTime": "Check-out Time",
+                "contact": "Contact",
+                "email": "Email",
+                "address": "Address",
+                "phone": "Phone",
+                "position": "Position",
+                "city": "City",
+                "country": "Country"
             }
         }
+    },
+    "reservationStatus": {
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "checked_in": "Checked in",
+        "checked_out": "Checked out",
+        "cancelled": "Cancelled",
+        "no_show": "No show"
     },
     "features": {
         "whyChoose": "Why Choose HotelOS?",

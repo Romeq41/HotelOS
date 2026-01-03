@@ -1,22 +1,20 @@
-# PasswordChangeRequest
+# PasswordResetConfirmRequest
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**email** | **string** |  | [default to undefined]
-**currentPassword** | **string** |  | [default to undefined]
+**token** | **string** |  | [default to undefined]
 **newPassword** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { PasswordChangeRequest } from './api';
+import { PasswordResetConfirmRequest } from './api';
 
-const instance: PasswordChangeRequest = {
-    email,
-    currentPassword,
+const instance: PasswordResetConfirmRequest = {
+    token,
     newPassword,
 };
 ```

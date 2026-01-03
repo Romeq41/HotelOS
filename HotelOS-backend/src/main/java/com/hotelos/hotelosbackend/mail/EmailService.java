@@ -56,6 +56,15 @@ public class EmailService {
                         "Please log in and change your password immediately.");
     }
 
+    public void sendPasswordResetToken(String to, String token) {
+        sendPlainText(
+                to,
+                "Reset your HotelOS password",
+                "Use the following reset token to set a new password:\n\n" +
+                        token + "\n\n" +
+                        "This token expires soon. If you did not request a reset, you can ignore this email.");
+    }
+
     public void sendPasswordChanged(String to, String firstName) {
         String safeName = (firstName == null || firstName.isBlank()) ? "there" : firstName;
         sendPlainText(

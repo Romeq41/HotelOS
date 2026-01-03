@@ -115,7 +115,7 @@ const HotelDetails: React.FC = () => {
                     return;
                 }
 
-                setError('Failed to load hotel details');
+                setError(t('hotelDetails.loadError'));
             } finally {
                 hideLoader();
             }
@@ -250,7 +250,7 @@ const HotelDetails: React.FC = () => {
         return (
             <Container maxWidth="lg" sx={{ py: 4 }}>
                 <Typography variant="h6" align="center">
-                    Hotel not found
+                    {t('hotelDetails.notFound')}
                 </Typography>
                 <Box sx={{ textAlign: 'center', mt: 2 }}>
                     <Button variant="contained" onClick={() => navigate('/explore')}>
@@ -596,7 +596,7 @@ const HotelDetails: React.FC = () => {
                                                                     }}>
                                                                         <Chip
                                                                             size="small"
-                                                                            label={`${countForType} available`}
+                                                                            label={t('hotelDetails.availableCount', { count: countForType })}
                                                                             color="primary"
                                                                             variant="outlined"
                                                                         />

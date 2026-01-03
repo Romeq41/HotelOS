@@ -39,7 +39,7 @@ public class User implements UserDetails {
     private String password;
 
     @Basic
-    @Column(name = "email")
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -86,8 +86,10 @@ public class User implements UserDetails {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         User user = (User) o;
         return userId == user.userId &&
                 Objects.equals(firstName, user.firstName) &&
@@ -104,9 +106,9 @@ public class User implements UserDetails {
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, firstName, lastName, password, email, addressInformation, contactInformation, userType, position, hotel, imagePath);
+        return Objects.hash(userId, firstName, lastName, password, email, addressInformation, contactInformation,
+                userType, position, hotel, imagePath);
     }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
